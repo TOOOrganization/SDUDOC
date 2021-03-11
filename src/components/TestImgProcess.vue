@@ -4,9 +4,7 @@
       <div>
         <v-img max-height="80" max-width="80" :src="require('@/assets/sdu.png')"/>
       </div>
-      <div>
-        移动工具
-      </div>
+
       <v-btn-toggle v-model="toggle_exclusive" style="left:0px">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -35,6 +33,39 @@
 
       </v-btn-toggle>
 
+      <v-dialog scrollable v-model="course_dialog" max-width="1000">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="red lighten-2" dark v-bind="attrs" v-on="on">
+            教程！！！
+          </v-btn>
+        </template>
+
+        <v-card>
+          <v-toolbar color="white">
+            <v-icon class="ml-2 mr-5">mdi-book-open-page-variant</v-icon>
+            <v-toolbar-title>山东大学文档上传系统使用教程</v-toolbar-title>
+            <v-spacer/>
+            <v-btn icon large class="mr-1" @click="course_dialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-toolbar>
+          <v-divider></v-divider>
+          <v-card-text ><!--style="height: 300px;"-->
+            <v-radio-group v-model="dialogm1" column>
+              <v-radio label="Bahamas, The" value="bahamas"></v-radio>
+            </v-radio-group>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="course_dialog = false">
+              了解
+            </v-btn>
+          </v-card-actions>
+
+        </v-card>
+      </v-dialog>
+
     </div>
     <div class="right">
       <DocView class="doc" :image_src='require("@/assets/1.jpg")'/>
@@ -49,7 +80,7 @@ export default {
   components: {DocView},
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      course_dialog: false
     }
   }
 }
