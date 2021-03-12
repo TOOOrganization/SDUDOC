@@ -1,108 +1,19 @@
 // ================================================================================
-// * SDUDOC_Engine
+// * SDUDOC Engine
 // --------------------------------------------------------------------------------
-//   Core functions of SDUDOC, designed by Lagomoro<Yongrui Wang> from SDU.
-//   Please abide by the MIT license.
-//   Last Update: 2020/03/10 - Version 1.0.0
-// ================================================================================
-
-// ================================================================================
-// * Rectangle
-// ================================================================================
-function Rectangle(){
-  this.initialize.apply(this, arguments);
-}
-Rectangle.prototype.initialize = function(x, y ,width, height){
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
-};
-Rectangle.prototype.clearRect = function(ctx){
-  ctx.clearRect(this.x, this.y, this.width, this.height);
-};
-Rectangle.prototype.fillRect = function(ctx, color){
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.fillRect(this.x, this.y, this.width, this.height);
-  ctx.restore();
-};
-Rectangle.prototype.strokeRect = function(ctx, lineWidth, color){
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.strokeRect(this.x, this.y, this.width, this.height);
-  ctx.restore();
-};
-Rectangle.prototype.drawImage = function(ctx, image){
-  ctx.drawImage(image, this.x, this.y, this.width, this.height);
-};
-// ================================================================================
-
-// ================================================================================
-// * Point2D
-// ================================================================================
-function Point2D(){
-  this.initialize.apply(this, arguments);
-}
-
-Point2D.prototype.x = 0;
-Point2D.prototype.y = 0;
-Point2D.prototype.father = [];
-Point2D.prototype.relative = 0;
-
-Point2D.prototype.initialize = function(x, y){
-  this.x = x;
-  this.y = y;
-};
-Point2D.prototype.setFather = function(father, relative = 0){
-  this.father = father;
-  this.relative = relative;
-};
-Point2D.prototype.distance2D = function(point){
-  return new Point2D(point.x - this.x, point.y - this.y);
-};
-Point2D.prototype.distance = function(point){
-  let distance2D = this.distance2D(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
-};
-Point2D.prototype.add = function(point){
-  return new Point2D(this.x + point.x, this.y + point.y);
-};
-Point2D.prototype.multiply = function(num){
-  return new Point2D(this.x * num, this.y * num);
-};
-Point2D.prototype.division = function(num){
-  return new Point2D(this.x / num, this.y / num);
-};
-Point2D.prototype.fill = function(ctx, grid, radius, lineWidth, color, strokeColor){
-  let point = grid.getDrawPoint(this);
-
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = lineWidth;
-  ctx.beginPath();
-  ctx.arc(point.x, point.y, radius,0,360, false);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-};
-Point2D.prototype.stroke = function(ctx, grid, radius, lineWidth, color){
-  ctx.fillStyle = color;
-  ctx.arc(this.x, this.y, this.width, this.height);
-  context.save();
-  context.strokeStyle = forecolor;
-  context.lineWidth = 8;
-  context.lineCap = "round";
-  var radius = center_x - context.lineWidth;
-  context.beginPath();
-  context.arc(center_x, center_y, radius , -Math.PI/2, -Math.PI/2 +n*rad, false); //用于绘制圆弧context.arc(x坐标，y坐标，半径，起始角度，终止角度，顺时针/逆时针)
-  context.stroke();
-  context.closePath();
-  context.restore();
-};
+//   Designer: Lagomoro <Yongrui Wang>
+//   From: SDU <Shandong University>
+//   License: MIT license
+// --------------------------------------------------------------------------------
+//   Core of SDUDOC Engine.
+// --------------------------------------------------------------------------------
+//   Latest update:
+//   2020/03/11 - Version 1.0.1
+//     - Decoupling functions to plugins.
+// --------------------------------------------------------------------------------
+//   Update history:
+//   2020/03/10 - Version 1.0.0
+//     - Engine core
 // ================================================================================
 
 // ================================================================================
@@ -118,17 +29,6 @@ Line2D.prototype.end = null;
 Line2D.prototype.initialize = function(start, end){
   this.start = start;
   this.end = end;
-};
-// ================================================================================
-
-// ================================================================================
-// * Polygon
-// ================================================================================
-function Polygon2D(){
-  this.initialize.apply(this, arguments);
-}
-Polygon2D.prototype.initialize = function(points){
-  this.points = points;
 };
 // ================================================================================
 
@@ -151,7 +51,7 @@ Grid.prototype.setEngine = function(engine){
   this.engine = engine;
 }
 Grid.prototype.getPoint = function(point){
-  let draw_distance = this.engine.origin.distance2D(point);
+  let draw_distance = point.minus(this.engine.origin);
   return draw_distance.division(this.engine.scale);
 }
 Grid.prototype.getDrawPoint = function(point){
@@ -238,7 +138,7 @@ Input.onMouseUp = function(event){
 Input.onMouseMove = function(event){
   if(Input.mousedown) {
     let temp = new Point2D(event.layerX, event.layerY);
-    let distance = Input.mouseplace.distance2D(temp);
+    let distance = temp.minus(Input.mouseplace);
     Input.mouseplace = temp;
     Input.engine.moveOrigin(distance.x, distance.y);
   }
@@ -283,7 +183,7 @@ DocData.prototype.addLine = function(start, end){
 };
 DocData.prototype.draw = function(ctx, grid){
   for(let i in this.data.points){
-    this.data.points[i].fill(ctx, grid, 5, 2, 'rgba(0, 0, 255, 1)', 'rgba(255, 255, 255, 1)');
+    //this.data.points[i].fill(ctx, grid, 5, 2, 'rgba(0, 0, 255, 1)', 'rgba(255, 255, 255, 1)');
   }
 };
 // ================================================================================
@@ -398,8 +298,8 @@ Engine.prototype.moveOrigin = function(x, y){
 Engine.prototype.refresh = function(){
   if(this.canvas){
     this.canvas_rect = this.calcCanvasRectangle();
-    this.canvas_rect.clearRect(this.ctx);
-    this.canvas_rect.fillRect(this.ctx, 'rgba(0, 0, 0, 0.1)');
+    this.canvas_rect.clear(this.ctx);
+    this.canvas_rect.fill(this.ctx, 'rgba(0, 0, 0, 0.1)');
   }
   if(this.image){
     this.image_rect = this.calcImageRectangle();
@@ -412,11 +312,3 @@ Engine.prototype.refresh = function(){
     this.doc_data.draw(this.ctx, this.grid);
   }
 };
-
-// ================================================================================
-// * export <ES6>
-// ================================================================================
-export {
-  Engine
-}
-// ================================================================================

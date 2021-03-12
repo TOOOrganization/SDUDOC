@@ -5,7 +5,7 @@
         <v-img max-height="80" max-width="80" :src="require('@/assets/sdu.png')"/>
       </div>
 
-      <v-btn-toggle v-model="toggle_exclusive" style="left:0px">
+      <v-btn-toggle style="left:0px">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn x-small fab tile v-bind="attrs" v-on="on"><v-icon>mdi-drag-variant</v-icon></v-btn>
@@ -51,7 +51,7 @@
           </v-toolbar>
           <v-divider></v-divider>
           <v-card-text ><!--style="height: 300px;"-->
-            <v-radio-group v-model="dialogm1" column>
+            <v-radio-group column>
               <v-radio label="Bahamas, The" value="bahamas"></v-radio>
             </v-radio-group>
           </v-card-text>
