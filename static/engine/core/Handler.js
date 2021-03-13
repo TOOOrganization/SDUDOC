@@ -22,14 +22,16 @@ function Handler(){
 Handler.prototype._id = 0;
 Handler.prototype._type = 0;
 Handler.prototype._overall = false;
+Handler.prototype._owner = null;
 Handler.prototype._callback = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Handler.prototype.initialize = function(id, type, overall, callback){
+Handler.prototype.initialize = function(id, type, overall, owner, callback){
   this._id = id;
   this._type = type;
   this._overall = overall;
+  this._owner = owner;
   this._callback = callback;
 };
 // --------------------------------------------------------------------------------
@@ -50,6 +52,12 @@ Object.defineProperty(Handler.prototype, 'type', {
 Object.defineProperty(Handler.prototype, 'overall', {
   get: function() {
     return this._overall;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'owner', {
+  get: function() {
+    return this._owner;
   },
   configurable: true
 });

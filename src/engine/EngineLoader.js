@@ -27,8 +27,9 @@ EngineLoader.CORE = EngineLoader.PATH + "core/";
 EngineLoader.MANAGER = EngineLoader.PATH + "manager/";
 // --------------------------------------------------------------------------------
 EngineLoader.CORE_LIST = [
-  "Point", "Rectangle", "Polygon", "Grid",
-  "Input", /*"MouseInput"*/
+  "Point", "Rectangle", "Polygon", "Line", "Grid", "DotData",
+  "Handler",
+  "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
   "DocumentManager"
@@ -45,7 +46,6 @@ EngineLoader.load = async function(){
   await EngineLoader.loadManager();
   await EngineLoader.loadEngine();
   await EngineLoader.loadPlugin();
-  return new Engine();
 };
 EngineLoader.loadCore = async function(){
   for(let i in EngineLoader.CORE_LIST){
