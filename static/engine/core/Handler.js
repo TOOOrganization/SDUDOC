@@ -1,57 +1,62 @@
 // ================================================================================
-// * Polygon <SDUDOC Engine>
+// * Handler <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/12 - Version 1.0.0
+//   2020/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
 // ================================================================================
-// * Polygon
+// * Handler
 // --------------------------------------------------------------------------------
-function Polygon(){
+function Handler(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Polygon.prototype._points = [];
+Handler.prototype._id = 0;
+Handler.prototype._type = 0;
+Handler.prototype._overall = false;
+Handler.prototype._callback = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Polygon.prototype.initialize = function(points){
-  this._points = points;
+Handler.prototype.initialize = function(id, type, overall, callback){
+  this._id = id;
+  this._type = type;
+  this._overall = overall;
+  this._callback = callback;
 };
 // --------------------------------------------------------------------------------
-// * Functions
+// * Getter & Setter
 // --------------------------------------------------------------------------------
-Polygon.prototype.fill = function(ctx, color){
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(this._points[0].x, this._points[0].y);
-  for(let i = 1; i < this._points.length; i++) {
-    ctx.lineTo(this._points[i].x, this._points[i].y);
-  }
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-};
-Polygon.prototype.stroke = function(ctx, lineWidth, color){
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.beginPath();
-  ctx.moveTo(this._points[0].x, this._points[0].y);
-  for(let i = 1; i < this._points.length; i++) {
-    ctx.lineTo(this._points[i].x, this._points[i].y);
-  }
-  ctx.closePath();
-  ctx.stroke();
-  ctx.restore();
-};
+Object.defineProperty(Handler.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'type', {
+  get: function() {
+    return this._type;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'overall', {
+  get: function() {
+    return this._overall;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'callback', {
+  get: function() {
+    return this._callback;
+  },
+  configurable: true
+});
 // ================================================================================

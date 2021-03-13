@@ -1,5 +1,5 @@
 // ================================================================================
-// * Point2D <SDUDOC Engine>
+// * Point <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -11,66 +11,85 @@
 // ================================================================================
 
 // ================================================================================
-// * Point2D
+// * Point
 // --------------------------------------------------------------------------------
-function Point2D(){
+function Point(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point2D.prototype.x = 0;
-Point2D.prototype.y = 0;
+Point.prototype._x = 0;
+Point.prototype._y = 0;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point2D.prototype.initialize = function(x, y){
-  this.x = x;
-  this.y = y;
+Point.prototype.initialize = function(x, y){
+  this._x = x;
+  this._y = y;
 };
 // --------------------------------------------------------------------------------
-// * Setter
+// * Getter & Setter
 // --------------------------------------------------------------------------------
-Point2D.prototype.setPlace = function(x, y){
-  this.x = x;
-  this.y = y;
+Object.defineProperty(Point.prototype, 'x', {
+  get: function() {
+    return this._x;
+  },
+  set: function(value) {
+    this._x = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Point.prototype, 'y', {
+  get: function() {
+    return this._y;
+  },
+  set: function(value) {
+    this._y = value;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
+Point.prototype.setPlace = function(x, y){
+  this._x = x;
+  this._y = y;
 };
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Point2D.prototype.distance = function(point){
+Point.prototype.distance = function(point){
   let distance2D = this.minus(point);
   return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
 };
 // --------------------------------------------------------------------------------
-Point2D.prototype.add = function(point){
-  return new Point2D(this.x + point.x, this.y + point.y);
+Point.prototype.add = function(point){
+  return new Point(this._x + point.x, this._y + point.y);
 };
-Point2D.prototype.minus = function(point){
-  return new Point2D(this.x - point.x, this.y - point.y);
+Point.prototype.minus = function(point){
+  return new Point(this._x - point.x, this._y - point.y);
 };
-Point2D.prototype.multiply = function(num){
-  return new Point2D(this.x * num, this.y * num);
+Point.prototype.multiply = function(num){
+  return new Point(this._x * num, this._y * num);
 };
-Point2D.prototype.division = function(num){
-  return new Point2D(this.x / num, this.y / num);
+Point.prototype.division = function(num){
+  return new Point(this._x / num, this._y / num);
 };
 // --------------------------------------------------------------------------------
-Point2D.prototype.fill = function(ctx, radius, color){
+Point.prototype.fill = function(ctx, radius, color){
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(this.x, this.y, radius,0,360, false);
+  ctx.arc(this._x, this._y, radius,0,360, false);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
 };
-Point2D.prototype.stroke = function(ctx, radius, lineWidth, color) {
+Point.prototype.stroke = function(ctx, radius, lineWidth, color) {
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
   ctx.beginPath();
-  ctx.arc(this.x, this.y, radius, 0, 360, false);
+  ctx.arc(this._x, this._y, radius, 0, 360, false);
   ctx.closePath();
   ctx.stroke();
   ctx.restore();

@@ -19,29 +19,66 @@ function Rectangle(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Rectangle.prototype.x = 0;
-Rectangle.prototype.y = 0;
-Rectangle.prototype.width = 0;
-Rectangle.prototype.height = 0;
+Rectangle.prototype._x = 0;
+Rectangle.prototype._y = 0;
+Rectangle.prototype._width = 0;
+Rectangle.prototype._height = 0;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 Rectangle.prototype.initialize = function(x, y ,width, height){
-  this.x = x;
-  this.y = y;
-  this.width = width;
-  this.height = height;
+  this._x = x;
+  this._y = y;
+  this._width = width;
+  this._height = height;
 };
 // --------------------------------------------------------------------------------
-// * Setter
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(Rectangle.prototype, 'x', {
+  get: function() {
+    return this._x;
+  },
+  set: function(value) {
+    this._x = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Rectangle.prototype, 'y', {
+  get: function() {
+    return this._y;
+  },
+  set: function(value) {
+    this._y = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Rectangle.prototype, 'width', {
+  get: function() {
+    return this._width;
+  },
+  set: function(value) {
+    this._width = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Rectangle.prototype, 'height', {
+  get: function() {
+    return this._height;
+  },
+  set: function(value) {
+    this._height = value;
+  },
+  configurable: true
+});
 // --------------------------------------------------------------------------------
 Rectangle.prototype.setPlace = function(x, y){
-  this.x = x;
-  this.y = y;
+  this._x = x;
+  this._y = y;
 };
 Rectangle.prototype.setSize = function(width, height){
-  this.width = width;
-  this.height = height;
+  this._width = width;
+  this._height = height;
 };
 // --------------------------------------------------------------------------------
 // * Functions
@@ -49,21 +86,21 @@ Rectangle.prototype.setSize = function(width, height){
 Rectangle.prototype.fill = function(ctx, color){
   ctx.save();
   ctx.fillStyle = color;
-  ctx.fillRect(this.x, this.y, this.width, this.height);
+  ctx.fillRect(this._x, this._y, this._width, this._height);
   ctx.restore();
 };
 Rectangle.prototype.stroke = function(ctx, lineWidth, color){
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
-  ctx.strokeRect(this.x, this.y, this.width, this.height);
+  ctx.strokeRect(this._x, this._y, this._width, this._height);
   ctx.restore();
 };
 // --------------------------------------------------------------------------------
 Rectangle.prototype.clear = function(ctx){
-  ctx.clearRect(this.x, this.y, this.width, this.height);
+  ctx.clearRect(this._x, this._y, this._width, this._height);
 };
 Rectangle.prototype.drawImage = function(ctx, image){
-  ctx.drawImage(image, this.x, this.y, this.width, this.height);
+  ctx.drawImage(image, this._x, this._y, this._width, this._height);
 };
 // ================================================================================

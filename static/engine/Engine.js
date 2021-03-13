@@ -16,137 +16,8 @@
 //     - Engine core
 // ================================================================================
 
-// ================================================================================
-// * Line2D
-// ================================================================================
-function Line2D(){
-  this.initialize.apply(this, arguments);
-}
 
-Line2D.prototype.start = null;
-Line2D.prototype.end = null;
 
-Line2D.prototype.initialize = function(start, end){
-  this.start = start;
-  this.end = end;
-};
-// ================================================================================
-
-// ================================================================================
-// * Grid
-// ================================================================================
-function Grid(){
-  this.initialize.apply(this, arguments);
-}
-
-Grid.PER_UNIT_LENGTH = 12.5;
-Grid.DRAW_LIMIT = 100;
-
-Grid.prototype.engine = null;
-
-Grid.prototype.initialize = function(){
-
-};
-Grid.prototype.setEngine = function(engine){
-  this.engine = engine;
-}
-Grid.prototype.getPoint = function(point){
-  let draw_distance = point.minus(this.engine.origin);
-  return draw_distance.division(this.engine.scale);
-}
-Grid.prototype.getDrawPoint = function(point){
-  let draw_distance = point.multiply(this.engine.scale);
-  return draw_distance.add(this.engine.origin);
-}
-Grid.prototype.draw = function(ctx){
-  let scaled_unit = Grid.PER_UNIT_LENGTH * this.engine.scale;
-  let draw_unit = 0;
-  let unit_scale = 1;
-  if(scaled_unit < Grid.DRAW_LIMIT) {
-    for(let i = scaled_unit; i < Grid.DRAW_LIMIT; i *= 2){
-      draw_unit = i;
-      unit_scale *= 2;
-    }
-  }else{
-    for(let i = scaled_unit; i > Grid.DRAW_LIMIT / 2; i /= 2){
-      draw_unit = i;
-      unit_scale /= 2;
-    }
-  }
-  let draw_start_x = this.engine.origin.x / draw_unit;
-  let draw_start_y = this.engine.origin.y / draw_unit;
-  let draw_origin_x = Math.floor(draw_start_x);
-  let draw_origin_y = Math.floor(draw_start_y);
-
-  let cw = this.engine.canvas_rect.width;
-  let ch = this.engine.canvas_rect.height;
-
-  ctx.fontSize = "10px";
-  for(let i = draw_start_x - draw_origin_x; i <= cw / draw_unit; i ++){
-    ctx.fillStyle = 'rgba(0, 0, 0, ' + ((Math.floor(i) - draw_origin_x) % 2 === 0 ? 1 : (draw_unit / 10 - 5)) +')';
-    ctx.fillRect(i * draw_unit - 0.5, 0, 1, ch);
-    let point = Math.round((Math.floor(i) - draw_origin_x) * Grid.PER_UNIT_LENGTH * unit_scale);
-    ctx.fillText(point / 2, i * draw_unit - ctx.measureText(String(point / 2)).width - 3, draw_start_y * draw_unit + 12);
-  }
-  for(let i = draw_start_y - draw_origin_y; i <= ch / draw_unit; i ++){
-    ctx.fillStyle = 'rgba(0, 0, 0, ' + ((Math.floor(i) - draw_origin_y) % 2 === 0 ? 1 : (draw_unit / 10 - 5)) +')';
-    ctx.fillRect(0, i * draw_unit - 0.5, cw, 1);
-    let point = Math.round((Math.floor(i) - draw_origin_y) * Grid.PER_UNIT_LENGTH * unit_scale);
-    ctx.fillText(point / 2, draw_start_x * draw_unit + 4, i * draw_unit - 4);
-  }
-};
-// ================================================================================
-
-// ================================================================================
-// * Input
-//    Listener For Engine.
-// ================================================================================
-function Input(){
-  throw new Error('This is a static class');
-}
-
-Input.engine = null;
-Input.target = null;
-Input.mousedown = false;
-Input.mouseplace = new Point2D(0, 0);
-
-Input.setEngine = function(engine){
-  Input.engine = engine;
-};
-Input.setTarget = function(target){
-  if(Input.target){
-    Input.target.removeEventListener('mousedown', Input.onMouseDown);
-    Input.target.removeEventListener('mouseup', Input.onMouseUp);
-    Input.target.removeEventListener('mousemove', Input.onMouseMove);
-    Input.target.removeEventListener('mousewheel', Input.onMouseWheel);
-  }
-  Input.target = target;
-  Input.target.addEventListener('mousedown', Input.onMouseDown);
-  Input.target.addEventListener('mouseup', Input.onMouseUp);
-  Input.target.addEventListener('mousemove', Input.onMouseMove);
-  Input.target.addEventListener('mousewheel', Input.onMouseWheel);
-};
-Input.onMouseDown = function(event){
-  Input.mousedown = true;
-  Input.mouseplace = new Point2D(event.layerX, event.layerY);
-  let place = Input.engine.grid.getPoint(Input.mouseplace);
-  Input.engine.doc_data.addPoint(place.x, place.y);
-};
-Input.onMouseUp = function(event){
-  Input.mousedown = false;
-};
-Input.onMouseMove = function(event){
-  if(Input.mousedown) {
-    let temp = new Point2D(event.layerX, event.layerY);
-    let distance = temp.minus(Input.mouseplace);
-    Input.mouseplace = temp;
-    Input.engine.moveOrigin(distance.x, distance.y);
-  }
-};
-Input.onMouseWheel = function(event){
-  Input.engine.multiScale(1 - event.deltaY / 1200);
-};
-// ================================================================================
 
 // ================================================================================
 // * DocData
@@ -174,7 +45,7 @@ DocData.prototype.generateLineIndex = function(){
   return String(this.line_size ++);
 };
 DocData.prototype.addPoint = function(x, y){
-  let point = new Point2D(x, y);
+  let point = new Point(x, y);
   this.data.points[this.generatePointIndex()] = point;
 };
 DocData.prototype.addLine = function(start, end){
@@ -212,7 +83,7 @@ Engine.prototype.initialize = function(){
 
   this.canvas_rect = new Rectangle(0, 0, 0, 0);
   this.image_rect = new Rectangle(0, 0, 0, 0);
-  this.origin = new Point2D(0, 0);
+  this.origin = new Point(0, 0);
 
   this.grid = new Grid();
   this.grid.setEngine(this);
@@ -269,7 +140,7 @@ Engine.prototype.calcImageOrigin = function(){
     h = ih * (cw / iw);
     y = (ch - h)/2;
   }
-  return new Point2D(x, y);
+  return new Point(x, y);
 };
 Engine.prototype.calcImageRectangle = function(){
   let iw = this.image.width;
@@ -293,7 +164,7 @@ Engine.prototype.multiScale = function(scale){
   this.setScale(Math.max(0.05, Math.min(this.scale * scale, 5)));
 };
 Engine.prototype.moveOrigin = function(x, y){
-  this.setOrigin(new Point2D(this.origin.x + x, this.origin.y + y));
+  this.setOrigin(new Point(this.origin.x + x, this.origin.y + y));
 };
 Engine.prototype.refresh = function(){
   if(this.canvas){
