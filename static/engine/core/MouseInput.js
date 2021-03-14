@@ -37,7 +37,7 @@ MouseInput._point_overall = null;
 // --------------------------------------------------------------------------------
 MouseInput.initialize = function() {
   this.clear();
-  this._setupEventHandlers(Engine.canvas);
+  this._setupEventHandlers();
 };
 MouseInput.clear = function() {
   MouseInput._over_target = false;
@@ -47,7 +47,7 @@ MouseInput.clear = function() {
   MouseInput._point_target = new Point(0, 0);
   MouseInput._point_overall = new Point(0, 0);
 };
-MouseInput._setupEventHandlers = function(target){
+MouseInput._setupEventHandlers = function(){
   document.addEventListener('click', (event) => {this._onClick.call(this, event, true)});
   document.addEventListener('dblclick', (event) => {this._onDoubleClick.call(this, event, true)});
   document.addEventListener('mousedown', (event) => {this._onMouseDown.call(this, event, true)});
@@ -56,6 +56,8 @@ MouseInput._setupEventHandlers = function(target){
   document.addEventListener('mouseover', (event) => {this._onMouseOver.call(this, event, true)});
   document.addEventListener('mouseout', (event) => {this._onMouseOut.call(this, event, true)});
   document.addEventListener('wheel', (event) => {this._onWheel.call(this, event, true)});
+};
+MouseInput.setupTargetHandlers = function(target){
   target.addEventListener('click', (event) => {this._onClick.call(this, event, false)});
   target.addEventListener('dblclick', (event) => {this._onDoubleClick.call(this, event, false)});
   target.addEventListener('mousedown', (event) => {this._onMouseDown.call(this, event, false)});

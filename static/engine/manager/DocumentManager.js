@@ -36,11 +36,9 @@ DocumentManager.xmlToObject = function(xml){
   if(list.length === 0) return;
   list[0] = list[0].substring(1, list[0].length);
   list[list.length - 1] = list[list.length - 1].substring(0, list[list.length - 1].length - 2);
-  console.log(list[0])
-  let object = this.cloneObject(window[list.shift()]);
+  let object = this.cloneObject(window[list.shift()].get());
   for(let i in list){
     let data = list[i].split("=");
-    console.log(data)
     switch(data[1]){
       case "false":
         object[data[0]] = false;

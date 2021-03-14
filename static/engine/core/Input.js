@@ -176,8 +176,6 @@ Input.keyMapper = {
 // --------------------------------------------------------------------------------
 Input._handlers = {};
 Input._currentState = {};
-Input._previousState = {};
-Input._latestButton = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
@@ -187,8 +185,6 @@ Input.initialize = function() {
 };
 Input.clear = function() {
   this._currentState = {};
-  this._previousState = {};
-  this._latestButton = null;
 };
 Input._setupEventHandlers = function(){
   document.addEventListener('keypress', (event) => {this._onKeyPress.call(this, event)});

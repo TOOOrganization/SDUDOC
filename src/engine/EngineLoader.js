@@ -43,11 +43,14 @@ EngineLoader.ENGINE = "Engine";
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-EngineLoader.load = async function(){
+EngineLoader.load = async function(canvas, element){
   await EngineLoader.loadCore();
   await EngineLoader.loadManager();
   await EngineLoader.loadEngine();
   await EngineLoader.loadPlugin();
+
+  Engine.initialize();
+  Engine.setCanvas(canvas, element);
 };
 EngineLoader.loadCore = async function(){
   for(let i in EngineLoader.CORE_LIST){
