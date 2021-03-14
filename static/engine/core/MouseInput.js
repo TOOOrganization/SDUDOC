@@ -17,13 +17,19 @@ function MouseInput() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
+// * Enum
+// --------------------------------------------------------------------------------
+MouseInput.Mouse = {
+  LEFT: 0, MIDDLE: 1, RIGHT: 2
+};
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
 MouseInput._handlers = {};
 MouseInput._over_target = false;
 MouseInput._over_overall = false;
-MouseInput._pressed_target = false;
-MouseInput._pressed_overall = false;
+MouseInput._pressed_target = [];
+MouseInput._pressed_overall = [];
 MouseInput._point_target = null;
 MouseInput._point_overall = null;
 // --------------------------------------------------------------------------------
@@ -36,8 +42,8 @@ MouseInput.initialize = function() {
 MouseInput.clear = function() {
   MouseInput._over_target = false;
   MouseInput._over_overall = false;
-  MouseInput._pressed_target = false;
-  MouseInput._pressed_overall = false;
+  MouseInput._pressed_target = [false, false, false];
+  MouseInput._pressed_overall = [false, false, false];
   MouseInput._point_target = new Point(0, 0);
   MouseInput._point_overall = new Point(0, 0);
 };
@@ -125,6 +131,8 @@ MouseInput._onRightButtonDoubleClick = function(event, overall){
 };
 // --------------------------------------------------------------------------------
 MouseInput._onMouseDown = function(event, overall) {
+  this._pressed_overall[event.button] = true;
+  if(!overall) this._pressed_target[event.button] = true;
   if (event.button === 0) {
     this._onLeftButtonDown(event, overall);
   } else if (event.button === 1) {
@@ -134,8 +142,6 @@ MouseInput._onMouseDown = function(event, overall) {
   }
 };
 MouseInput._onLeftButtonDown = function(event, overall){
-  this._pressed_overall = overall;
-  this._pressed_target = !overall;
   for(let i in this._handlers){
     if(this._handlers[i].type === 'leftdown' && overall === this._handlers[i].overall){
       this._handlers[i].callback.call(this._handlers[i].owner, event);
@@ -158,6 +164,8 @@ MouseInput._onRightButtonDown = function(event, overall){
 };
 // --------------------------------------------------------------------------------
 MouseInput._onMouseUp = function(event, overall){
+  this._pressed_overall[event.button] = false;
+  this._pressed_target[event.button] = false;
   if (event.button === 0) {
     this._onLeftButtonUp(event, overall);
   } else if (event.button === 1) {
@@ -167,8 +175,6 @@ MouseInput._onMouseUp = function(event, overall){
   }
 };
 MouseInput._onLeftButtonUp = function(event, overall){
-  this._pressed_overall = false;
-  this._pressed_target = false;
   for(let i in this._handlers){
     if(this._handlers[i].type === 'leftup' && overall === this._handlers[i].overall){
       this._handlers[i].callback.call(this._handlers[i].owner, event);
@@ -211,6 +217,7 @@ MouseInput._onMouseOver = function(event, overall){
 MouseInput._onMouseOut = function(event, overall){
   if (overall) this._over_overall = false;
   if (!overall) this._over_target = false;
+  if (!overall) this._pressed_target = [false, false, false];
   for(let i in this._handlers){
     if(this._handlers[i].type === 'mouseout' && overall === this._handlers[i].overall){
       this._handlers[i].callback.call(this._handlers[i].owner, event);
@@ -232,11 +239,11 @@ MouseInput.removeHandler = function(id){
   this._handlers.remove(id);
 };
 // --------------------------------------------------------------------------------
-MouseInput.isPressed = function(){
-  return this._pressed_target;
+MouseInput.isPressed = function(id){
+  return this._pressed_target[id];
 };
-MouseInput.isPressedOverall = function(){
-  return this._pressed_overall;
+MouseInput.isPressedOverall = function(id){
+  return this._pressed_overall[id];
 };
 MouseInput.isOver = function(){
   return this._over_target;

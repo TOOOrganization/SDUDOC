@@ -55,6 +55,12 @@ Object.defineProperty(Handler.prototype, 'overall', {
   },
   configurable: true
 });
+Object.defineProperty(Handler.prototype, 'key_code', {
+  get: function() {
+    return this._overall;
+  },
+  configurable: true
+});
 Object.defineProperty(Handler.prototype, 'owner', {
   get: function() {
     return this._owner;

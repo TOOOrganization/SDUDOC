@@ -15,13 +15,34 @@
 //   2020/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
-
+/*
 MouseInput.addHandler(new Handler("testEngine1", "mousemove", true, Engine, function(event){
   console.log(MouseInput.getMousePoint(), MouseInput.isOver());
 }.bind(this)))
 MouseInput.addHandler(new Handler("testEngine", "mousemove", false, Engine, function(event){
   console.log(MouseInput.getMousePoint(), MouseInput.isOver());
-}.bind(this)))
+}.bind(this)))*/
+
+MouseInput.addHandler(new Handler("Input.onMouseDown", "leftdown", false, Engine, function(event){
+  let place = Engine.grid.getPoint(MouseInput.getMousePoint());
+  Engine.doc_data.addPoint(place.x, place.y);
+}.bind(Engine)));
+MouseInput.addHandler(new Handler("Input.onMouseMove", "mousemove", false, Engine, function(event){
+  if(MouseInput.isPressed(MouseInput.Mouse.LEFT)) {
+    let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
+    Engine.moveOrigin(distance.x, distance.y);
+  }
+}.bind(Engine)));
+MouseInput.addHandler(new Handler("Input.onMouseWheel", "wheel", false, Engine, function(event){
+  let scale = 1 - event.deltaY / 1200;
+  let distance = new Point(event.layerX, event.layerY).minus(Engine.origin).multiply(1 - scale);
+  Engine.moveOrigin(distance.x, distance.y)
+  Engine.multiScale(scale);
+}.bind(Engine)));
+
+Input.addHandler(new Handler("Input", "keydown", "M", Engine, function(event){
+  console.log(event)
+}.bind(Engine)));
 // ================================================================================
 // * Engine
 // ================================================================================
@@ -55,7 +76,7 @@ Engine.initialize = function(){
 };
 Engine.setCanvas = function(canvas){
   this.canvas = canvas;
-  Input.setTarget(this.canvas);
+  //Input.setTarget(this.canvas);
 
   this.ctx = this.canvas.getContext("2d");
   this.canvas_rect = this.calcCanvasRectangle();
