@@ -48,9 +48,11 @@ Engine.createHandler = function(){
   }.bind(Engine)));
   MouseInput.addHandler(new Handler("Input.onMouseWheel", "wheel", false, Engine, function(event){
     let scale = 1 - event.deltaY / 1200;
-    let distance = new Point(event.layerX, event.layerY).minus(Graphics.origin).multiply(1 - scale);
-    Graphics.moveOrigin(distance.x, distance.y)
+    let oldScale = Graphics.scale;
     Graphics.multiScale(scale);
+    let real_scale = Graphics.scale / oldScale;
+    let distance = new Point(event.layerX, event.layerY).minus(Graphics.origin).multiply(1 - real_scale);
+    Graphics.moveOrigin(distance.x, distance.y)
   }.bind(Engine)));
 
   Input.addHandler(new Handler("Input", "keydown", "M", Engine, function(event){

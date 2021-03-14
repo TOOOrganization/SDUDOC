@@ -26,7 +26,7 @@ export default {
   methods: {
     async loadEngine() {
       await EngineLoader.load(this.$refs.doc_view, this.$el);
-      //await Graphics.setImage(this.image_src);
+      await Graphics.setImage(this.image_src);
     }
   }
 }

@@ -28,13 +28,12 @@ EngineLoader.MANAGER = EngineLoader.PATH + "manager/";
 // --------------------------------------------------------------------------------
 EngineLoader.CORE_LIST = [
   "Point", "Rectangle", "Polygon", "Line",
-  "DotData",
   "Graphics",
   "Handler",
   "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
-  "DocumentManager"
+  "DocumentManager", "PluginManager"
 ];
 // --------------------------------------------------------------------------------
 EngineLoader.PLUGIN = EngineLoader.PATH + "plugin/";

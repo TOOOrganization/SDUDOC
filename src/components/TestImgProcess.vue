@@ -8,7 +8,7 @@
       <v-btn-toggle style="left:0px">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn x-small fab tile v-bind="attrs" v-on="on"><v-icon>mdi-drag-variant</v-icon></v-btn>
+            <v-btn x-small fab tile v-bind="attrs" v-on="on" @click="a"><v-icon>mdi-drag-variant</v-icon></v-btn>
           </template>
           <span>移动工具</span>
         </v-tooltip>
@@ -81,6 +81,25 @@ export default {
   data () {
     return {
       course_dialog: false
+    }
+  },
+  methods: {
+    a(){
+      let input = document.createElement('input');
+      input.setAttribute('accept', 'image/*');
+      input.setAttribute('id','_ef');
+      input.setAttribute('type','file');
+      input.setAttribute("style",'visibility:hidden; display:none');
+      input.addEventListener('change', (event)=> {
+        let reader = new FileReader();
+        reader.onload = function(event){
+          console.log(event.target.result);
+          Graphics.setImage(event.target.result)
+        }
+        reader.readAsDataURL(event.target.files[0]);
+      });
+      document.body.appendChild(inputObj);
+      inputObj.click();
     }
   }
 }

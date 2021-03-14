@@ -183,10 +183,10 @@ Graphics.calcImageRectangle = function(){
 };
 // --------------------------------------------------------------------------------
 Graphics.addScale = function(scale){
-  this.setScale(Math.max(0.05, Math.min(this._scale + scale, 5)));
+  this.setScale(Math.max(0.025, Math.min(this._scale + scale, 5)));
 };
 Graphics.multiScale = function(scale){
-  this.setScale(Math.max(0.05, Math.min(this._scale * scale, 5)));
+  this.setScale(Math.max(0.025, Math.min(this._scale * scale, 5)));
 };
 Graphics.moveOrigin = function(x, y){
   this.setOrigin(new Point(this._origin.x + x, this._origin.y + y));
