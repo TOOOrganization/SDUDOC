@@ -27,7 +27,9 @@ EngineLoader.CORE = EngineLoader.PATH + "core/";
 EngineLoader.MANAGER = EngineLoader.PATH + "manager/";
 // --------------------------------------------------------------------------------
 EngineLoader.CORE_LIST = [
-  "Point", "Rectangle", "Polygon", "Line", "Grid", "DotData",
+  "Point", "Rectangle", "Polygon", "Line",
+  "DotData",
+  "Graphics",
   "Handler",
   "Input", "MouseInput"
 ];
