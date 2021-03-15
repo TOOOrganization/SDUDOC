@@ -121,7 +121,7 @@ Graphics.setCanvas = function(canvas, element){
   this.refreshCanvas();
 };
 Graphics.setImage = async function(src){
-  if(!src) return;
+  if(!src) return this.clearImage();
   await this.loadImage(src);
   this.setScale(this.calcImageScale());
   this.setOrigin(this.calcImageOrigin());

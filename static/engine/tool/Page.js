@@ -90,16 +90,19 @@ ToolManager.addTool(new Tool("新建页面", "mdi-card-plus-outline", Tool.Type.
     DocumentManager.newPage(src);
   });
 }));
-ToolManager.addTool(new Tool("前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", function(){
-
+ToolManager.addTool(new Tool("前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", async function(){
+  await DocumentManager.movePageMinus();
 }));
 ToolManager.addTool(new Tool("设定页码", "mdi-counter", Tool.Type.PAGE, "", function(){
 
 }));
-ToolManager.addTool(new Tool("后移一页", "mdi-arrow-right-bold", Tool.Type.PAGE, "", function(){
-
+ToolManager.addTool(new Tool("后移一页", "mdi-arrow-right-bold", Tool.Type.PAGE, "", async function(){
+  await DocumentManager.movePagePlus();
 }));
 ToolManager.addTool(new Tool("删除页面", "mdi-close", Tool.Type.PAGE, "", function(){
-
+  Engine.confirm("您确认要删除页面吗？", async function(){
+    Engine.owner.confirm_dialog = false;
+    await DocumentManager.deletePage();
+  });
 }));
 // ================================================================================

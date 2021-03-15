@@ -17,10 +17,36 @@ function DocumentManager() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
-DocumentManager.newPage = async function(src){
-  await SDUDocument.addPage(PageFactory.makeObject(src));
+// * Functions
+// --------------------------------------------------------------------------------
+DocumentManager.clear = function(){
+  SDUDocument.clear();
+  Engine.owner.page_list = [];
+  Engine.owner.current_page = 0;
+}
+DocumentManager.updateList = function(){
   Engine.owner.page_list = this.getPageList();
   Engine.owner.current_page = SDUDocument.current_page - 1;
+}
+DocumentManager.newPage = async function(src){
+  await SDUDocument.addPage(PageFactory.makeObject(src));
+  this.updateList();
+}
+DocumentManager.deletePage = async function(){
+  await SDUDocument.deletePage();
+  this.updateList();
+}
+DocumentManager.movePagePlus = async function(){
+  await SDUDocument.movePagePlus();
+  this.updateList();
+}
+DocumentManager.movePageMinus = async function(){
+  await SDUDocument.movePageMinus();
+  this.updateList();
+}
+DocumentManager.movePage = async function(target){
+  await SDUDocument.movePage(target);
+  this.updateList();
 }
 DocumentManager.getPageList = function(){
   let pages = SDUDocument.data.Page;
@@ -33,13 +59,11 @@ DocumentManager.getPageList = function(){
   }
   return data;
 }
-DocumentManager.clear = function(){
-  SDUDocument.clear();
-  Engine.owner.page_list = [];
-  Engine.owner.current_page = 0;
+DocumentManager.newDocument = function(){
+  this.clear();
 }
-DocumentManager.setPage = async function(index){
-  await SDUDocument.setPage(index + 1);
+DocumentManager.setCurrentPage = async function(index){
+  await SDUDocument.setCurrentPage(index + 1);
 }
 // --------------------------------------------------------------------------------
 DocumentManager.cloneObject = function (obj) {

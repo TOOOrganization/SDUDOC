@@ -68,12 +68,10 @@ Engine.createHandler = function(){
 };
 Engine.createTool = function(){
   ToolManager.addTool(new Tool("新建文档", "mdi-file-plus-outline", Tool.Type.DOCUMENT, "", function(){
-    Engine.owner.confirm_text = "您真的要新建文档吗？未保存的数据将全部丢失。"
-    Engine.owner.confirm_callback = function(){
+    Engine.confirm("您真的要新建文档吗？未保存的数据将全部丢失。", function(){
       Engine.owner.confirm_dialog = false;
-      DocumentManager.clear();
-    }
-    Engine.owner.confirm_dialog = true;
+      DocumentManager.newDocument();
+    });
   }));
   ToolManager.addTool(new Tool("打开文档", "mdi-file-multiple-outline", Tool.Type.DOCUMENT, "", function(){
 
@@ -126,6 +124,7 @@ Engine.createInputBox = function(){
   this._input._reader = new FileReader();
   this._input.addEventListener('change', function(event){
     this._reader.readAsDataURL(event.target.files[0]);
+    this.value = null;
   }.bind(this._input));
   document.body.appendChild(this._input);
 }
@@ -149,5 +148,13 @@ Engine.readImage = function(owner, callback){
     }
     this._input.click();
   });
+}
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
+Engine.confirm = function(text, callback){
+  Engine.owner.confirm_text = text;
+  Engine.owner.confirm_callback = callback;
+  Engine.owner.confirm_dialog = true;
 }
 // ================================================================================

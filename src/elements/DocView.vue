@@ -180,7 +180,7 @@ export default {
       }.bind(this));
     },
     changePage(index){
-      DocumentManager.setPage(index);
+      DocumentManager.setCurrentPage(index);
     }
   }
 }
