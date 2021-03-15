@@ -25,14 +25,17 @@ Tool.Type = {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+Tool.prototype._id = "";
 Tool.prototype._tooltip = "";
 Tool.prototype._icon = "";
 Tool.prototype._type = 0;
 Tool.prototype._description = "";
+Tool.prototype._callback = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Tool.prototype.initialize = function(tooltip, icon, type, description, callback){
+Tool.prototype.initialize = function(id, tooltip, icon, type, description, callback){
+  this._id = id;
   this._tooltip = tooltip;
   this._icon = icon;
   this._type = type;
@@ -42,6 +45,12 @@ Tool.prototype.initialize = function(tooltip, icon, type, description, callback)
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
+Object.defineProperty(Tool.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
 Object.defineProperty(Tool.prototype, 'tooltip', {
   get: function() {
     return this._tooltip;

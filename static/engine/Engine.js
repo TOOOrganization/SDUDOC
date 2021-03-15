@@ -40,7 +40,7 @@ Engine.initialize = function(){
 
   SDUDocument.initialize();
 
-  this.createTool();
+  ToolManager.initialize();
 };
 Engine.setElements = function(canvas, element, owner){
   this._owner = owner;
@@ -48,16 +48,13 @@ Engine.setElements = function(canvas, element, owner){
   MouseInput.setupTargetHandlers(canvas);
 };
 Engine.createHandler = function(){
-  MouseInput.addHandler(new Handler("Input.onMouseDown", "leftdown", false, Engine, function(event){
-    let place = Graphics.getGridPoint(MouseInput.getMousePoint());
-  }.bind(Engine)));
-  MouseInput.addHandler(new Handler("Input.onMouseMove", "mousemove", false, Engine, function(event){
-    if(MouseInput.isPressed(MouseInput.Mouse.LEFT)) {
+  MouseInput.addHandler(new Handler("Engine.onMouseMove", "mousemove", false, Engine, function(event){
+    if(MouseInput.isPressed(MouseInput.Mouse.MIDDLE)) {
       let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
       Graphics.moveOrigin(distance.x, distance.y);
     }
   }.bind(Engine)));
-  MouseInput.addHandler(new Handler("Input.onMouseWheel", "wheel", false, Engine, function(event){
+  MouseInput.addHandler(new Handler("Engine.onMouseWheel", "wheel", false, Engine, function(event){
     let scale = 1 - event.deltaY / 1200;
     let oldScale = Graphics.scale;
     Graphics.multiScale(scale);
@@ -66,54 +63,6 @@ Engine.createHandler = function(){
     Graphics.moveOrigin(distance.x, distance.y)
   }.bind(Engine)));
 };
-Engine.createTool = function(){
-  ToolManager.addTool(new Tool("新建文档", "mdi-file-plus-outline", Tool.Type.DOCUMENT, "", function(){
-    Engine.confirm("您真的要新建文档吗？未保存的数据将全部丢失。", function(){
-      Engine.owner.confirm_dialog = false;
-      DocumentManager.newDocument();
-    });
-  }));
-  ToolManager.addTool(new Tool("打开文档", "mdi-file-multiple-outline", Tool.Type.DOCUMENT, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("保存", "mdi-content-save", Tool.Type.DOCUMENT, "", function(){
-
-  }));
-
-  ToolManager.addTool(new Tool("撤销(Ctrl+Z)", "mdi-undo-variant", Tool.Type.HISTORY, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("重做(Ctrl+Y)", "mdi-redo-variant", Tool.Type.HISTORY, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("复制(Ctrl+C)", "mdi-content-copy", Tool.Type.HISTORY, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("粘贴(Ctrl+V)", "mdi-clipboard-file-outline", Tool.Type.HISTORY, "", function(){
-
-  }));
-
-  ToolManager.addTool(new Tool("移动工具", "mdi-arrow-all", Tool.Type.PLUGIN, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("点工具", "mdi-circle-medium", Tool.Type.PLUGIN, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("线工具", "mdi-ray-start-end", Tool.Type.PLUGIN, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("剪切工具", "mdi-scissors-cutting", Tool.Type.PLUGIN, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("文字工具", "mdi-alpha-a", Tool.Type.PLUGIN, "", function(){
-
-  }));
-  ToolManager.addTool(new Tool("注释工具", "mdi-tooltip-plus-outline", Tool.Type.PLUGIN, "", function(){
-
-  }));
-
-
-}
 // --------------------------------------------------------------------------------
 Engine.createInputBox = function(){
   this._input = document.createElement('input');
@@ -152,9 +101,14 @@ Engine.readImage = function(owner, callback){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Engine.confirm = function(text, callback){
-  Engine.owner.confirm_text = text;
-  Engine.owner.confirm_callback = callback;
-  Engine.owner.confirm_dialog = true;
+Engine.alert = function(text, callback){
+  Engine.owner.pop_text = text;
+  Engine.owner.pop_callback = callback;
+  Engine.owner.alert_dialog = true;
+}
+Engine.prompt = function(text, callback){
+  Engine.owner.pop_text = text;
+  Engine.owner.pop_callback = callback;
+  Engine.owner.prompt_dialog = true;
 }
 // ================================================================================

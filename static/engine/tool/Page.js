@@ -60,9 +60,6 @@ Page.prototype.setData = function(id, src){
 Page.prototype.getObject = function(){
   return new Page("", "");
 }
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
 // ================================================================================
 
 // ================================================================================
@@ -83,25 +80,30 @@ PageFactory.getNextIndex = function(){
 // ================================================================================
 
 // ================================================================================
-// * Register Tools
+// * Register Tool
 // ================================================================================
-ToolManager.addTool(new Tool("新建页面", "mdi-card-plus-outline", Tool.Type.PAGE, "", async function(){
+ToolManager.addTool(new Tool("new_page", "新建页面", "mdi-card-plus-outline", Tool.Type.PAGE, "", async function(){
   await Engine.readImage(this,function(src){
     DocumentManager.newPage(src);
   });
 }));
-ToolManager.addTool(new Tool("前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", async function(){
+ToolManager.addTool(new Tool("move_page_minus", "前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", async function(){
   await DocumentManager.movePageMinus();
 }));
-ToolManager.addTool(new Tool("设定页码", "mdi-counter", Tool.Type.PAGE, "", function(){
-
+ToolManager.addTool(new Tool("move_page_set", "设定页码", "mdi-counter", Tool.Type.PAGE, "", function(){
+  Engine.owner.prompt_text = SDUDocument.current_page;
+  Engine.prompt("输入目标页码", async function(){
+    Engine.owner.prompt_dialog = false;
+    await DocumentManager.movePage(Number(Engine.owner.prompt_text));
+  });
 }));
-ToolManager.addTool(new Tool("后移一页", "mdi-arrow-right-bold", Tool.Type.PAGE, "", async function(){
+ToolManager.addTool(new Tool("move_page_add", "后移一页", "mdi-arrow-right-bold", Tool.Type.PAGE, "", async function(){
   await DocumentManager.movePagePlus();
 }));
-ToolManager.addTool(new Tool("删除页面", "mdi-close", Tool.Type.PAGE, "", function(){
-  Engine.confirm("您确认要删除页面吗？", async function(){
-    Engine.owner.confirm_dialog = false;
+ToolManager.addTool(new Tool("delete_page", "删除页面", "mdi-close", Tool.Type.PAGE, "", function(){
+  if(SDUDocument.current_page <= 0) return;
+  Engine.alert("您确认要删除页面吗？", async function(){
+    Engine.owner.alert_dialog = false;
     await DocumentManager.deletePage();
   });
 }));

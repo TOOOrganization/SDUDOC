@@ -102,18 +102,35 @@ Dot2D.prototype.render = function(){
 // ================================================================================
 
 // ================================================================================
-// * Dot2DFactory
+// * DotFactory
 // ================================================================================
-function Dot2DFactory(){
+function DotFactory(){
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Dot2DFactory.makeObject = function(type, arg1, arg2){
+DotFactory.makeObject = function(type, arg1, arg2){
   return new Dot2D(this.getNextIndex(), type, arg1, arg2);
 }
-Dot2DFactory.getNextIndex = function(){
+DotFactory.getNextIndex = function(){
   return SDUDocument.getNextIndex("Dot2D");
 }
+// ================================================================================
+
+// ================================================================================
+// * Register Plugin Tool
+// ================================================================================
+ToolManager.addTool(new Tool("dot", "点工具", "mdi-circle-medium", Tool.Type.PLUGIN, "", function(id){
+  ToolManager.setCurrentPlugin(id);
+}));
+ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, ToolManager, function(event){
+
+}));
+ToolManager.addHandler(new Handler("dot.onRightClick", "right_click", false, ToolManager, function(event){
+
+}));
+ToolManager.addHandler(new Handler("dot.onMouseMove", "mousemove", false, ToolManager, function(event){
+
+}));
 // ================================================================================

@@ -70,11 +70,19 @@ SDUDocument.deletePage = async function(){
     await this.setCurrentPage(this._current_page);
   }
 }
+// --------------------------------------------------------------------------------
 SDUDocument.movePagePlus = async function(){
-  await this.movePage(this._current_page + 1)
+  await this.movePageTo(this._current_page + 1)
 }
 SDUDocument.movePageMinus = async function(){
-  await this.movePage(this._current_page - 2)
+  await this.movePageTo(this._current_page - 1)
+}
+SDUDocument.movePageTo = async function(target){
+  if(target < this.current_page){
+    await this.movePage(target - 1);
+  }else{
+    await this.movePage(target);
+  }
 }
 SDUDocument.movePage = async function(target){
   if(this._data.Page.length <= 1) return;
@@ -94,6 +102,7 @@ SDUDocument.movePage = async function(target){
 
   await this.addPage(page);
 }
+// --------------------------------------------------------------------------------
 SDUDocument.setCurrentPage = async function(index){
   if(index < 0 || index > this._data.Page.length) return;
   if(index === 0){
@@ -109,46 +118,3 @@ SDUDocument.setCurrentPage = async function(index){
   await Graphics.setImage(this._data.Page[this._current_page - 1].src);
 }
 // ================================================================================
-
-
-// * DocData
-// ================================================================================
-function DocData(){
-  this.initialize.apply(this, arguments);
-}
-
-DocData.prototype.data = null;
-DocData.prototype.point_size = 0;
-DocData.prototype.line_size = 0;
-
-DocData.prototype.initialize = function(){
-  this.clear();
-};
-DocData.prototype.clear = function(){
-  this.data = { points : {}, lines : {} };
-  this.point_size = 0;
-  this.line_size = 0;
-};
-DocData.prototype.generatePointIndex = function(){
-  return String(this.point_size ++);
-};
-DocData.prototype.generateLineIndex = function(){
-  return String(this.line_size ++);
-};
-DocData.prototype.addPoint = function(x, y){
-  let point = new Point(x, y);
-  this.data.points[this.generatePointIndex()] = point;
-};
-DocData.prototype.addLine = function(start, end){
-  let line = new Line2D(start, end);
-  this.data.points[this.generatePointIndex()] = line;
-};
-DocData.prototype.draw = function(ctx, grid){
-  for(let i in this.data.points){
-    //this.data.points[i].fill(ctx, grid, 5, 2, 'rgba(0, 0, 255, 1)', 'rgba(255, 255, 255, 1)');
-  }
-};
-
-let data = {
-
-}

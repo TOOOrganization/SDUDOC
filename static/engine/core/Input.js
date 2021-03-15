@@ -174,6 +174,8 @@ Input.keyMapper = {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+Input.LONG_HOLD_TIME = 5;
+// --------------------------------------------------------------------------------
 Input._handlers = {};
 Input._currentState = {};
 // --------------------------------------------------------------------------------
@@ -187,7 +189,6 @@ Input.clear = function() {
   this._currentState = {};
 };
 Input._setupEventHandlers = function(){
-  document.addEventListener('keypress', (event) => {this._onKeyPress.call(this, event)});
   document.addEventListener('keydown', (event) => {this._onKeyDown.call(this, event)});
   document.addEventListener('keyup', (event) => {this._onKeyUp.call(this, event)});
   window.addEventListener('blur', (event) => {this._onLostFocus.call(this, event)});
@@ -195,23 +196,6 @@ Input._setupEventHandlers = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Input._onKeyPress = function(event) {
-  if (this._shouldPreventDefault(event.keyCode)) {
-    event.preventDefault();
-  }
-  if (event.keyCode === 144) {    // NumLock
-    this.clear();
-  }
-  let buttonName = this.keyMapper[event.keyCode];
-  if (buttonName) {
-    this._currentState[buttonName] = true;
-  }
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'keypress' && this._handlers[i].key_code === buttonName){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
-};
 Input._onKeyDown = function(event) {
   if (this._shouldPreventDefault(event.keyCode)) {
     event.preventDefault();
@@ -221,27 +205,30 @@ Input._onKeyDown = function(event) {
   }
   let buttonName = this.keyMapper[event.keyCode];
   if (buttonName) {
-    this._currentState[buttonName] = true;
-  }
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'keydown' && this._handlers[i].key_code === buttonName){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
+    if(!this._currentState[buttonName]){
+      this.callHandler(event, 'key_down', buttonName);
+      this._currentState[buttonName] = 1;
+    }else{
+      this._currentState[buttonName] ++;
+      if(this._currentState[buttonName] === Input.LONG_HOLD_TIME){
+        this.callHandler(event, 'key_long_hold', buttonName);
+      }
     }
   }
+  this.callHandler(event, 'key_hold', buttonName);
 };
 Input._onKeyUp = function(event) {
   let buttonName = this.keyMapper[event.keyCode];
   if (buttonName) {
-    this._currentState[buttonName] = false;
+    if(this._currentState[buttonName] > 0){
+      this.callHandler(event, 'key_click', buttonName);
+    }
+    this._currentState[buttonName] = 0;
   }
   if (event.keyCode === 0) {  // For QtWebEngine on OS X
     this.clear();
   }
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'keyup' && this._handlers[i].key_code === buttonName){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'key_up', buttonName);
 };
 Input._onLostFocus = function() {
   this.clear();
@@ -266,6 +253,14 @@ Input.addHandler = function(handler){
 Input.removeHandler = function(id){
   this._handlers.remove(id);
 };
+Input.callHandler = function(event, type, buttonName){
+  for(let i in this._handlers){
+    if(this._handlers[i].type === type &&
+      (this._handlers[i].key_code === 'all' || this._handlers[i].key_code === buttonName)){
+      this._handlers[i].callback.call(this._handlers[i].owner, event);
+    }
+  }
+}
 // --------------------------------------------------------------------------------
 Input.isPressed = function(keyName) {
   return !!this._currentState[keyName];

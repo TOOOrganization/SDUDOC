@@ -28,6 +28,10 @@ DocumentManager.updateList = function(){
   Engine.owner.page_list = this.getPageList();
   Engine.owner.current_page = SDUDocument.current_page - 1;
 }
+// --------------------------------------------------------------------------------
+DocumentManager.newDocument = function(){
+  this.clear();
+}
 DocumentManager.newPage = async function(src){
   await SDUDocument.addPage(PageFactory.makeObject(src));
   this.updateList();
@@ -36,6 +40,7 @@ DocumentManager.deletePage = async function(){
   await SDUDocument.deletePage();
   this.updateList();
 }
+// --------------------------------------------------------------------------------
 DocumentManager.movePagePlus = async function(){
   await SDUDocument.movePagePlus();
   this.updateList();
@@ -45,9 +50,10 @@ DocumentManager.movePageMinus = async function(){
   this.updateList();
 }
 DocumentManager.movePage = async function(target){
-  await SDUDocument.movePage(target);
+  await SDUDocument.movePageTo(target);
   this.updateList();
 }
+// --------------------------------------------------------------------------------
 DocumentManager.getPageList = function(){
   let pages = SDUDocument.data.Page;
   let data = [];
@@ -59,9 +65,7 @@ DocumentManager.getPageList = function(){
   }
   return data;
 }
-DocumentManager.newDocument = function(){
-  this.clear();
-}
+
 DocumentManager.setCurrentPage = async function(index){
   await SDUDocument.setCurrentPage(index + 1);
 }

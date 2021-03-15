@@ -74,62 +74,38 @@ MouseInput._onClick = function(event, overall) {
   if (event.button === 0) {
     this._onLeftButtonClick(event, overall);
   } else if (event.button === 1) {
-    this._onMiddleButtonClick(event, overall);
+    // this._onMiddleButtonClick(event, overall);
   } else if (event.button === 2) {
-    this._onRightButtonClick(event, overall);
+    // this._onRightButtonClick(event, overall);
   }
 };
 MouseInput._onLeftButtonClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'leftclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'left_click', overall);
 };
 MouseInput._onMiddleButtonClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'middleclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'middle_click', overall);
 };
 MouseInput._onRightButtonClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'rightclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'right_click', overall);
 };
 // --------------------------------------------------------------------------------
 MouseInput._onDoubleClick = function(event, overall) {
   if (event.button === 0) {
     this._onLeftButtonDoubleClick(event, overall);
   } else if (event.button === 1) {
-    this._onMiddleButtonDoubleClick(event, overall);
+    // this._onMiddleButtonDoubleClick(event, overall);
   } else if (event.button === 2) {
-    this._onRightButtonDoubleClick(event, overall);
+    // this._onRightButtonDoubleClick(event, overall);
   }
 };
 MouseInput._onLeftButtonDoubleClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'leftdoubleclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'left_double_click', overall);
 };
 MouseInput._onMiddleButtonDoubleClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'middledoubleclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'middle_double_click', overall);
 };
 MouseInput._onRightButtonDoubleClick = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'rightdoubleclick' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'right_double_click', overall);
 };
 // --------------------------------------------------------------------------------
 MouseInput._onMouseDown = function(event, overall) {
@@ -144,30 +120,16 @@ MouseInput._onMouseDown = function(event, overall) {
   }
 };
 MouseInput._onLeftButtonDown = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'leftdown' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'left_down', overall);
 };
 MouseInput._onMiddleButtonDown = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'middledown' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'middle_down', overall);
 };
 MouseInput._onRightButtonDown = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'rightdown' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'right_down', overall);
 };
 // --------------------------------------------------------------------------------
 MouseInput._onMouseUp = function(event, overall){
-  this._pressed_overall[event.button] = false;
-  this._pressed_target[event.button] = false;
   if (event.button === 0) {
     this._onLeftButtonUp(event, overall);
   } else if (event.button === 1) {
@@ -175,63 +137,47 @@ MouseInput._onMouseUp = function(event, overall){
   } else if (event.button === 2) {
     this._onRightButtonUp(event, overall);
   }
+  this._pressed_overall[event.button] = false;
+  this._pressed_target[event.button] = false;
 };
 MouseInput._onLeftButtonUp = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'leftup' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'left_up', overall);
 };
 MouseInput._onMiddleButtonUp = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'middleup' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
+  this.callHandler(event, 'middle_up', overall);
+  if(this._pressed_overall[event.button] && overall){
+    this.callHandler(event, 'middle_click', overall);
+  }else if(this._pressed_target[event.button] && !overall){
+    this.callHandler(event, 'middle_click', overall);
   }
 };
 MouseInput._onRightButtonUp = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'rightup' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
+  this.callHandler(event, 'right_up', overall);
+  if(this._pressed_overall[event.button] && overall){
+    this.callHandler(event, 'right_click', overall);
+  }else if(this._pressed_target[event.button] && !overall){
+    this.callHandler(event, 'right_click', overall);
   }
 };
 // --------------------------------------------------------------------------------
 MouseInput._onMouseMove = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'mousemove' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'mousemove', overall);
   this._point_overall = new Point(event.pageX, event.pageY);
   this._point_target = new Point(event.layerX, event.layerY);
 };
 MouseInput._onMouseOver = function(event, overall){
   if (overall) this._over_overall = true;
   if (!overall) this._over_target = true;
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'mouseover' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'mouseover', overall);
 };
 MouseInput._onMouseOut = function(event, overall){
   if (overall) this._over_overall = false;
   if (!overall) this._over_target = false;
   if (!overall) this._pressed_target = [false, false, false];
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'mouseout' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'mouseout', overall);
 };
 MouseInput._onWheel = function(event, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === 'wheel' && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
-    }
-  }
+  this.callHandler(event, 'wheel', overall);
 };
 // --------------------------------------------------------------------------------
 MouseInput.addHandler = function(handler){
@@ -240,6 +186,13 @@ MouseInput.addHandler = function(handler){
 MouseInput.removeHandler = function(id){
   this._handlers.remove(id);
 };
+MouseInput.callHandler = function(event, type, overall){
+  for(let i in this._handlers){
+    if(this._handlers[i].type === type && overall === this._handlers[i].overall){
+      this._handlers[i].callback.call(this._handlers[i].owner, event);
+    }
+  }
+}
 // --------------------------------------------------------------------------------
 MouseInput.isPressed = function(id){
   return this._pressed_target[id];

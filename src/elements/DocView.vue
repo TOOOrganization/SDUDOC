@@ -42,7 +42,7 @@
         <v-btn-toggle mandatory class="tool_group">
           <v-tooltip bottom v-for="(tool, index) in tools_plugin" :key="index">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn x-small fab tile v-bind="attrs" v-on="on" @click=tool.callback>
+              <v-btn x-small fab tile v-bind="attrs" v-on="on" @click=tool.callback(tool.id)>
                 <v-icon>{{tool.icon}}</v-icon>
               </v-btn>
             </template>
@@ -57,16 +57,30 @@
         </v-btn>
       </div>
 
-      <v-dialog v-model="confirm_dialog" max-width="400">
+      <v-dialog v-model="alert_dialog" max-width="400">
         <v-card>
           <v-card-title class="headline">
             <v-icon class="mr-2">mdi-alert-circle-outline</v-icon> 提示
           </v-card-title>
-          <v-card-text>{{confirm_text}}</v-card-text>
+          <v-card-text>{{pop_text}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="confirm_callback">确认</v-btn>
-            <v-btn color="red darken-1" text @click="confirm_dialog = false">取消</v-btn>
+            <v-btn color="green darken-1" text @click="pop_callback">确认</v-btn>
+            <v-btn color="red darken-1" text @click="alert_dialog = false">取消</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="prompt_dialog" max-width="400">
+        <v-card>
+          <v-card-title class="headline">
+            <v-icon class="mr-2">mdi-file-document-edit-outline</v-icon> {{pop_text}}
+          </v-card-title>
+          <v-text-field required label="要移动到的页码" class="mx-6" v-model="prompt_text"></v-text-field>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="pop_callback">确认</v-btn>
+            <v-btn color="red darken-1" text @click="prompt_dialog = false">取消</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -149,16 +163,19 @@ export default {
   name: "DocView",
   data () {
     return {
-      confirm_dialog: false,
-      confirm_text: false,
-      confirm_callback: function(){ this.confirm_dialog = false },
+      alert_dialog: false,
+      prompt_dialog: false,
+      prompt_text: null,
+      pop_text: null,
+      pop_callback: function(){ this.alert_dialog = false },
       course_dialog: false,
       tools_document: [],
       tools_history: [],
       tools_plugin: [],
       tools_page: [],
       page_list: [],
-      current_page: 0
+      current_page: 0,
+      current_plugin: 0
     }
   },
   mounted() {
