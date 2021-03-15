@@ -30,25 +30,33 @@ Polygon.prototype.initialize = function(points){
 // * Functions
 // --------------------------------------------------------------------------------
 Polygon.prototype.fill = function(ctx, color){
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points[i] = Graphics.getRenderPoint(this._points[i]);
+  }
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(this._points[0].x, this._points[0].y);
-  for(let i = 1; i < this._points.length; i++) {
-    ctx.lineTo(this._points[i].x, this._points[i].y);
+  ctx.moveTo(points[0].x, points[0].y);
+  for(let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
   }
   ctx.closePath();
   ctx.fill();
   ctx.restore();
 };
 Polygon.prototype.stroke = function(ctx, lineWidth, color){
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points[i] = Graphics.getRenderPoint(this._points[i]);
+  }
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
   ctx.beginPath();
-  ctx.moveTo(this._points[0].x, this._points[0].y);
-  for(let i = 1; i < this._points.length; i++) {
-    ctx.lineTo(this._points[i].x, this._points[i].y);
+  ctx.moveTo(points[0].x, points[0].y);
+  for(let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
   }
   ctx.closePath();
   ctx.stroke();

@@ -76,20 +76,22 @@ Point.prototype.division = function(num){
 };
 // --------------------------------------------------------------------------------
 Point.prototype.fill = function(ctx, radius, color){
+  let point = Graphics.getRenderPoint(this);
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.arc(this._x, this._y, radius,0,360, false);
+  ctx.arc(point.x, point.y, radius,0,360, false);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
 };
 Point.prototype.stroke = function(ctx, radius, lineWidth, color) {
+  let point = Graphics.getRenderPoint(this);
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
   ctx.beginPath();
-  ctx.arc(this._x, this._y, radius, 0, 360, false);
+  ctx.arc(point.x, point.y, radius, 0, 360, false);
   ctx.closePath();
   ctx.stroke();
   ctx.restore();

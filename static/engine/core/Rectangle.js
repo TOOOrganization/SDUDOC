@@ -83,17 +83,34 @@ Rectangle.prototype.setSize = function(width, height){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Rectangle.prototype.fill = function(ctx, color){
+Rectangle.prototype.fillSelf = function(ctx, color){
   ctx.save();
   ctx.fillStyle = color;
   ctx.fillRect(this._x, this._y, this._width, this._height);
   ctx.restore();
 };
-Rectangle.prototype.stroke = function(ctx, lineWidth, color){
+Rectangle.prototype.strokeSelf = function(ctx, lineWidth, color){
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
-  ctx.strokeRect(this._x, this._y, this._width, this._height);
+  ctx.fillRect(this._x, this._y, this._width, this._height);
+  ctx.restore();
+};
+Rectangle.prototype.fill = function(ctx, color){
+  let point1 = Graphics.getRenderPoint(new Point(this._x, this._y));
+  let point2 = Graphics.getRenderPoint(new Point(this._width, this._height));
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.fillRect(point1.x, point1.y, point2.x, point2.y);
+  ctx.restore();
+};
+Rectangle.prototype.stroke = function(ctx, lineWidth, color){
+  let point1 = Graphics.getRenderPoint(new Point(this._x, this._y));
+  let point2 = Graphics.getRenderPoint(new Point(this._width, this._height));
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.fillRect(point1.x, point1.y, point2.x, point2.y);
   ctx.restore();
 };
 // --------------------------------------------------------------------------------

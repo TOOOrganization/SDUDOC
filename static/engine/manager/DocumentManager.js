@@ -17,6 +17,31 @@ function DocumentManager() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
+DocumentManager.newPage = async function(src){
+  await SDUDocument.addPage(PageFactory.makeObject(src));
+  Engine.owner.page_list = this.getPageList();
+  Engine.owner.current_page = SDUDocument.current_page - 1;
+}
+DocumentManager.getPageList = function(){
+  let pages = SDUDocument.data.Page;
+  let data = [];
+  for(let i = 0;i < pages.length; i++){
+    data.push({
+      id: i + 1,
+      src: pages[i].src
+    });
+  }
+  return data;
+}
+DocumentManager.clear = function(){
+  SDUDocument.clear();
+  Engine.owner.page_list = [];
+  Engine.owner.current_page = 0;
+}
+DocumentManager.setPage = async function(index){
+  await SDUDocument.setPage(index + 1);
+}
+// --------------------------------------------------------------------------------
 DocumentManager.cloneObject = function (obj) {
   if(obj === null) return null
   if(typeof obj !== 'object') return obj;

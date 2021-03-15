@@ -25,15 +25,20 @@ EngineLoader.PATH = "@/../static/engine/";
 // --------------------------------------------------------------------------------
 EngineLoader.CORE = EngineLoader.PATH + "core/";
 EngineLoader.MANAGER = EngineLoader.PATH + "manager/";
+EngineLoader.TOOL = EngineLoader.PATH + "tool/";
 // --------------------------------------------------------------------------------
 EngineLoader.CORE_LIST = [
   "Point", "Rectangle", "Polygon", "Line",
   "Graphics",
-  "Handler",
+  "Handler", "Tool",
+  "SDUDocument",
   "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
-  "DocumentManager", "PluginManager"
+  "DocumentManager", "PluginManager", "ToolManager"
+];
+EngineLoader.TOOL_LIST = [
+  "Page",
 ];
 // --------------------------------------------------------------------------------
 EngineLoader.PLUGIN = EngineLoader.PATH + "plugin/";
@@ -42,14 +47,15 @@ EngineLoader.ENGINE = "Engine";
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-EngineLoader.load = async function(canvas, element){
+EngineLoader.load = async function(canvas, element, owner){
   await EngineLoader.loadCore();
   await EngineLoader.loadManager();
+  await EngineLoader.loadTool();
   await EngineLoader.loadEngine();
   await EngineLoader.loadPlugin();
 
   Engine.initialize();
-  Engine.setCanvas(canvas, element);
+  Engine.setElements(canvas, element, owner);
 };
 EngineLoader.loadCore = async function(){
   for(let i in EngineLoader.CORE_LIST){
@@ -59,6 +65,11 @@ EngineLoader.loadCore = async function(){
 EngineLoader.loadManager = async function(){
   for(let i in EngineLoader.MANAGER_LIST){
     await this.loadScript(EngineLoader.MANAGER, EngineLoader.MANAGER_LIST[i] + ".js");
+  }
+};
+EngineLoader.loadTool = async function(){
+  for(let i in EngineLoader.TOOL_LIST){
+    await this.loadScript(EngineLoader.TOOL, EngineLoader.TOOL_LIST[i] + ".js");
   }
 };
 EngineLoader.loadEngine = async function(){

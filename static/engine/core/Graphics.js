@@ -40,9 +40,18 @@ Graphics.initialize = function(){
   this.clear();
 };
 Graphics.clear = function(){
+  this._canvas = null;
+  this._element = null;
+  this._ctx = null;
   this._canvas_rect = new Rectangle(0, 0, 0, 0);
+  this.reset();
+};
+Graphics.reset = function(){
+  this._image = null;
+  this._image_src = null;
   this._image_rect = new Rectangle(0, 0, 0, 0);
-  this._origin = new Point(0, 0);
+  this.calcInitialOrigin();
+  this._scale = 1;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -71,6 +80,15 @@ Object.defineProperty(Graphics, 'canvas', {
   },
   set: function(value) {
     this._canvas = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Graphics, 'ctx', {
+  get: function() {
+    return this._ctx;
+  },
+  set: function(value) {
+    this._ctx = value;
   },
   configurable: true
 });
@@ -109,6 +127,10 @@ Graphics.setImage = async function(src){
   this.setOrigin(this.calcImageOrigin());
   this.refresh();
 };
+Graphics.clearImage = function(){
+  this.reset();
+  this.refresh();
+};
 // --------------------------------------------------------------------------------
 Graphics.setScale = function(scale){
   this._scale = scale;
@@ -119,11 +141,11 @@ Graphics.setOrigin = function(origin){
   this.refresh();
 };
 // --------------------------------------------------------------------------------
-Graphics.getPoint = function(point){
+Graphics.getGridPoint = function(point){
   let draw_distance = point.minus(this._origin);
   return draw_distance.division(this._scale);
 }
-Graphics.getDrawPoint = function(point){
+Graphics.getRenderPoint = function(point){
   let draw_distance = point.multiply(this._scale);
   return draw_distance.add(this._origin);
 }
@@ -136,10 +158,20 @@ Graphics.addCanvasHandler = function(canvas){
 Graphics.refreshCanvas = function(){
   this._canvas.width = this._element.clientWidth;
   this._canvas.height = this._element.clientHeight;
+  this.calcInitialOrigin();
   this.refresh();
 };
 Graphics.calcCanvasRectangle = function(){
   return new Rectangle(0, 0, this._canvas.width, this._canvas.height);
+};
+Graphics.calcInitialOrigin = function(){
+  if(!this._image){
+    if(this._canvas){
+      this._origin = new Point(this._canvas.width / 2, this._canvas.height / 2);
+    }else{
+      this._origin = new Point(0, 0);
+    }
+  }
 };
 // --------------------------------------------------------------------------------
 Graphics.loadImage = function(src){
@@ -196,13 +228,15 @@ Graphics.refresh = function(){
   if(this._canvas){
     this._canvas_rect = this.calcCanvasRectangle();
     this._canvas_rect.clear(this._ctx);
-    this._canvas_rect.fill(this._ctx, 'rgba(0, 0, 0, 0.1)');
+    this._canvas_rect.fillSelf(this._ctx, 'rgba(0, 0, 0, 0.1)');
   }
   if(this._image){
     this._image_rect = this.calcImageRectangle();
     this._image_rect.drawImage(this._ctx, this._image);
   }
-  this.drawGrid(this._ctx);
+  if(this._canvas) {
+    this.drawGrid(this._ctx);
+  }
 };
 Graphics.drawGrid = function(ctx){
   let scaled_unit = this.PER_UNIT_LENGTH * this._scale;
