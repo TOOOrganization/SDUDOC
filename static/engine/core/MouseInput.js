@@ -40,12 +40,12 @@ MouseInput.initialize = function() {
   this._setupEventHandlers();
 };
 MouseInput.clear = function() {
-  MouseInput._over_target = false;
-  MouseInput._over_overall = false;
-  MouseInput._pressed_target = [false, false, false];
-  MouseInput._pressed_overall = [false, false, false];
-  MouseInput._point_target = new Point(0, 0);
-  MouseInput._point_overall = new Point(0, 0);
+  this._over_target = false;
+  this._over_overall = false;
+  this._pressed_target = [false, false, false];
+  this._pressed_overall = [false, false, false];
+  this._point_target = new Point(0, 0);
+  this._point_overall = new Point(0, 0);
 };
 MouseInput._setupEventHandlers = function(){
   document.addEventListener('click', (event) => {this._onClick.call(this, event, true)});

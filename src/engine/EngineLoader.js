@@ -30,12 +30,12 @@ EngineLoader.TOOL = EngineLoader.PATH + "tool/";
 EngineLoader.CORE_LIST = [
   "Point", "Rectangle", "Polygon", "Line",
   "Graphics",
-  "Handler", "Tool",
+  "Handler", "Renderer", "Tool",
   "SDUDocument",
   "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
-  "DocumentManager", "ToolManager"
+  "DocumentManager", "RendererManager", "ToolManager"
 ];
 EngineLoader.TOOL_LIST = [
   "Page", "History", "Document"

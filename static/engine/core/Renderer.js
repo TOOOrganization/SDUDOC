@@ -1,53 +1,63 @@
 // ================================================================================
-// * RenderManager <SDUDOC Engine>
+// * Renderer <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/15 - Version 1.0.0
+//   2020/03/17 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
 // ================================================================================
-// * RenderManager
+// * Renderer
 // --------------------------------------------------------------------------------
-function RenderManager() {
-  throw new Error('This is a static class');
+function Renderer(){
+  this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-RenderManager._renderers = {};
-RenderManager._z_list = [];
+Renderer.prototype._id = 0;
+Renderer.prototype._z = 0;
+Renderer.prototype._owner = null;
+Renderer.prototype._render = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-RenderManager.initialize = function() {
-  this.clear();
-  this._setupZList();
+Renderer.prototype.initialize = function(id, z, owner, render){
+  this._id = id;
+  this._z = z;
+  this._owner = owner;
+  this._render = render;
 };
-RenderManager.clear = function() {
-  this._z_list = [];
-};
-RenderManager._setupZList = function() {
+// --------------------------------------------------------------------------------
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(Renderer.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
+Object.defineProperty(Renderer.prototype, 'z', {
+  get: function() {
+    return this._z;
+  },
+  configurable: true
+});
+Object.defineProperty(Renderer.prototype, 'owner', {
+  get: function() {
+    return this._owner;
+  },
+  configurable: true
+});
+Object.defineProperty(Renderer.prototype, 'render', {
+  get: function() {
+    return this._render;
+  },
+  configurable: true
+});
 
-};
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-RenderManager.addRenderer = function(handler){
-  this._renderers[handler.id] = handler;
-};
-RenderManager.removeRenderer = function(id){
-  this._renderers.remove(id);
-};
-RenderManager.callRenderer = function(ctx){
-  for(let i in this._renderers){
-    if(this._renderers[i].id.startsWith("_") || this._renderers[i].id.startsWith(ToolManager.getCurrentPlugin().id)){
-      this._renderers[i].render.call(this._renderers[i].owner, ctx);
-    }
-  }
-}
-// --------------------------------------------------------------------------------
+// ================================================================================
