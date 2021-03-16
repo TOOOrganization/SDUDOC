@@ -83,30 +83,27 @@ Rectangle.prototype.setSize = function(width, height){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Rectangle.prototype.fillCanvas = function(ctx, color){
+  this.fill(ctx, color, Graphics.getRenderPoint(new Point(this._x, this._y)),
+    Graphics.getRenderPoint(new Point(this._width, this._height)));
+};
+Rectangle.prototype.strokeCanvas = function(ctx, lineWidth, color){
+  this.stroke(ctx, lineWidth, color, Graphics.getRenderPoint(new Point(this._x, this._y)),
+    Graphics.getRenderPoint(new Point(this._width, this._height)));
+};
 Rectangle.prototype.fillSelf = function(ctx, color){
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.fillRect(this._x, this._y, this._width, this._height);
-  ctx.restore();
+  this.fill(ctx, color, new Point(this._x, this._y), new Point(this._width, this._height));
 };
 Rectangle.prototype.strokeSelf = function(ctx, lineWidth, color){
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.fillRect(this._x, this._y, this._width, this._height);
-  ctx.restore();
+  this.stroke(ctx, lineWidth, color, new Point(this._x, this._y), new Point(this._width, this._height));
 };
-Rectangle.prototype.fill = function(ctx, color){
-  let point1 = Graphics.getRenderPoint(new Point(this._x, this._y));
-  let point2 = Graphics.getRenderPoint(new Point(this._width, this._height));
+Rectangle.prototype.fill = function(ctx, color, point1, point2){
   ctx.save();
   ctx.fillStyle = color;
   ctx.fillRect(point1.x, point1.y, point2.x, point2.y);
   ctx.restore();
 };
-Rectangle.prototype.stroke = function(ctx, lineWidth, color){
-  let point1 = Graphics.getRenderPoint(new Point(this._x, this._y));
-  let point2 = Graphics.getRenderPoint(new Point(this._width, this._height));
+Rectangle.prototype.stroke = function(ctx, lineWidth, color, point1, point2){
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;

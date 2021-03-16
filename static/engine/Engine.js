@@ -40,6 +40,7 @@ Engine.initialize = function(){
 
   SDUDocument.initialize();
 
+  RenderManager.initialize();
   ToolManager.initialize();
 };
 Engine.setElements = function(canvas, element, owner){

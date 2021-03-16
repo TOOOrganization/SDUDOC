@@ -131,6 +131,19 @@ ToolManager.addHandler(new Handler("dot.onRightClick", "right_click", false, Too
 
 }));
 ToolManager.addHandler(new Handler("dot.onMouseMove", "mousemove", false, ToolManager, function(event){
-
+  Graphics.refresh();
 }));
+ToolManager.addHandler(new Handler("dot.onMouseOut", "mouseout", false, ToolManager, function(event){
+  Graphics.refresh();
+}));
+
+RenderManager.addRenderer(new Renderer("dot.mouse", 10, RenderManager, function(ctx){
+  let mouse_point = MouseInput.getMousePoint();
+  console.log(mouse_point)
+  if(mouse_point !== null){
+    mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
+    mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+  }
+}));
+
 // ================================================================================

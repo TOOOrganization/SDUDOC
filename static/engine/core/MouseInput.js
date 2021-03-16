@@ -163,7 +163,7 @@ MouseInput._onRightButtonUp = function(event, overall){
 MouseInput._onMouseMove = function(event, overall){
   this.callHandler(event, 'mousemove', overall);
   this._point_overall = new Point(event.pageX, event.pageY);
-  this._point_target = new Point(event.layerX, event.layerY);
+  this._point_target = this._over_target ? new Point(event.layerX, event.layerY) : null;
 };
 MouseInput._onMouseOver = function(event, overall){
   if (overall) this._over_overall = true;
@@ -174,6 +174,7 @@ MouseInput._onMouseOut = function(event, overall){
   if (overall) this._over_overall = false;
   if (!overall) this._over_target = false;
   if (!overall) this._pressed_target = [false, false, false];
+  if (!overall) this._point_target = null;
   this.callHandler(event, 'mouseout', overall);
 };
 MouseInput._onWheel = function(event, overall){

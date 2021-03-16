@@ -236,6 +236,7 @@ Graphics.refresh = function(){
   }
   if(this._canvas) {
     this.drawGrid(this._ctx);
+    RenderManager.callRenderer(this._ctx);
   }
 };
 Graphics.drawGrid = function(ctx){

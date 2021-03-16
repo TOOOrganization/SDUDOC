@@ -19,7 +19,7 @@ function Renderer(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Renderer.prototype._id = 0;
+Renderer.prototype._id = "";
 Renderer.prototype._z = 0;
 Renderer.prototype._owner = null;
 Renderer.prototype._render = function(){};
