@@ -39,9 +39,10 @@ Dot2D.prototype._id = '';
 Dot2D.prototype._type = Dot2D.Type.FREE;
 // --------------------------------------------------------------------------------
 Dot2D.prototype._radius = 0;
-Dot2D.prototype._line_width = 0;
+Dot2D.prototype._stroke_width = 0;
 Dot2D.prototype._color = '';
-Dot2D.prototype._line_color = '';
+Dot2D.prototype._collide_color = '';
+Dot2D.prototype._stroke_color = '';
 // --------------------------------------------------------------------------------
 Dot2D.prototype._father = '';
 Dot2D.prototype._position = 0;
@@ -57,6 +58,7 @@ Dot2D.prototype.initialize = function(id, type, arg1, arg2){
   this._radius = 5;
   this._stroke_width = 2;
   this._color = 'rgba(0, 0, 255, 1)';
+  this._collide_color = 'rgba(255, 0, 0, 1)';
   this._stroke_color = 'rgba(255, 255, 255, 1)';
 
   this._id = id;
@@ -80,8 +82,9 @@ Dot2D.prototype.initialize = function(id, type, arg1, arg2){
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Dot2D.prototype.setColor = function(color, stroke_color){
+Dot2D.prototype.setColor = function(color, collide_color, stroke_color){
   this._color = color;
+  this._collide_color = collide_color;
   this._stroke_color = stroke_color;
 }
 Dot2D.prototype.setSize = function(radius, stroke_width){
@@ -95,9 +98,18 @@ Dot2D.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Dot2D.prototype.checkCollide = function(point){
+  let distance = this.distance(point);
+  return distance <= this._radius ? distance : -1;
+};
+// --------------------------------------------------------------------------------
 Dot2D.prototype.render = function(){
-  Point.prototype.fill.call(this, Graphics.ctx, this._radius, this._color);
-  Point.prototype.stroke.call(this, Graphics.ctx, this._radius, this._line_width, this._line_color);
+  Point.prototype.fillCanvas.call(this, Graphics.ctx, this._radius - 2, this._color);
+  Point.prototype.strokeCanvas.call(this, Graphics.ctx, this._radius, this._stroke_width, this._stroke_color);
+};
+Dot2D.prototype.renderCollide = function(){
+  Point.prototype.fillCanvas.call(this, Graphics.ctx, this._radius, this._color);
+  Point.prototype.strokeCanvas.call(this, Graphics.ctx, this._radius, this._stroke_width, this._collide_color);
 };
 // ================================================================================
 
@@ -139,7 +151,6 @@ ToolManager.addHandler(new Handler("dot.onMouseOut", "mouseout", false, ToolMana
 
 RenderManager.addRenderer(new Renderer("dot.mouse", 10, RenderManager, function(ctx){
   let mouse_point = MouseInput.getMousePoint();
-  console.log(mouse_point)
   if(mouse_point !== null){
     mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
     mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
