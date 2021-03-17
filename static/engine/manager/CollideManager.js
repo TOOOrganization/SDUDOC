@@ -27,22 +27,24 @@ CollideManager.clear = function(){
   this._collide_list = [];
 };
 CollideManager.update = function(){
+  if(!MouseInput.isOver() || !MouseInput.getMousePoint()) return;
   this.clear();
   for(let i in SDUDocument.data){
-    for(let j in SDUDocument.data[i]){
-      if(SDUDocument.data[i][j].checkCollide){
-        let distance = SDUDocument.data[i][j].checkCollide();
+     for(let j in SDUDocument.data[i]){
+       if(SDUDocument.data[i][j].checkCollide){
+        let distance = SDUDocument.data[i][j].checkCollide(MouseInput.getMousePoint());
         if(distance >= 0){
-          this._collide_list.push({id: j, type:i, distance:distance});
+          this._collide_list.push({id: j, page:SDUDocument.data[i][j].page, type:i, distance:distance});
         }
       }
     }
   }
 };
-CollideManager.getCollideList = function(type, limit){
+CollideManager.getCollideListInfo = function(type, limit){
   let list = [];
+  let current_page = DocumentManager.getCurrentPageId();
   for(let i in this._collide_list){
-    if(this._collide_list[i].type === type){
+    if(this._collide_list[i].type === type && this._collide_list[i].page === current_page){
       let index = 0;
       for(index = 0; index < list.length; index++){
         if(this._collide_list[i].distance < list[index].distance){
@@ -54,6 +56,14 @@ CollideManager.getCollideList = function(type, limit){
         list.splice(limit, list.length - limit);
       }
     }
+  }
+  return list;
+};
+CollideManager.getCollideList = function(type, limit){
+  let info = this.getCollideListInfo(type, limit);
+  let list = [];
+  for(let i in info){
+    list.push(info[i].id);
   }
   return list;
 };

@@ -37,9 +37,6 @@ Object.defineProperty(Page.prototype, 'id', {
   get: function() {
     return this._id;
   },
-  set: function(value) {
-    this._id = value;
-  },
   configurable: true
 });
 Object.defineProperty(Page.prototype, 'src', {
@@ -75,7 +72,7 @@ PageFactory.makeObject = function(src){
   return new Page(this.getNextIndex(), src);
 }
 PageFactory.getNextIndex = function(){
-  return SDUDocument.getNextIndex("Page");
+  return DocumentManager.getNextIndex("Page");
 }
 // ================================================================================
 

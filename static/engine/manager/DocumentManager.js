@@ -29,6 +29,15 @@ DocumentManager.updateList = function(){
   Engine.owner.current_page = SDUDocument.current_page - 1;
 }
 // --------------------------------------------------------------------------------
+DocumentManager.addElement = function(type, element){
+  SDUDocument.addElement(type, element);
+  Graphics.refresh();
+}
+DocumentManager.deleteElement = function(type, id){
+  SDUDocument.deleteElement(type, id);
+  Graphics.refresh();
+}
+// --------------------------------------------------------------------------------
 DocumentManager.newDocument = function(){
   this.clear();
 }
@@ -54,6 +63,10 @@ DocumentManager.movePage = async function(target){
   this.updateList();
 }
 // --------------------------------------------------------------------------------
+DocumentManager.getNextIndex = function(key){
+  return SDUDocument.getNextIndex(key);
+}
+// --------------------------------------------------------------------------------
 DocumentManager.getPageList = function(){
   let pages = SDUDocument.data.Page;
   let data = [];
@@ -65,7 +78,12 @@ DocumentManager.getPageList = function(){
   }
   return data;
 }
-
+DocumentManager.getCurrentPage = function(){
+  return SDUDocument.getCurrentPage();
+}
+DocumentManager.getCurrentPageId = function(){
+  return SDUDocument.getCurrentPage() > 0 ? SDUDocument.data.Page[SDUDocument.getCurrentPage() - 1].id : null;
+}
 DocumentManager.setCurrentPage = async function(index){
   await SDUDocument.setCurrentPage(index + 1);
 }

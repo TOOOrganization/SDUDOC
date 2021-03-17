@@ -20,8 +20,8 @@ function Line(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Line.prototype._start = null;
-Line.prototype._end = null;
+Line.prototype._start = "";
+Line.prototype._end = "";
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
@@ -53,24 +53,43 @@ Object.defineProperty(Line.prototype, 'end', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Line.prototype.getDrawPolygon = function(width){
-  let r = this._start.distance(this._end);
-  let dx = this._end.x = this._start.x;
-  let dy = this._end.y = this._start.y;
-  let sx = dy * width / r;
-  let sy = dx * width / r;
+Line.prototype.getDrawPolygon = function(radius){
+  let start = SDUDocument.data["Dot2D"][this._start];
+  let end = SDUDocument.data["Dot2D"][this._end];
+
+  let r = start.distance(end);
+  let dx = end.x = start.x;
+  let dy = end.y = start.y;
+  let sx = dy * radius / r;
+  let sy = dx * radius / r;
   let data = [];
-  data.push(new Point(this._start.x - sx, this._start.y - sy));
-  data.push(new Point(this._start.x + sx, this._start.y + sy));
-  data.push(new Point(this._end.x + sx, this._end.y + sy));
-  data.push(new Point(this._end.x - sx, this._end.y - sy));
+  data.push(new Point(start.x - sx, start.y - sy));
+  data.push(new Point(start.x + sx, start.y + sy));
+  data.push(new Point(end.x + sx, end.y + sy));
+  data.push(new Point(end.x - sx, end.y - sy));
+  return data;
+};
+Line.prototype.getCanvasPolygon = function(width){
+  let data = this.getDrawPolygon(width);
+  for(let i in data){
+    data[i] = Graphics.getRenderPoint(data[i]);
+  }
   return new Polygon(data);
 };
+Line.prototype.getSelfPolygon = function(width){
+  return new Polygon(this.getDrawPolygon(width));
+};
 // --------------------------------------------------------------------------------
-Line.prototype.fill = function(ctx, width, color){
-  this.getDrawPolygon.fill(ctx, color);
+Line.prototype.fillCanvas = function(ctx, radius, color){
+  this.getCanvasPolygon(radius)//.fill(ctx, color);
 };
-Line.prototype.stroke = function(ctx, width, lineWidth, color){
-  this.getDrawPolygon.stroke(ctx, lineWidth, color);
+Line.prototype.strokeCanvas = function(ctx, radius, lineWidth, color) {
+  this.getCanvasPolygon(radius)//.stroke(ctx, lineWidth, color);
+}
+Line.prototype.fillSelf = function(ctx, radius, color){
+  this.getSelfPolygon(radius).fill(ctx, color);
 };
+Line.prototype.strokeSelf = function(ctx, radius, lineWidth, color) {
+  this.getSelfPolygon(radius).stroke(ctx, lineWidth, color);
+}
 // ================================================================================

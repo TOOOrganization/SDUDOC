@@ -49,20 +49,20 @@ Engine.setElements = function(canvas, element, owner){
   MouseInput.setupTargetHandlers(canvas);
 };
 Engine.createHandler = function(){
-  MouseInput.addHandler(new Handler("Engine.onMouseMove", "mousemove", false, Engine, function(event){
+  MouseInput.addHandler(new Handler("engine.onMouseMove", "mousemove", false, Engine, function(event){
     if(MouseInput.isPressed(MouseInput.Mouse.MIDDLE)) {
       let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
       Graphics.moveOrigin(distance.x, distance.y);
     }
-  }.bind(Engine)));
-  MouseInput.addHandler(new Handler("Engine.onMouseWheel", "wheel", false, Engine, function(event){
+  }));
+  MouseInput.addHandler(new Handler("engine.onMouseWheel", "wheel", false, Engine, function(event){
     let scale = 1 - event.deltaY / 1200;
     let oldScale = Graphics.scale;
     Graphics.multiScale(scale);
     let real_scale = Graphics.scale / oldScale;
     let distance = new Point(event.layerX, event.layerY).minus(Graphics.origin).multiply(1 - real_scale);
     Graphics.moveOrigin(distance.x, distance.y)
-  }.bind(Engine)));
+  }));
 };
 // --------------------------------------------------------------------------------
 Engine.createInputBox = function(){

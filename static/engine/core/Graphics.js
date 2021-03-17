@@ -236,6 +236,7 @@ Graphics.refresh = function(){
   }
   if(this._canvas) {
     this.drawGrid(this._ctx);
+    CollideManager.update();
     RenderManager.callRenderer(this._ctx);
   }
 };

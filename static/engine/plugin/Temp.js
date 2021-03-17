@@ -1,18 +1,3 @@
-// ================================================================================
-// * Line2D
-// ================================================================================
-function Line2D(){
-  this.initialize.apply(this, arguments);
-}
-
-Line2D.prototype.start = null;
-Line2D.prototype.end = null;
-
-Line2D.prototype.initialize = function(start, end){
-  this.start = start;
-  this.end = end;
-};
-// ================================================================================
 
 
 Input.addHandler(new Handler("Input.onMouseDown1", "key_down", "M", Engine, function(event){
@@ -31,9 +16,7 @@ Input.addHandler(new Handler("Input.onMouseDown5", "key_click", "M", Engine, fun
   console.log('key_click')
 }.bind(Engine)));
 
-ToolManager.addTool(new Tool("线工具", "mdi-ray-start-end", Tool.Type.PLUGIN, "", function(){
 
-}));
 ToolManager.addTool(new Tool("剪切工具", "mdi-scissors-cutting", Tool.Type.PLUGIN, "", function(){
 
 }));

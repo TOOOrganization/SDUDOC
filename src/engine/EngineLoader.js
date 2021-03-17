@@ -35,7 +35,7 @@ EngineLoader.CORE_LIST = [
   "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
-  "DocumentManager", "RenderManager", "ToolManager"
+  "DocumentManager", "RenderManager", "CollideManager", "ToolManager"
 ];
 EngineLoader.TOOL_LIST = [
   "Page", "History", "Document"

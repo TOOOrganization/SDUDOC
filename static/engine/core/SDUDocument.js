@@ -52,10 +52,18 @@ Object.defineProperty(SDUDocument, 'current_page', {
 // --------------------------------------------------------------------------------
 SDUDocument.getNextIndex = function(key){
   if(!this._next_index[key]) this._next_index[key] = 1;
-  return this._next_index[key] ++;
+  return key + "." + (this._next_index[key] ++);
 }
 // --------------------------------------------------------------------------------
 // * Functions
+// --------------------------------------------------------------------------------
+SDUDocument.addElement = function(type, element){
+  if(!this._data[type]) this._data[type] = {};
+  this._data[type][element.id] = element;
+}
+SDUDocument.deleteElement = function(type, id){
+  delete this._data[type][id];
+}
 // --------------------------------------------------------------------------------
 SDUDocument.addPage = async function(page){
   this._data.Page.splice(this._current_page, 0, page);
@@ -103,6 +111,9 @@ SDUDocument.movePage = async function(target){
   await this.addPage(page);
 }
 // --------------------------------------------------------------------------------
+SDUDocument.getCurrentPage = function(){
+  return this._current_page;
+}
 SDUDocument.setCurrentPage = async function(index){
   if(index < 0 || index > this._data.Page.length) return;
   if(index === 0){
