@@ -37,11 +37,11 @@ Line2D.prototype._stroke_color = '';
 Line2D.prototype.initialize = function(id, page, start, end){
   Line.prototype.initialize.call(this, start, end);
 
-  this._radius = 5;
-  this._stroke_width = 2;
-  this._color = 'rgba(255, 255, 255, 1)';
+  this._radius = 3;
+  this._stroke_width = 1;
+  this._color = 'rgba(0, 0, 255, 1)';
   this._collide_color = 'rgba(255, 0, 0, 1)';
-  this._stroke_color = 'rgba(0, 0, 255, 1)';
+  this._stroke_color = 'rgba(255, 255, 255, 1)';
 
   this._id = id;
   this._page = page;
@@ -70,7 +70,7 @@ Line2D.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 Line2D.prototype.checkCollide = function(point){
   //let distance = Graphics.getRenderPoint(this).distance(point);
-  return false;//distance <= this._radius + 2 ? distance : -1;
+  return -1;//distance <= this._radius + 2 ? distance : -1;
 };
 // --------------------------------------------------------------------------------
 Line2D.prototype.render = function(ctx){
@@ -149,7 +149,7 @@ ToolManager.addHandler(new Handler("line.onMouseOut", "mouseout", false, LineFac
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("_line.normal", 10, LineFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("_line.normal", 9, LineFactory, function(ctx){
   if(SDUDocument.getCurrentPage() <= 0) return;
   let current_page = DocumentManager.getCurrentPageId();
   let collide_list = CollideManager.getCollideList("Line2D", 1);

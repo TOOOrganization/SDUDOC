@@ -27,13 +27,43 @@ Polygon.prototype.initialize = function(points){
   this._points = points;
 };
 // --------------------------------------------------------------------------------
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(Polygon.prototype, 'points', {
+  get: function() {
+    return this._points;
+  },
+  set: function(value) {
+    this._points = value;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Polygon.prototype.fill = function(ctx, color){
+Polygon.prototype.fillCanvas = function(ctx, color){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
     points[i] = Graphics.getRenderPoint(this._points[i]);
   }
+  this.fill(ctx, color, new Polygon(points));
+};
+Polygon.prototype.strokeCanvas = function(ctx, lineWidth, color) {
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points[i] = Graphics.getRenderPoint(this._points[i]);
+  }
+  this.stroke(ctx, lineWidth, color, new Polygon(points));
+}
+Polygon.prototype.fillSelf = function(ctx, color){
+  this.fill(ctx, color, this);
+};
+Polygon.prototype.strokeSelf = function(ctx, lineWidth, color) {
+  this.stroke(ctx, lineWidth, color, this);
+};
+Polygon.prototype.fill = function(ctx, color, polygon){
+  let points = polygon.points;
+
   ctx.save();
   ctx.fillStyle = color;
   ctx.beginPath();
@@ -45,11 +75,9 @@ Polygon.prototype.fill = function(ctx, color){
   ctx.fill();
   ctx.restore();
 };
-Polygon.prototype.stroke = function(ctx, lineWidth, color){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = Graphics.getRenderPoint(this._points[i]);
-  }
+Polygon.prototype.stroke = function(ctx, lineWidth, color, polygon){
+  let points = polygon.points;
+
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;

@@ -71,3 +71,46 @@ DocData.prototype.draw = function(ctx, grid){
 let data = {
 
 }
+/*
+Line.prototype.getDrawPolygon = function(radius, line){
+  let start = SDUDocument.data["Dot2D"][line.start];
+  let end = SDUDocument.data["Dot2D"][line.end];
+
+  let r = start.distance(end);
+  let dx = end.x - start.x;
+  let dy = end.y - start.y;
+  let sx = dy * radius / r;
+  let sy = dx * radius / r;
+  let data = [];
+  data.push(new Point(start.x - sx, start.y - sy));
+  data.push(new Point(start.x + sx, start.y + sy));
+  data.push(new Point(end.x + sx, end.y + sy));
+  data.push(new Point(end.x - sx, end.y - sy));
+  return data;
+};
+Line.prototype.getCanvasPolygon = function(width, line){
+  let data = this.getDrawPolygon(width, line);
+  for(let i in data){
+    data[i] = Graphics.getRenderPoint(data[i]);
+  }
+  return new Polygon(data);
+};
+Line.prototype.getSelfPolygon = function(width, line){
+  return new Polygon(this.getDrawPolygon(width, line));
+};
+// --------------------------------------------------------------------------------
+Line.prototype.fillCanvas = function(ctx, radius, color){
+  console.log(this.getSelfPolygon(radius, this))
+  this.getSelfPolygon(radius, this).fillCanvas(ctx, color);
+};
+Line.prototype.strokeCanvas = function(ctx, radius, lineWidth, color) {
+  this.getSelfPolygon(radius, this).strokeCanvas(ctx, lineWidth, color);
+}
+Line.prototype.fillSelf = function(ctx, radius, color){
+  this.getSelfPolygon(radius, this).fillSelf(ctx, color);
+};
+Line.prototype.strokeSelf = function(ctx, radius, lineWidth, color) {
+  this.getSelfPolygon(radius, this).strokeSelf(ctx, lineWidth, color);
+}
+// ================================================================================
+*/
