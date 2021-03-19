@@ -1,5 +1,6 @@
 [
   "Move.js",
   "Dot.js",
-  "Line.js"
+  "Line.js",
+  "Polygon.js"
 ]

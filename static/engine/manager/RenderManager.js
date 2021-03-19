@@ -58,8 +58,16 @@ RenderManager.removeRenderer = function(id){
 };
 RenderManager.callRenderer = function(ctx){
   for(let i = 0; i < this._z_list.length; i++){
-    if(this._renderers[this._z_list[i]].id.startsWith("_") || this._renderers[this._z_list[i]].id.startsWith(ToolManager.getCurrentPlugin().id)){
+    if(this._renderers[this._z_list[i]].id.startsWith("!" + ToolManager.getCurrentPlugin().id)) {
+      continue;
+    }else if(this._renderers[this._z_list[i]].id.startsWith("!")){
       this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]].owner, ctx);
+      continue;
+    }
+    if(this._renderers[this._z_list[i]].id.startsWith("_") ||
+      this._renderers[this._z_list[i]].id.startsWith(ToolManager.getCurrentPlugin().id)){
+      this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]].owner, ctx);
+      continue;
     }
   }
 }

@@ -77,6 +77,18 @@ Dot2D.prototype.initialize = function(id, page, type, arg1, arg2){
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
+Object.defineProperty(Dot2D.prototype, 'x', {
+  get: function() {
+    return this.getRealPoint()._x;
+  },
+  configurable: true
+});
+Object.defineProperty(Dot2D.prototype, 'y', {
+  get: function() {
+    return this.getRealPoint()._y;
+  },
+  configurable: true
+});
 Object.defineProperty(Dot2D.prototype, 'id', {
   get: function() {
     return this._id;
@@ -124,15 +136,27 @@ Dot2D.prototype.setColor = function(color, collide_color, stroke_color){
   this._color = color;
   this._collide_color = collide_color;
   this._stroke_color = stroke_color;
-}
+};
 Dot2D.prototype.setSize = function(radius, stroke_width){
   this._radius = radius;
   this._stroke_width = stroke_width;
-}
+};
 // --------------------------------------------------------------------------------
 Dot2D.prototype.getObject = function(){
   return new Dot2D("", Dot2D.Type.FREE, "", 0, 0);
-}
+};
+// --------------------------------------------------------------------------------
+Dot2D.prototype.getRealPoint = function(){
+  switch (this._type) {
+    case Dot2D.Type.FREE: default:
+      return this;
+    case Dot2D.Type.DEPENDENT:
+      let line = SDUDocument.data["Line2D"][this._father];
+      return LineFactory.getDependentPoint(line, this._position);
+    case Dot2D.Type.INTERSECTION:
+      return Graphics.getGridPoint(LineFactory.getIntersection(this._father1, this._father2));
+  }
+};
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
@@ -149,6 +173,14 @@ Dot2D.prototype.renderCollide = function(ctx){
   Point.prototype.fillCanvas.call(this, ctx, this._radius, this._color);
   Point.prototype.strokeCanvas.call(this, ctx, this._radius, this._stroke_width, this._collide_color);
 };
+// --------------------------------------------------------------------------------
+Dot2D.prototype.onDelete = function(){
+  for(let i in SDUDocument.data["Line2D"]){
+    if(SDUDocument.data["Line2D"][i].start === this._id || SDUDocument.data["Line2D"][i].end === this._id){
+      SDUDocument.deleteElement("Line2D", i);
+    }
+  }
+};
 // ================================================================================
 
 // ================================================================================
@@ -162,10 +194,10 @@ function DotFactory(){
 // --------------------------------------------------------------------------------
 DotFactory.makeObject = function(page, type, arg1, arg2){
   return new Dot2D(this.getNextIndex(), page, type, arg1, arg2);
-}
+};
 DotFactory.getNextIndex = function(){
   return DocumentManager.getNextIndex("Dot2D");
-}
+};
 // ================================================================================
 
 // ================================================================================
@@ -179,9 +211,20 @@ ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, DotFa
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
   if(collide_list.length > 0) return;
-  let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
-  DocumentManager.addElement("Dot2D", DotFactory.makeObject(DocumentManager.getCurrentPageId(),
-    Dot2D.Type.FREE, point.x, point.y));
+
+  collide_list = CollideManager.getCollideList("Line2D", 2);
+  if(collide_list.length === 2){
+    DocumentManager.addElement("Dot2D", DotFactory.makeObject(DocumentManager.getCurrentPageId(),
+      Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]));
+  }else if(collide_list.length === 1){
+    let dependent = LineFactory.getDependent(collide_list[0], new Point(event.layerX, event.layerY));
+    DocumentManager.addElement("Dot2D", DotFactory.makeObject(DocumentManager.getCurrentPageId(),
+      Dot2D.Type.DEPENDENT, collide_list[0], dependent));
+  }else{
+    let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
+    DocumentManager.addElement("Dot2D", DotFactory.makeObject(DocumentManager.getCurrentPageId(),
+      Dot2D.Type.FREE, point.x, point.y));
+  }
 }));
 ToolManager.addHandler(new Handler("dot.onRightClick", "right_click", false, DotFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
@@ -206,7 +249,16 @@ RenderManager.addRenderer(new Renderer("_dot.normal", 10, DotFactory, function(c
     }
   }
 }));
-RenderManager.addRenderer(new Renderer("_dot.collide", 11, DotFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("!dot.collide", 11, DotFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList("Dot2D", 1);
+  for(let i in SDUDocument.data["Dot2D"]){
+    if(collide_list.indexOf(i) !== -1){
+      SDUDocument.data["Dot2D"][i].render(ctx);
+    }
+  }
+}));
+RenderManager.addRenderer(new Renderer("dot.collide", 11, DotFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
   for(let i in SDUDocument.data["Dot2D"]){
@@ -215,15 +267,40 @@ RenderManager.addRenderer(new Renderer("_dot.collide", 11, DotFactory, function(
     }
   }
 }));
+RenderManager.addRenderer(new Renderer("dot.line.collide", 9, DotFactory, function(ctx){
+  if(SDUDocument.getCurrentPage() <= 0) return;
+  let current_page = DocumentManager.getCurrentPageId();
+  let collide_list = CollideManager.getCollideList("Line2D", 2);
+  for(let i in SDUDocument.data["Line2D"]){
+    if(collide_list.indexOf(i) !== -1 && SDUDocument.data["Line2D"][i].page === current_page){
+      SDUDocument.data["Line2D"][i].renderCollide(ctx);
+    }
+  }
+}));
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("dot.mouse", 100, DotFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
   if(collide_list.length > 0) return;
-  let mouse_point = MouseInput.getMousePoint();
-  if(mouse_point !== null){
-    mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-    mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+
+  collide_list = CollideManager.getCollideList("Line2D", 2);
+  if(collide_list.length === 2){
+    let point = LineFactory.getIntersection(collide_list[0], collide_list[1]);
+    point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
+    point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+  }else if(collide_list.length === 1){
+    let mouse_point = MouseInput.getMousePoint();
+    if(mouse_point !== null){
+      let point = LineFactory.getProjection(collide_list[0], mouse_point);
+      point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
+      point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+    }
+  }else{
+    let mouse_point = MouseInput.getMousePoint();
+    if(mouse_point !== null){
+      mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
+      mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+    }
   }
 }));
 // ================================================================================

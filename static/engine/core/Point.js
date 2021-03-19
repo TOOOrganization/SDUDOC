@@ -63,16 +63,16 @@ Point.prototype.distance = function(point){
 };
 // --------------------------------------------------------------------------------
 Point.prototype.add = function(point){
-  return new Point(this._x + point.x, this._y + point.y);
+  return new Point(this.x + point.x, this.y + point.y);
 };
 Point.prototype.minus = function(point){
-  return new Point(this._x - point.x, this._y - point.y);
+  return new Point(this.x - point.x, this.y - point.y);
 };
 Point.prototype.multiply = function(num){
-  return new Point(this._x * num, this._y * num);
+  return new Point(this.x * num, this.y * num);
 };
 Point.prototype.division = function(num){
-  return new Point(this._x / num, this._y / num);
+  return new Point(this.x / num, this.y / num);
 };
 // --------------------------------------------------------------------------------
 Point.prototype.fillCanvas = function(ctx, radius, color){

@@ -62,6 +62,7 @@ SDUDocument.addElement = function(type, element){
   this._data[type][element.id] = element;
 }
 SDUDocument.deleteElement = function(type, id){
+  this._data[type][id].onDelete.call(this._data[type][id]);
   delete this._data[type][id];
 }
 // --------------------------------------------------------------------------------

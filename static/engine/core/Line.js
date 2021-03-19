@@ -52,18 +52,23 @@ Object.defineProperty(Line.prototype, 'end', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Line.prototype.getDot = function(x, y, k, r){
+  let b = Math.sqrt(k * k + 1);
+  let x1 = (x * b - r)/b;
+  let x2 = (x * b + r)/b;
+  let y1 = k * (x1 - x) + y;
+  let y2 = k * (x2 - x) + y;
+  return [new Point(x1, y1), new Point(x2, y2)];
+}
 Line.prototype.getDrawPolygon = function(radius, start, end){
-  let r = start.distance(end);
-  let dx = end.x - start.x;
-  let dy = end.y - start.y;
-  let sx = dy * radius / r;
-  let sy = dx * radius / r;
-  let data = [];
-  data.push(new Point(start.x - sx, start.y - sy));
-  data.push(new Point(start.x + sx, start.y + sy));
-  data.push(new Point(end.x + sx, end.y + sy));
-  data.push(new Point(end.x - sx, end.y - sy));
-  return new Polygon(data);
+  if(start.y === end.y){
+    return new Polygon([new Point(start.x, start.y + radius), new Point(start.x, start.y - radius), radius,
+      new Point(end.x, end.y - radius), new Point(end.x, end.y + radius)]);
+  }
+  let k = -1 / ((end.y - start.y)/(end.x - start.x));
+  let dot1 = this.getDot(start.x, start.y, k, radius);
+  let dot2 = this.getDot(end.x, end.y, k, radius);
+  return new Polygon([dot1[0], dot1[1], dot2[1], dot2[0]]);
 };
 // --------------------------------------------------------------------------------
 Line.prototype.fillCanvas = function(ctx, radius, color){
