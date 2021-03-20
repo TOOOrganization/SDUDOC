@@ -62,7 +62,7 @@
           <v-card-title class="headline">
             <v-icon class="mr-2">mdi-alert-circle-outline</v-icon> 提示
           </v-card-title>
-          <v-card-text>{{pop_text}}</v-card-text>
+          <v-card-text>{{pop_title}}</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="pop_callback">确认</v-btn>
@@ -74,9 +74,9 @@
       <v-dialog v-model="prompt_dialog" max-width="400">
         <v-card>
           <v-card-title class="headline">
-            <v-icon class="mr-2">mdi-file-document-edit-outline</v-icon> {{pop_text}}
+            <v-icon class="mr-2">mdi-file-document-edit-outline</v-icon> {{pop_title}}
           </v-card-title>
-          <v-text-field required label="要移动到的页码" class="mx-6" v-model="prompt_text"></v-text-field>
+          <v-text-field required :label="prompt_tooltip" class="mx-6" v-model="prompt_text"></v-text-field>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="pop_callback">确认</v-btn>
@@ -166,7 +166,8 @@ export default {
       alert_dialog: false,
       prompt_dialog: false,
       prompt_text: null,
-      pop_text: null,
+      prompt_tooltip: null,
+      pop_title: null,
       pop_callback: function(){ this.alert_dialog = false },
       course_dialog: false,
       tools_document: [],

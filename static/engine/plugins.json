@@ -2,5 +2,7 @@
   "Move.js",
   "Dot.js",
   "Line.js",
-  "Polygon.js"
+  "Polygon.js",
+  "Word.js",
+  "Temp.js"
 ]

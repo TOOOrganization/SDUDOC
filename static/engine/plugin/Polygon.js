@@ -1,5 +1,5 @@
 // ================================================================================
-// * Polygon2D <SDUDOC Engine Plugin>
+// * Polygon <SDUDOC Engine Plugin>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -8,7 +8,7 @@
 //   [Warning] You need SDUDOC Engine to apply this plugin.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/17 - Version 1.0.0
+//   2020/03/19 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -25,7 +25,6 @@ Polygon2D.prototype.constructor = Polygon2D;
 // --------------------------------------------------------------------------------
 Polygon2D.prototype._id = "";
 Polygon2D.prototype._page = "";
-Polygon2D.prototype._word = "";
 // --------------------------------------------------------------------------------
 Polygon2D.prototype._color = '';
 Polygon2D.prototype._collide_color = '';
@@ -53,12 +52,6 @@ Object.defineProperty(Polygon2D.prototype, 'id', {
 Object.defineProperty(Polygon2D.prototype, 'page', {
   get: function() {
     return this._page;
-  },
-  configurable: true
-});
-Object.defineProperty(Polygon2D.prototype, 'word', {
-  get: function() {
-    return this._word;
   },
   configurable: true
 });
@@ -118,12 +111,16 @@ Polygon2D.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onDelete = function(){
-
+  for(let i in SDUDocument.data["Word"]){
+    if(SDUDocument.data["Word"][i].polygon === this._id){
+      SDUDocument.deleteElement("Word", i);
+    }
+  }
 };
 // ================================================================================
 
 // ================================================================================
-// * LineFactory
+// * PolygonFactory
 // ================================================================================
 function PolygonFactory(){
   throw new Error('This is a static class');
@@ -156,7 +153,7 @@ PolygonFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // ================================================================================
-ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pencil-plus-outline", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pentagon-outline", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
 }));
 // --------------------------------------------------------------------------------

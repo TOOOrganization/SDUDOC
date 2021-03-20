@@ -88,8 +88,7 @@ ToolManager.addTool(new Tool("move_page_minus", "前移一页", "mdi-arrow-left-
   await DocumentManager.movePageMinus();
 }));
 ToolManager.addTool(new Tool("move_page_set", "设定页码", "mdi-counter", Tool.Type.PAGE, "", function(){
-  Engine.owner.prompt_text = SDUDocument.current_page;
-  Engine.prompt("输入目标页码", async function(){
+  Engine.prompt("输入目标页码", "请输入要移动到的页码", SDUDocument.current_page,async function(){
     Engine.owner.prompt_dialog = false;
     await DocumentManager.movePage(Number(Engine.owner.prompt_text));
   });

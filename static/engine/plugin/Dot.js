@@ -180,6 +180,14 @@ Dot2D.prototype.onDelete = function(){
       SDUDocument.deleteElement("Line2D", i);
     }
   }
+  for(let i in SDUDocument.data["Polygon2D"]){
+    for(let j in SDUDocument.data["Polygon2D"][i].points){
+      if(SDUDocument.data["Polygon2D"][i].points[j] === this._id){
+        SDUDocument.deleteElement("Polygon2D", i);
+        break;
+      }
+    }
+  }
 };
 // ================================================================================
 

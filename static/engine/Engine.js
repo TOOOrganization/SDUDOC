@@ -102,13 +102,15 @@ Engine.readImage = function(owner, callback){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Engine.alert = function(text, callback){
-  Engine.owner.pop_text = text;
+Engine.alert = function(title, callback){
+  Engine.owner.pop_title = title;
   Engine.owner.pop_callback = callback;
   Engine.owner.alert_dialog = true;
 }
-Engine.prompt = function(text, callback){
-  Engine.owner.pop_text = text;
+Engine.prompt = function(title, tooltip, default_text, callback){
+  Engine.owner.pop_title = title;
+  Engine.owner.prompt_tooltip = tooltip;
+  Engine.owner.prompt_text = default_text;
   Engine.owner.pop_callback = callback;
   Engine.owner.prompt_dialog = true;
 }

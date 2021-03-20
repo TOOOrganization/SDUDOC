@@ -263,7 +263,7 @@ Graphics.drawGrid = function(ctx){
   let cw = this._canvas_rect.width;
   let ch = this._canvas_rect.height;
 
-  ctx.fontSize = "10px";
+  ctx.font = "11px Arial";
   for(let i = draw_start_x - draw_origin_x; i <= cw / draw_unit; i ++){
     ctx.fillStyle = 'rgba(0, 0, 0, ' + ((Math.floor(i) - draw_origin_x) % 2 === 0 ? 1 : (draw_unit / 10 - 5)) +')';
     ctx.fillRect(i * draw_unit - 0.5, 0, 1, ch);
@@ -274,7 +274,7 @@ Graphics.drawGrid = function(ctx){
     ctx.fillStyle = 'rgba(0, 0, 0, ' + ((Math.floor(i) - draw_origin_y) % 2 === 0 ? 1 : (draw_unit / 10 - 5)) +')';
     ctx.fillRect(0, i * draw_unit - 0.5, cw, 1);
     let point = Math.round((Math.floor(i) - draw_origin_y) * this.PER_UNIT_LENGTH * unit_scale);
-    ctx.fillText(point / 2, draw_start_x * draw_unit + 4, i * draw_unit - 4);
+    ctx.fillText(point / 2, draw_start_x * draw_unit + 3, i * draw_unit - 4);
   }
 };
 // ================================================================================
