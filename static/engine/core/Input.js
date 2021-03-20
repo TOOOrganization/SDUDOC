@@ -235,7 +235,7 @@ Input._onLostFocus = function() {
 };
 Input._shouldPreventDefault = function(keyCode) {
   switch (keyCode) {
-    case 8:     // backspace
+    //case 8:     // backspace
     case 33:    // pageup
     case 34:    // pagedown
     case 37:    // left arrow
