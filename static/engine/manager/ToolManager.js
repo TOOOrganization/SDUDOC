@@ -109,15 +109,16 @@ ToolManager._processHandler = function(event, type){
 }
 ToolManager.callMouseHandler = function(event, type){
   for(let i in this._handlers){
-    if(this._handlers[i].type === type && this._handlers[i].id.startsWith(this.getCurrentPlugin().id)){
+    if(this._handlers[i].type === type &&
+      (this._handlers[i].id.startsWith('_') || this._handlers[i].id.startsWith(this.getCurrentPlugin().id))){
       this._handlers[i].callback.call(this._handlers[i].owner, event);
     }
   }
 }
 ToolManager.callKeyHandler = function(event, type){
   for(let i in this._handlers){
-    if(this._handlers[i].type === type && this._handlers[i].key_code === event.key_code
-      && this._handlers[i].id.startsWith(this.getCurrentPlugin().id)){
+    if(this._handlers[i].type === type && this._handlers[i].key_code === Input.getKeyCode(event.keyCode)
+      && (this._handlers[i].id.startsWith('_') || this._handlers[i].id.startsWith(this.getCurrentPlugin().id))){
       this._handlers[i].callback.call(this._handlers[i].owner, event);
     }
   }

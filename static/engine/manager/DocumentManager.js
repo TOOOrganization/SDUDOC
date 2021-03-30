@@ -25,8 +25,12 @@ DocumentManager._filename = null;
 DocumentManager._history = [];
 DocumentManager._now_history = 0;
 // --------------------------------------------------------------------------------
-// * Functions
+// * Initialize
 // --------------------------------------------------------------------------------
+DocumentManager.initialize = function(){
+  SDUDocument.clear();
+  this.push();
+};
 DocumentManager.clear = function(){
   SDUDocument.clear();
   Engine.owner.page_list = [];
@@ -35,6 +39,9 @@ DocumentManager.clear = function(){
   this._history = [];
   this._now_history = 0;
 }
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
 DocumentManager.updateList = function(){
   Engine.owner.page_list = this.getPageList();
   Engine.owner.current_page = SDUDocument.current_page - 1;
@@ -54,6 +61,7 @@ DocumentManager.deleteElement = function(type, id){
 DocumentManager.newDocument = function(){
   this.clear();
   this.updateList();
+  this.push();
 }
 DocumentManager.newPage = async function(src){
   await SDUDocument.addPage(PageFactory.makeObject(src));
@@ -196,11 +204,13 @@ DocumentManager.push = function(){
 DocumentManager.undo = async function(){
   if(this._now_history > 0){
     await SDUDocument.loadJson(this._history[-- this._now_history]);
+    this.updateList();
   }
 }
 DocumentManager.redo = async function(){
   if(this._now_history < this._history.length - 1){
     await SDUDocument.loadJson(this._history[++ this._now_history]);
+    this.updateList();
   }
 }
 // ================================================================================

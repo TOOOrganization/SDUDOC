@@ -196,6 +196,10 @@ Input._setupEventHandlers = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Input.getKeyCode = function(code) {
+  return this.keyMapper[code];
+}
+// --------------------------------------------------------------------------------
 Input._onKeyDown = function(event) {
   if (this._shouldPreventDefault(event.keyCode)) {
     event.preventDefault();

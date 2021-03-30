@@ -39,6 +39,7 @@ Engine.initialize = function(){
   Input.initialize();
 
   SDUDocument.initialize();
+  DocumentManager.initialize();
 
   RenderManager.initialize();
   ToolManager.initialize();
