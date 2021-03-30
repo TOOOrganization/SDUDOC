@@ -17,12 +17,23 @@ function DocumentManager() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
+// * Property
+// --------------------------------------------------------------------------------
+DocumentManager.MAX_HISTORY = 100;
+// --------------------------------------------------------------------------------
+DocumentManager._filename = null;
+DocumentManager._history = [];
+DocumentManager._now_history = 0;
+// --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
 DocumentManager.clear = function(){
   SDUDocument.clear();
   Engine.owner.page_list = [];
   Engine.owner.current_page = 0;
+  this._filename = null;
+  this._history = [];
+  this._now_history = 0;
 }
 DocumentManager.updateList = function(){
   Engine.owner.page_list = this.getPageList();
@@ -32,35 +43,43 @@ DocumentManager.updateList = function(){
 DocumentManager.addElement = function(type, element){
   SDUDocument.addElement(type, element);
   Graphics.refresh();
+  this.push();
 }
 DocumentManager.deleteElement = function(type, id){
   SDUDocument.deleteElement(type, id);
   Graphics.refresh();
+  this.push();
 }
 // --------------------------------------------------------------------------------
 DocumentManager.newDocument = function(){
   this.clear();
+  this.updateList();
 }
 DocumentManager.newPage = async function(src){
   await SDUDocument.addPage(PageFactory.makeObject(src));
   this.updateList();
+  this.push();
 }
 DocumentManager.deletePage = async function(){
   await SDUDocument.deletePage();
   this.updateList();
+  this.push();
 }
 // --------------------------------------------------------------------------------
 DocumentManager.movePagePlus = async function(){
   await SDUDocument.movePagePlus();
   this.updateList();
+  this.push();
 }
 DocumentManager.movePageMinus = async function(){
   await SDUDocument.movePageMinus();
   this.updateList();
+  this.push();
 }
 DocumentManager.movePage = async function(target){
   await SDUDocument.movePageTo(target);
   this.updateList();
+  this.push();
 }
 // --------------------------------------------------------------------------------
 DocumentManager.getNextIndex = function(key){
@@ -142,5 +161,46 @@ DocumentManager.objectToXml = function(obj){
   }
   string_builder += "/>";
   return string_builder;
+}
+// --------------------------------------------------------------------------------
+DocumentManager.getSaveFilename = function(){
+  return (this._filename ? this._filename : "Untitled") + ".sjs";
+}
+DocumentManager.getExportFilename = function(){
+  return (this._filename ? this._filename : "Untitled") + ".sdudoc";
+}
+DocumentManager.new = function(){
+  this._filename = null;
+  this.newDocument();
+}
+DocumentManager.load = async function(json, filename){
+  this._filename = filename;
+  await SDUDocument.loadJson(json);
+  this.updateList();
+}
+DocumentManager.save = function(){
+  return [this.getSaveFilename(), SDUDocument.saveJson()];
+}
+DocumentManager.export = function(){
+  return [this.getExportFilename(), SDUDocument.exportJson()];
+}
+// --------------------------------------------------------------------------------
+DocumentManager.push = function(){
+  this._history.splice(++ this._now_history, this._history.length - this._now_history);
+  this._history.push(SDUDocument.saveJson());
+  if(this._history.length >= this.MAX_HISTORY){
+    this._history.shift();
+  }
+  this._now_history = this._history.length - 1;
+}
+DocumentManager.undo = async function(){
+  if(this._now_history > 0){
+    await SDUDocument.loadJson(this._history[-- this._now_history]);
+  }
+}
+DocumentManager.redo = async function(){
+  if(this._now_history < this._history.length - 1){
+    await SDUDocument.loadJson(this._history[++ this._now_history]);
+  }
 }
 // ================================================================================

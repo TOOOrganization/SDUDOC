@@ -117,6 +117,21 @@ Polygon2D.prototype.onDelete = function(){
     }
   }
 };
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._points = json._points;
+}
+Polygon2D.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _points: this._points
+  }
+}
 // ================================================================================
 
 // ================================================================================

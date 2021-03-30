@@ -72,6 +72,7 @@ SDUDocument.addPage = async function(page){
 }
 SDUDocument.deletePage = async function(){
   if(this._data.Page.length <= 0) return;
+  this._data.Page[this._current_page - 1].onDelete.call(this._data.Page[this._current_page - 1]);
   this._data.Page.splice(this._current_page - 1, 1);
   if(this._current_page === this._data.Page.length + 1) {
     await this.setCurrentPage(this._current_page - 1);
@@ -128,5 +129,57 @@ SDUDocument.setCurrentPage = async function(index){
     this._current_page = index;
   }
   await Graphics.setImage(this._data.Page[this._current_page - 1].src);
+}
+// --------------------------------------------------------------------------------
+SDUDocument.loadJson = async function(json){
+  this._data = {};
+  let temp = JSON.parse(json);
+  for(let i in temp){
+    if(i === "Index"){
+      this._next_index = temp[i];
+    }else if(i === "Page"){
+      this._data[i] = [];
+      for(let j in temp[i]){
+        let element = window[i].prototype.getObject();
+        element.loadJson(temp[i][j]);
+        this._data[i].push(element);
+      }
+    }else{
+      this._data[i] = {};
+      for(let j in temp[i]){
+
+        let element = window[i].prototype.getObject();
+        element.loadJson(temp[i][j]);
+        this._data[i][temp[i][j]._id] = element;
+      }
+    }
+  }
+  await this.setCurrentPage(0);
+}
+SDUDocument.saveJson = function(){
+  let temp = {
+    Index: this._next_index
+  };
+  for(let i in this._data){
+    temp[i] = [];
+    for(let j in this._data[i]){
+      if(this._data[i][j].saveJson){
+        temp[i].push(this._data[i][j].saveJson());
+      }
+    }
+  }
+  return JSON.stringify(temp);
+}
+SDUDocument.exportJson = function(){
+  let temp = {};
+  for(let i in this._data){
+    temp[i] = [];
+    for(let j in this._data[i]){
+      if(this._data[i][j].exportJson){
+        temp[i].push(this._data[i][j].exportJson());
+      }
+    }
+  }
+  return JSON.stringify(temp);
 }
 // ================================================================================

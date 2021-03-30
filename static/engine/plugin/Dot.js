@@ -189,6 +189,33 @@ Dot2D.prototype.onDelete = function(){
     }
   }
 };
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Dot2D.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._type = json._type;
+  this._x = json._x;
+  this._y = json._y;
+  this._father = json._father;
+  this._position = json._position;
+  this._father1 = json._father1;
+  this._father2 = json._father2;
+}
+Dot2D.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _type: this._type,
+    _x: this._x,
+    _y: this._y,
+    _father: this._father,
+    _position: this._position,
+    _father1: this._father1,
+    _father2: this._father2,
+  }
+}
 // ================================================================================
 
 // ================================================================================

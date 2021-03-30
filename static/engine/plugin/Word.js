@@ -132,6 +132,47 @@ Word.prototype.fill = function(ctx, radius, background_color, text_color, point,
 Word.prototype.onDelete = function(){
 
 };
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Word.prototype.getExportPoints = function(){
+  let temp = [];
+  let points = SDUDocument.data["Polygon2D"][this._polygon].points;
+  for(let i in points){
+    let point = SDUDocument.data["Dot2D"][points[i]];
+    temp.push([point.x, point.y]);
+  }
+  return temp;
+}
+// --------------------------------------------------------------------------------
+Word.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._x = json._x;
+  this._y = json._y;
+  this._word = json._word;
+  this._polygon = json._polygon;
+}
+Word.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _x: this._x,
+    _y: this._y,
+    _word: this._word,
+    _polygon: this._polygon
+  }
+}
+Word.prototype.exportJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _x: this._x,
+    _y: this._y,
+    _word: this._word,
+    _points: this.getExportPoints()
+  }
+}
 // ================================================================================
 
 // ================================================================================

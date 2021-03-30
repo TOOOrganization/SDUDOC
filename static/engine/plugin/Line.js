@@ -122,6 +122,23 @@ Line2D.prototype.onDelete = function(){
     }
   }
 };
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Line2D.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._start = json._start;
+  this._end = json._end;
+}
+Line2D.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _start: this._start,
+    _end: this._end
+  }
+}
 // ================================================================================
 
 // ================================================================================

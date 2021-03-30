@@ -57,6 +57,33 @@ Page.prototype.setData = function(id, src){
 Page.prototype.getObject = function(){
   return new Page("", "");
 }
+// --------------------------------------------------------------------------------
+Page.prototype.onDelete = function(){
+  for(let i in SDUDocument.data["Dot2D"]){
+    if(SDUDocument.data["Dot2D"][i].page === this._id){
+      SDUDocument.deleteElement("Dot2D", i);
+    }
+  }
+};
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Page.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._src = json._src;
+}
+Page.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _src: this._src
+  }
+}
+Page.prototype.exportJson = function(){
+  return {
+    id: this._id,
+    src: this._src
+  }
+}
 // ================================================================================
 
 // ================================================================================
