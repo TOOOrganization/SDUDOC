@@ -251,11 +251,15 @@ DocumentManager.getExportFilename = function(){
 DocumentManager.new = function(){
   this._filename = null;
   this.newDocument();
+  this.clearHistory();
+  this.push();
 }
 DocumentManager.load = async function(json, filename){
   this._filename = filename;
   await SDUDocument.loadJson(json);
   this.updateList();
+  this.clearHistory();
+  this.push();
 }
 DocumentManager.save = function(){
   return [this.getSaveFilename(), SDUDocument.saveJson()];
@@ -264,6 +268,10 @@ DocumentManager.export = function(){
   return [this.getExportFilename(), SDUDocument.exportJson()];
 }
 // --------------------------------------------------------------------------------
+DocumentManager.clearHistory = function(){
+  this._history = []
+  this._now_history = 0;
+}
 DocumentManager.push = function(){
   this._history.splice(++ this._now_history, this._history.length - this._now_history);
   this._history.push([SDUDocument.saveJson(), SDUDocument.getCurrentPage()]);

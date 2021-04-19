@@ -67,6 +67,18 @@ Polygon2D.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Polygon.prototype.getCorePoint = function(){
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points[i] = SDUDocument.data["Dot2D"][this._points[i]];
+  }
+  let point = new Point(0, 0);
+  for(let i = 0; i < points.length; i++){
+    point = point.add(points[i]);
+  }
+  return point.division(points.length);
+};
+// --------------------------------------------------------------------------------
 Polygon2D.prototype.checkProjection = function(start, end, point){
   if((start.y < end.y && (start.y < point.y && point.y < end.y)) ||
     (start.y > end.y && (start.y > point.y && point.y > end.y))){

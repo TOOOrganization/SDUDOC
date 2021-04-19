@@ -114,7 +114,6 @@ Engine.readJson = function(owner, callback){
     this._input.setAttribute('accept', '.sjs');
     this._input._readAsTest = true;
     this._input._reader.onload = function(event){
-      console.log(event.target.result)
       callback.call(owner, event.target.result, Engine._input.filename);
       resolve();
     }

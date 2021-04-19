@@ -49,6 +49,9 @@ ToolManager.addHandler(new Handler("move.onMouseLeftDown", "left_down", false, M
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("move.onMouseLeftUp", "left_up", false, MoveFactory, function(event){
+  if(MoveFactory.getTarget()) {
+    DocumentManager.push();
+  }
   MoveFactory.clearTarget();
   Graphics.refresh();
 }));
