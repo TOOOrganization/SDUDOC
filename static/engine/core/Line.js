@@ -64,6 +64,9 @@ Line.prototype.getDrawPolygon = function(radius, start, end){
   if(start.y === end.y){
     return new Polygon([new Point(start.x, start.y + radius), new Point(start.x, start.y - radius), radius,
       new Point(end.x, end.y - radius), new Point(end.x, end.y + radius)]);
+  }else if(start.x === end.x){
+    return new Polygon([new Point(start.x + radius, start.y), new Point(start.x - radius, start.y), radius,
+      new Point(end.x - radius, end.y), new Point(end.x + radius, end.y)]);
   }
   let k = -1 / ((end.y - start.y)/(end.x - start.x));
   let dot1 = this.getDot(start.x, start.y, k, radius);
