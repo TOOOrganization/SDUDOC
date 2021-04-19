@@ -142,6 +142,19 @@ Dot2D.prototype.setSize = function(radius, stroke_width){
   this._stroke_width = stroke_width;
 };
 // --------------------------------------------------------------------------------
+Dot2D.prototype.move = function(point){
+  switch (this._type){
+    case Dot2D.Type.FREE:
+      this._x += point.x;
+      this._y += point.y;
+      break;
+    case Dot2D.Type.DEPENDENT:
+      let dependent = LineFactory.getDependent(this._father, point);
+      this._position = Math.max(0, Math.min(1, dependent))
+      break;
+  }
+};
+// --------------------------------------------------------------------------------
 Dot2D.prototype.getObject = function(){
   return new Dot2D("", Dot2D.Type.FREE, "", 0, 0);
 };

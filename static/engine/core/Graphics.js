@@ -145,6 +145,9 @@ Graphics.getGridPoint = function(point){
   let draw_distance = point.minus(this._origin);
   return draw_distance.division(this._scale);
 }
+Graphics.getGridScalePoint = function(point){
+  return point.division(this._scale);
+}
 Graphics.getRenderPoint = function(point){
   let draw_distance = point.multiply(this._scale);
   return draw_distance.add(this._origin);
