@@ -241,11 +241,10 @@ RenderManager.addRenderer(new Renderer("polygon.collide", 11, PolygonFactory, fu
 }));
 RenderManager.addRenderer(new Renderer("polygon.line.collide", 9, PolygonFactory, function(ctx){
   if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
-  let collide_list = CollideManager.getCollideList("Polygon2D", 2);
-  for(let i in SDUDocument.data["Polygon2D"]){
-    if(collide_list.indexOf(i) !== -1 && SDUDocument.data["Polygon2D"][i].page === current_page){
-      SDUDocument.data["Polygon2D"][i].renderCollide(ctx);
+  let collide_list = CollideManager.getCollideList("Line2D", 2);
+  for(let i in SDUDocument.data["Line2D"]){
+    if(collide_list.indexOf(i) !== -1){
+      SDUDocument.data["Line2D"][i].renderCollide(ctx);
     }
   }
 }));

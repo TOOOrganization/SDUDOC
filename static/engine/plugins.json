@@ -3,5 +3,6 @@
   "Dot.js",
   "Line.js",
   "Polygon.js",
-  "Word.js"
+  "Word.js",
+  "AutoPolygon.js"
 ]
