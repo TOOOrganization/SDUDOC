@@ -67,10 +67,10 @@ Polygon2D.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Polygon.prototype.getCorePoint = function(){
+Polygon2D.prototype.getCorePoint = function(){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.data["Dot2D"][this._points[i]];
+    points[i] = SDUDocument.getCurrentPageElement("Dot2D", this._points[i]);
   }
   let point = new Point(0, 0);
   for(let i = 0; i < points.length; i++){
@@ -89,7 +89,7 @@ Polygon2D.prototype.checkProjection = function(start, end, point){
 Polygon2D.prototype.checkCollide = function(point){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
-    points[i] = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][this._points[i]]);
+    points[i] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement("Dot2D", this._points[i]));
   }
   points = points.concat(points[0]);
   if (points.length <= 3) return -1;
@@ -110,22 +110,23 @@ Polygon2D.prototype.checkCollide = function(point){
 Polygon2D.prototype.render = function(ctx){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.data["Dot2D"][this._points[i]];
+    points[i] = SDUDocument.getCurrentPageElement("Dot2D", this._points[i]);
   }
   Polygon.prototype.fillCanvas.call(new Polygon(points), ctx, this._color);
 };
 Polygon2D.prototype.renderCollide = function(ctx){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.data["Dot2D"][this._points[i]];
+    points[i] = SDUDocument.getCurrentPageElement("Dot2D", this._points[i]);
   }
   Polygon.prototype.fillCanvas.call(new Polygon(points), ctx, this._collide_color);
 };
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onDelete = function(){
-  for(let i in SDUDocument.data["Word"]){
-    if(SDUDocument.data["Word"][i].polygon === this._id){
-      SDUDocument.deleteElement("Word", i);
+  let characters = SDUDocument.getCurrentPageElements("Character");
+  for(let i in characters){
+    if(characters[i].polygon === this._id){
+      SDUDocument.deleteElement("Character", i);
     }
   }
 };
@@ -231,49 +232,43 @@ ToolManager.addHandler(new Handler("polygon.onMouseOut", "mouseout", false, Poly
 }));
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("_polygon.normal", 5, PolygonFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
-  for(let i in SDUDocument.data["Polygon2D"]){
-    if(collide_list.indexOf(i) === -1 && SDUDocument.data["Polygon2D"][i].page === current_page){
-      SDUDocument.data["Polygon2D"][i].render(ctx);
+  let polygons = SDUDocument.getCurrentPageElements("Polygon2D");
+  for(let i in polygons){
+    if(collide_list.indexOf(i) === -1){
+      polygons[i].render(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("!polygon.collide", 6, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
-  for(let i in SDUDocument.data["Polygon2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Polygon2D"][i].render(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("polygon.collide", 6, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
-  for(let i in SDUDocument.data["Polygon2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Polygon2D"][i].renderCollide(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).renderCollide(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("polygon.line.collide", 9, PolygonFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Line2D", 2);
-  for(let i in SDUDocument.data["Line2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Line2D"][i].renderCollide(ctx);
+  if(collide_list.length > 0){
+    for(let i = 0; i < collide_list.length; i++){
+      SDUDocument.getCurrentPageElement("Line2D", collide_list[i]).renderCollide(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("polygon.dot.collide", 11, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Dot2D"][i].renderCollide(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).renderCollide(ctx);
   }
 }));
 // --------------------------------------------------------------------------------
@@ -284,7 +279,7 @@ RenderManager.addRenderer(new Renderer("polygon.mouseBottom", 9, PolygonFactory,
     if(PolygonFactory.getPoints().length >= 2){
       let points = PolygonFactory.getPoints().concat(collide_list[0]);
       for(let i = 0; i < points.length; i++){
-        points[i] = SDUDocument.data["Dot2D"][points[i]];
+        points[i] = SDUDocument.getCurrentPageElement("Dot2D", points[i]);
       }
       let polygon = new Polygon(points);
       polygon.fillCanvas(ctx, 'rgba(0, 0, 0, 0.3)');
@@ -296,7 +291,7 @@ RenderManager.addRenderer(new Renderer("polygon.mouseBottom", 9, PolygonFactory,
     if(PolygonFactory.getPoints().length < 2) return;
     let points = PolygonFactory.getPoints().concat();
     for(let i = 0; i < points.length; i++){
-      points[i] = SDUDocument.data["Dot2D"][points[i]];
+      points[i] = SDUDocument.getCurrentPageElement("Dot2D", points[i]);
     }
 
     collide_list = CollideManager.getCollideList("Line2D", 2);

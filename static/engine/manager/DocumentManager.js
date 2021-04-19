@@ -166,7 +166,7 @@ DocumentManager.getNextIndex = function(key){
 }
 // --------------------------------------------------------------------------------
 DocumentManager.getPageList = function(){
-  let pages = SDUDocument.data.Page;
+  let pages = SDUDocument.getElements("Page");
   let data = [];
   for(let i = 0;i < pages.length; i++){
     data.push({
@@ -180,7 +180,7 @@ DocumentManager.getCurrentPage = function(){
   return SDUDocument.getCurrentPage();
 }
 DocumentManager.getCurrentPageId = function(){
-  return SDUDocument.getCurrentPage() > 0 ? SDUDocument.data.Page[SDUDocument.getCurrentPage() - 1].id : null;
+  return SDUDocument.getCurrentPageId();
 }
 DocumentManager.setCurrentPage = async function(index){
   await SDUDocument.setCurrentPage(index + 1);

@@ -59,10 +59,9 @@ Page.prototype.getObject = function(){
 }
 // --------------------------------------------------------------------------------
 Page.prototype.onDelete = function(){
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(SDUDocument.data["Dot2D"][i].page === this._id){
-      SDUDocument.deleteElement("Dot2D", i);
-    }
+  let dots = SDUDocument.getCurrentPageElements("Dot2D");
+  for(let i in dots){
+    SDUDocument.deleteElement("Dot2D", i);
   }
 };
 // --------------------------------------------------------------------------------

@@ -164,7 +164,7 @@ Dot2D.prototype.getRealPoint = function(){
     case Dot2D.Type.FREE: default:
       return this;
     case Dot2D.Type.DEPENDENT:
-      let line = SDUDocument.data["Line2D"][this._father];
+      let line = SDUDocument.getElement("Line2D", this._father);
       return LineFactory.getDependentPoint(line, this._position);
     case Dot2D.Type.INTERSECTION:
       return Graphics.getGridPoint(LineFactory.getIntersection(this._father1, this._father2));
@@ -188,14 +188,16 @@ Dot2D.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Dot2D.prototype.onDelete = function(){
-  for(let i in SDUDocument.data["Line2D"]){
-    if(SDUDocument.data["Line2D"][i].start === this._id || SDUDocument.data["Line2D"][i].end === this._id){
+  let lines = SDUDocument.getCurrentPageElements("Line2D");
+  for(let i in lines){
+    if(lines[i].start === this._id || lines[i].end === this._id){
       SDUDocument.deleteElement("Line2D", i);
     }
   }
-  for(let i in SDUDocument.data["Polygon2D"]){
-    for(let j in SDUDocument.data["Polygon2D"][i].points){
-      if(SDUDocument.data["Polygon2D"][i].points[j] === this._id){
+  let polygons = SDUDocument.getCurrentPageElements("Polygon2D");
+  for(let i in polygons){
+    for(let j in polygons[i].points){
+      if(polygons[i].points[j] === this._id){
         SDUDocument.deleteElement("Polygon2D", i);
         break;
       }
@@ -288,40 +290,35 @@ ToolManager.addHandler(new Handler("dot.onMouseOut", "mouseout", false, DotFacto
 }));
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("_dot.normal", 10, DotFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(collide_list.indexOf(i) === -1 && SDUDocument.data["Dot2D"][i].page === current_page){
-      SDUDocument.data["Dot2D"][i].render(ctx);
+  let dots = SDUDocument.getCurrentPageElements("Dot2D");
+  for(let i in dots){
+    if(collide_list.indexOf(i) === -1){
+      dots[i].render(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("!dot.collide", 11, DotFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Dot2D"][i].render(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("dot.collide", 11, DotFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Dot2D"][i].renderCollide(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).renderCollide(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("dot.line.collide", 9, DotFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Line2D", 2);
-  for(let i in SDUDocument.data["Line2D"]){
-    if(collide_list.indexOf(i) !== -1 && SDUDocument.data["Line2D"][i].page === current_page){
-      SDUDocument.data["Line2D"][i].renderCollide(ctx);
+  if(collide_list.length > 0){
+    for(let i = 0; i < collide_list.length; i++){
+      SDUDocument.getCurrentPageElement("Line2D", collide_list[i]).renderCollide(ctx);
     }
   }
 }));

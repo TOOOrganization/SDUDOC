@@ -83,7 +83,7 @@ Character.prototype.getObject = function(){
 // * Functions
 // --------------------------------------------------------------------------------
 Character.prototype.checkCollide = function(point){
-  return SDUDocument.data["Polygon2D"][this._polygon].checkCollide(point);
+  return SDUDocument.getCurrentPageElement("Polygon2D", this._polygon).checkCollide(point);
 };
 // --------------------------------------------------------------------------------
 Character.prototype.render = function(ctx){
@@ -94,7 +94,7 @@ Character.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Character.prototype.fillCanvas = function(ctx, radius, background_color, text_color){
-  let polygon = SDUDocument.data["Polygon2D"][this._polygon];
+  let polygon = SDUDocument.getCurrentPageElement("Polygon2D", this._polygon);
   this.fill(ctx, radius, background_color, text_color, Graphics.getRenderPoint(polygon.getCorePoint()), this._character);
 };
 Character.prototype.fill = function(ctx, radius, background_color, text_color, point, text){
@@ -135,9 +135,9 @@ Character.prototype.onDelete = function(){
 // --------------------------------------------------------------------------------
 Character.prototype.getExportPoints = function(){
   let temp = [];
-  let points = SDUDocument.data["Polygon2D"][this._polygon].points;
+  let points = SDUDocument.getElement("Polygon2D", this._polygon).points;
   for(let i in points){
-    let point = SDUDocument.data["Dot2D"][points[i]];
+    let point = SDUDocument.getElement("Dot2D", points[i]);
     temp.push([point.x, point.y]);
   }
   return temp;
@@ -214,21 +214,17 @@ ToolManager.addHandler(new Handler("character.onMouseOut", "mouseout", false, Ch
 }));
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("_character.normal", 20, PolygonFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
-  for(let i in SDUDocument.data["Character"]){
-    if(SDUDocument.data["Character"][i].page === current_page){
-      SDUDocument.data["Character"][i].render(ctx);
-    }
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let characters = SDUDocument.getCurrentPageElements("Character");
+  for(let i in characters){
+    characters[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("character.polygon.collide", 6, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
-  for(let i in SDUDocument.data["Polygon2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Polygon2D"][i].renderCollide(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).renderCollide(ctx);
   }
 }));
 // ================================================================================

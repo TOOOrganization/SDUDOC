@@ -87,8 +87,8 @@ Line2D.prototype.getObject = function(){
 Line2D.prototype.checkCollide = function(point){
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
   if(collide_list.length > 0) return -1;
-  let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][this._start]);
-  let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][this._end]);
+  let start = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement("Dot2D", this._start));
+  let end = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement("Dot2D", this._end));
   if(Math.abs(start.x - end.x) < 0.01){
     if((start.y < end.y && (start.y < point.y && point.y < end.y)) ||
       (start.y > end.y && (start.y > point.y && point.y > end.y))){
@@ -127,9 +127,9 @@ Line2D.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Line2D.prototype.onDelete = function(){
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(SDUDocument.data["Dot2D"][i].father === this._id ||
-      SDUDocument.data["Dot2D"][i].father1 === this._id || SDUDocument.data["Dot2D"][i].father2 === this._id){
+  let dots = SDUDocument.getCurrentPageElements("Dot2D");
+  for(let i in dots){
+    if(dots[i].father === this._id || dots[i].father1 === this._id || dots[i].father2 === this._id){
       SDUDocument.deleteElement("Dot2D", i);
     }
   }
@@ -174,12 +174,12 @@ LineFactory.clearFirstPoint = function(){
 };
 // --------------------------------------------------------------------------------
 LineFactory.getIntersection = function(line1, line2){
-  let l1 = SDUDocument.data["Line2D"][line1];
-  let l2 = SDUDocument.data["Line2D"][line2];
-  let l1_s = SDUDocument.data["Dot2D"][l1.start];
-  let l1_e = SDUDocument.data["Dot2D"][l1.end];
-  let l2_s = SDUDocument.data["Dot2D"][l2.start];
-  let l2_e = SDUDocument.data["Dot2D"][l2.end];
+  let l1 = SDUDocument.getElement("Line2D", line1);
+  let l2 = SDUDocument.getElement("Line2D", line2);
+  let l1_s = SDUDocument.getElement("Dot2D", l1.start);
+  let l1_e = SDUDocument.getElement("Dot2D", l1.end);
+  let l2_s = SDUDocument.getElement("Dot2D", l2.start);
+  let l2_e = SDUDocument.getElement("Dot2D", l2.end);
   if(Math.abs(l1_s.x - l1_e.x) < 0.01){
     if(Math.abs(l2_s.x - l2_e.x) < 0.01){
       return Graphics.getRenderPoint(new Point(0, 0));
@@ -223,9 +223,9 @@ LineFactory.getIntersection = function(line1, line2){
   }
 };
 LineFactory.getProjection = function(line, point){
-  let l = SDUDocument.data["Line2D"][line];
-  let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.start]);
-  let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.end]);
+  let l = SDUDocument.getElement("Line2D", line);
+  let start = Graphics.getRenderPoint(SDUDocument.getElement("Dot2D", l.start));
+  let end = Graphics.getRenderPoint(SDUDocument.getElement("Dot2D", l.end));
   if(Math.abs(start.x - end.x) < 0.01){
     return new Point(start.x, point.y);
   }else if(Math.abs(start.y - end.y) < 0.01){
@@ -239,9 +239,9 @@ LineFactory.getProjection = function(line, point){
   }
 };
 LineFactory.getDependent = function(line, point){
-  let l = SDUDocument.data["Line2D"][line];
-  let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.start]);
-  let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.end]);
+  let l = SDUDocument.getElement("Line2D", line);
+  let start = Graphics.getRenderPoint(SDUDocument.getElement("Dot2D", l.start));
+  let end = Graphics.getRenderPoint(SDUDocument.getElement("Dot2D", l.end));
   if(Math.abs(start.x - end.x) < 0.01){
     return (point.y - start.y) / (end.y - start.y);
   }else if(Math.abs(start.y - end.y) < 0.01){
@@ -254,8 +254,8 @@ LineFactory.getDependent = function(line, point){
   }
 };
 LineFactory.getDependentPoint = function(line, dependent){
-  let start = SDUDocument.data["Dot2D"][line.start];
-  let end = SDUDocument.data["Dot2D"][line.end];
+  let start = SDUDocument.getCurrentPageElement("Dot2D", line.start);
+  let end = SDUDocument.getCurrentPageElement("Dot2D", line.end);
   return new Point(start.x + (end.x - start.x) * dependent,
     start.y + (end.y - start.y) * dependent);
 };
@@ -324,42 +324,38 @@ ToolManager.addHandler(new Handler("line.onMouseOut", "mouseout", false, LineFac
 }));
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("_line.normal", 9, LineFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Line2D", 2);
-  for(let i in SDUDocument.data["Line2D"]){
-    if(collide_list.indexOf(i) === -1 && SDUDocument.data["Line2D"][i].page === current_page){
-      SDUDocument.data["Line2D"][i].render(ctx);
+  let lines = SDUDocument.getCurrentPageElements("Line2D");
+  for(let i in lines){
+    if(collide_list.indexOf(i) === -1){
+      lines[i].render(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("!line.collide", 8, LineFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Line2D", 2);
-  for(let i in SDUDocument.data["Line2D"]){
-    if(collide_list.indexOf(i) !== -1 && SDUDocument.data["Line2D"][i].page === current_page){
-      SDUDocument.data["Line2D"][i].render(ctx);
+  if(collide_list.length > 0){
+    for(let i = 0; i < collide_list.length; i++){
+      SDUDocument.getCurrentPageElement("Line2D", collide_list[i]).render(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("line.collide", 9, LineFactory, function(ctx){
-  if(SDUDocument.getCurrentPage() <= 0) return;
-  let current_page = DocumentManager.getCurrentPageId();
+  if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Line2D", 2);
-  for(let i in SDUDocument.data["Line2D"]){
-    if(collide_list.indexOf(i) !== -1 && SDUDocument.data["Line2D"][i].page === current_page){
-      SDUDocument.data["Line2D"][i].renderCollide(ctx);
+  if(collide_list.length > 0){
+    for(let i = 0; i < collide_list.length; i++){
+      SDUDocument.getCurrentPageElement("Line2D", collide_list[i]).renderCollide(ctx);
     }
   }
 }));
 RenderManager.addRenderer(new Renderer("line.dot.collide", 11, LineFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Dot2D", 1);
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(collide_list.indexOf(i) !== -1){
-      SDUDocument.data["Dot2D"][i].renderCollide(ctx);
-    }
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).renderCollide(ctx);
   }
 }));
 // --------------------------------------------------------------------------------
@@ -377,7 +373,7 @@ RenderManager.addRenderer(new Renderer("line.mouseBottom", 9, LineFactory, funct
     let mouse_point = MouseInput.getMousePoint();
     if(!mouse_point) return;
     if(!LineFactory.getFirstPoint()) return;
-    let start = SDUDocument.data["Dot2D"][LineFactory.getFirstPoint()];
+    let start = SDUDocument.getCurrentPageElement("Dot2D", LineFactory.getFirstPoint());
     collide_list = CollideManager.getCollideList("Line2D", 2);
     if(collide_list.length === 2){
       let point = LineFactory.getIntersection(collide_list[0], collide_list[1]);

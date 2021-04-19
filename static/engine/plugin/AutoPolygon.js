@@ -24,10 +24,11 @@ function AutoPolygonFactory(){
 AutoPolygonFactory.getTempDots = function(point){
   let temp = [null, null, null, null];
   let temp_distance = [-1, -1, -1, -1];
-  for(let i in SDUDocument.data["Dot2D"]){
-    if(SDUDocument.data["Dot2D"][i].page === DocumentManager.getCurrentPageId()){
-      let delta = SDUDocument.data["Dot2D"][i].minus(point);
-      let distance = SDUDocument.data["Dot2D"][i].distance(point);
+  let dots = SDUDocument.getCurrentPageElements("Dot2D")
+  for(let i in dots){
+    if(dots[i].page === DocumentManager.getCurrentPageId()){
+      let delta = dots[i].minus(point);
+      let distance = dots[i].distance(point);
       let target = delta.x > 0 ? (delta.y > 0 ? 0 : 3) : (delta.y > 0 ? 1 : 2)
       if(temp_distance[target] < 0 || distance < temp_distance[target]){
         temp[target] = i;
@@ -71,7 +72,7 @@ RenderManager.addRenderer(new Renderer("auto_polygon.mouse", 5, AutoPolygonFacto
   if(temp){
     let points = temp;
     for(let i = 0; i < points.length; i++){
-      points[i] = SDUDocument.data["Dot2D"][points[i]];
+      points[i] = SDUDocument.getCurrentPageElement("Dot2D", points[i]);
     }
     let polygon = new Polygon(points);
     polygon.fillCanvas(ctx, 'rgba(0, 0, 0, 0.3)');

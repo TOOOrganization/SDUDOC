@@ -20,6 +20,7 @@ function SDUDocument(){
 // * Property
 // --------------------------------------------------------------------------------
 SDUDocument._data = {};
+SDUDocument._page_data = {};
 SDUDocument._next_index = {};
 SDUDocument._current_page = 0;
 // --------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ SDUDocument.initialize = function(){
 }
 SDUDocument.clear = function(){
   this._data = {Page: []};
+  this._current_page_data = {};
   this._next_index = {Page: 0};
   this._current_page = 0;
   Graphics.clearImage();
@@ -43,6 +45,12 @@ Object.defineProperty(SDUDocument, 'data', {
   },
   configurable: true
 });
+Object.defineProperty(SDUDocument, 'current_page_data', {
+  get: function() {
+    return this._current_page_data;
+  },
+  configurable: true
+});
 Object.defineProperty(SDUDocument, 'current_page', {
   get: function() {
     return this._current_page;
@@ -50,20 +58,50 @@ Object.defineProperty(SDUDocument, 'current_page', {
   configurable: true
 });
 // --------------------------------------------------------------------------------
-SDUDocument.getNextIndex = function(key){
-  if(!this._next_index[key]) this._next_index[key] = 1;
-  return key + "." + (this._next_index[key] ++);
-}
-// --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
 SDUDocument.addElement = function(type, element){
   if(!this._data[type]) this._data[type] = {};
   this._data[type][element.id] = element;
+  this.updateCurrentPageData();
 }
 SDUDocument.deleteElement = function(type, id){
   this._data[type][id].onDelete.call(this._data[type][id]);
   delete this._data[type][id];
+  this.updateCurrentPageData();
+}
+// --------------------------------------------------------------------------------
+SDUDocument.getNextIndex = function(type){
+  if(!this._next_index[type]) this._next_index[type] = 1;
+  return type + "." + (this._next_index[type] ++);
+}
+// --------------------------------------------------------------------------------
+SDUDocument.updateCurrentPageData = function(){
+  this._current_page_data = {};
+  if(this._current_page <= 0 || this._data["Page"].length === 0) return;
+  let current_page_id = this.getCurrentPageId();
+  for(let i in this._data){
+    if(i !== "Page"){
+      this._current_page_data[i] = {};
+      for(let j in this._data[i]){
+        if(this._data[i][j]._page && this._data[i][j]._page === current_page_id){
+          this._current_page_data[i][j] = this._data[i][j];
+        }
+      }
+    }
+  }
+}
+SDUDocument.getElements = function(type){
+  return this._data[type];
+}
+SDUDocument.getElement = function(type, id){
+  return this._data[type][id];
+}
+SDUDocument.getCurrentPageElements = function(type){
+  return this._current_page_data[type];
+}
+SDUDocument.getCurrentPageElement = function(type, id){
+  return this._current_page_data[type][id];
 }
 // --------------------------------------------------------------------------------
 SDUDocument.addPage = async function(page){
@@ -72,6 +110,7 @@ SDUDocument.addPage = async function(page){
 }
 SDUDocument.clearPage = function(index){
   this._data.Page[index - 1].onDelete.call(this._data.Page[index - 1]);
+  this.updateCurrentPageData();
 }
 SDUDocument.deletePage = async function(){
   if(this._data.Page.length <= 0) return;
@@ -119,6 +158,9 @@ SDUDocument.movePage = async function(target){
 SDUDocument.getCurrentPage = function(){
   return this._current_page;
 }
+SDUDocument.getCurrentPageId = function(){
+  return this._current_page > 0 ? this._data["Page"][this._current_page - 1].id : null;
+}
 SDUDocument.setCurrentPage = async function(index){
   if(index < 0 || index > this._data.Page.length) return;
   if(index === 0){
@@ -131,6 +173,7 @@ SDUDocument.setCurrentPage = async function(index){
   }else{
     this._current_page = index;
   }
+  this.updateCurrentPageData();
   await Graphics.setImage(this._data.Page[this._current_page - 1].src);
 }
 // --------------------------------------------------------------------------------
