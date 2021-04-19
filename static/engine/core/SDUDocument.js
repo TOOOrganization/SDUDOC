@@ -70,9 +70,12 @@ SDUDocument.addPage = async function(page){
   this._data.Page.splice(this._current_page, 0, page);
   await this.setCurrentPage(this._current_page + 1);
 }
+SDUDocument.clearPage = function(index){
+  this._data.Page[index - 1].onDelete.call(this._data.Page[index - 1]);
+}
 SDUDocument.deletePage = async function(){
   if(this._data.Page.length <= 0) return;
-  this._data.Page[this._current_page - 1].onDelete.call(this._data.Page[this._current_page - 1]);
+  this.clearPage(this._current_page);
   this._data.Page.splice(this._current_page - 1, 1);
   if(this._current_page === this._data.Page.length + 1) {
     await this.setCurrentPage(this._current_page - 1);

@@ -76,7 +76,9 @@
           <v-card-title class="headline">
             <v-icon class="mr-2">mdi-file-document-edit-outline</v-icon> {{pop_title}}
           </v-card-title>
-          <v-text-field required :label="prompt_tooltip" class="mx-6" v-model="prompt_text"></v-text-field>
+          <v-container v-for="(prompt, index) in prompt_tooltip" :key="index">
+            <v-text-field required :label="prompt_tooltip[index]" class="mx-6" v-model="prompt_text[index]"></v-text-field>
+          </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="pop_callback">确认</v-btn>
@@ -179,8 +181,8 @@ export default {
       current_plugin: 0
     }
   },
-  mounted() {
-    this.loadEngine();
+  async mounted() {
+    await this.loadEngine();
     this.resizePageView();
   },
   methods: {
@@ -192,9 +194,10 @@ export default {
       this.tools_page = ToolManager.getToolList(Tool.Type.PAGE);
     },
     resizePageView() {
-      this.$refs.page_view.style.height = (window.innerHeight - 60 - 120) + "px";
+      let size = Math.ceil(this.tools_page.length / 5)
+      this.$refs.page_view.style.height = (window.innerHeight - 28 - 120 - size * 32) + "px";
       window.addEventListener('resize', function () {
-        this.$refs.page_view.style.height = (window.innerHeight - 60 - 120) + "px";
+        this.$refs.page_view.style.height = (window.innerHeight - 28 - 120 - size * 32) + "px";
       }.bind(this));
     },
     changePage(index){

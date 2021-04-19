@@ -200,8 +200,15 @@ ToolManager.addHandler(new Handler("polygon.onLeftClick", "left_click", false, P
   }
 }));
 ToolManager.addHandler(new Handler("polygon.onRightClick", "right_click", false, PolygonFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
   PolygonFactory.clearPoints();
-  Graphics.refresh();
+
+  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  if(collide_list.length === 0) {
+    Graphics.refresh();
+    return;
+  }
+  DocumentManager.deleteElement("Polygon2D", collide_list[0]);
 }));
 ToolManager.addHandler(new Handler("polygon.onMouseMove", "mousemove", false, PolygonFactory, function(event){
   Graphics.refresh();
@@ -211,7 +218,7 @@ ToolManager.addHandler(new Handler("polygon.onMouseOut", "mouseout", false, Poly
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("_polygon.normal", 10, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("_polygon.normal", 5, PolygonFactory, function(ctx){
   if(SDUDocument.getCurrentPage() <= 0) return;
   let current_page = DocumentManager.getCurrentPageId();
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
@@ -221,7 +228,7 @@ RenderManager.addRenderer(new Renderer("_polygon.normal", 10, PolygonFactory, fu
     }
   }
 }));
-RenderManager.addRenderer(new Renderer("!polygon.collide", 11, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("!polygon.collide", 6, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
   for(let i in SDUDocument.data["Polygon2D"]){
@@ -230,7 +237,7 @@ RenderManager.addRenderer(new Renderer("!polygon.collide", 11, PolygonFactory, f
     }
   }
 }));
-RenderManager.addRenderer(new Renderer("polygon.collide", 11, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("polygon.collide", 6, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
   for(let i in SDUDocument.data["Polygon2D"]){

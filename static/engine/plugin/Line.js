@@ -89,13 +89,13 @@ Line2D.prototype.checkCollide = function(point){
   if(collide_list.length > 0) return -1;
   let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][this._start]);
   let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][this._end]);
-  if(start.x === end.x){
+  if(Math.abs(start.x - end.x) < 0.01){
     if((start.y < end.y && (start.y < point.y && point.y < end.y)) ||
       (start.y > end.y && (start.y > point.y && point.y > end.y))){
       let distance = Math.abs(point.x - start.x)
       return distance <= this._radius + 2 ? distance : -1;
     }
-  }else if(start.y === end.y){
+  }else if(Math.abs(start.y - end.y) < 0.01){
     if((start.x < end.x && (start.x < point.x && point.x < end.x)) ||
       (start.x > end.x && (start.x > point.x && point.x > end.x))){
       let distance = Math.abs(point.y - start.y)
@@ -180,10 +180,10 @@ LineFactory.getIntersection = function(line1, line2){
   let l1_e = SDUDocument.data["Dot2D"][l1.end];
   let l2_s = SDUDocument.data["Dot2D"][l2.start];
   let l2_e = SDUDocument.data["Dot2D"][l2.end];
-  if(l1_s.x === l1_e.x){
-    if(l2_s.x === l2_e.x){
+  if(Math.abs(l1_s.x - l1_e.x) < 0.01){
+    if(Math.abs(l2_s.x - l2_e.x) < 0.01){
       return Graphics.getRenderPoint(new Point(0, 0));
-    }else if(l2_s.y === l2_e.y){
+    }else if(Math.abs(l2_s.y - l2_e.y) < 0.01){
       return Graphics.getRenderPoint(new Point(l1_s.x, l2_s.y));
     }else{
       let k2 = (l2_e.y - l2_s.y)/(l2_e.x - l2_s.x);
@@ -191,10 +191,10 @@ LineFactory.getIntersection = function(line1, line2){
       let y = k2 * (x - l2_e.x) + l2_e.y
       return Graphics.getRenderPoint(new Point(x, y));
     }
-  }else if(l1_s.y === l1_e.y){
-    if(l2_s.x === l2_e.x){
+  }else if(Math.abs(l1_s.y - l1_e.y) < 0.01){
+    if(Math.abs(l2_s.x - l2_e.x) < 0.01){
       return Graphics.getRenderPoint(new Point(l2_s.x, l1_s.y));
-    }else if(l2_s.y === l2_e.y){
+    }else if(Math.abs(l2_s.y - l2_e.y) < 0.01){
       return Graphics.getRenderPoint(new Point(0, 0));
     }else{
       let k2 = (l2_e.y - l2_s.y)/(l2_e.x - l2_s.x);
@@ -203,12 +203,12 @@ LineFactory.getIntersection = function(line1, line2){
       return Graphics.getRenderPoint(new Point(x, y));
     }
   }else{
-    if(l2_s.x === l2_e.x){
+    if(Math.abs(l2_s.x - l2_e.x) < 0.01){
       let k1 = (l1_e.y - l1_s.y)/(l1_e.x - l1_s.x);
       let x = l2_s.x
       let y = k1 * (x - l1_e.x) + l1_e.y
       return Graphics.getRenderPoint(new Point(x, y));
-    }else if(l2_s.y === l2_e.y){
+    }else if(Math.abs(l2_s.y - l2_e.y) < 0.01){
       let k1 = (l1_e.y - l1_s.y)/(l1_e.x - l1_s.x);
       let y = l2_s.y
       let x = (y - l1_e.y) / k1 + l1_e.x
@@ -226,9 +226,9 @@ LineFactory.getProjection = function(line, point){
   let l = SDUDocument.data["Line2D"][line];
   let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.start]);
   let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.end]);
-  if(start.x === end.x){
+  if(Math.abs(start.x - end.x) < 0.01){
     return new Point(start.x, point.y);
-  }else if(start.y === end.y){
+  }else if(Math.abs(start.y - end.y) < 0.01){
     return new Point(point.x, start.y);
   }else{
     let k1 = (end.y - start.y)/(end.x - start.x);
@@ -242,9 +242,9 @@ LineFactory.getDependent = function(line, point){
   let l = SDUDocument.data["Line2D"][line];
   let start = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.start]);
   let end = Graphics.getRenderPoint(SDUDocument.data["Dot2D"][l.end]);
-  if(start.x === end.x){
+  if(Math.abs(start.x - end.x) < 0.01){
     return (point.y - start.y) / (end.y - start.y);
-  }else if(start.y === end.y){
+  }else if(Math.abs(start.y - end.y) < 0.01){
     return (point.x - start.x) / (end.x - start.x);
   }else{
     let k1 = (end.y - start.y)/(end.x - start.x);
@@ -306,14 +306,14 @@ ToolManager.addHandler(new Handler("line.onLeftClick", "left_click", false, Line
 }));
 ToolManager.addHandler(new Handler("line.onRightClick", "right_click", false, LineFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  if(LineFactory.getFirstPoint()){
-    LineFactory.clearFirstPoint();
-  }else{
-    let collide_list = CollideManager.getCollideList("Line2D", 1);
-    if(collide_list.length === 0) return;
-    DocumentManager.deleteElement("Line2D", collide_list[0]);
+  LineFactory.clearFirstPoint();
+
+  let collide_list = CollideManager.getCollideList("Line2D", 1);
+  if(collide_list.length === 0) {
+    Graphics.refresh();
+    return;
   }
-  Graphics.refresh();
+  DocumentManager.deleteElement("Line2D", collide_list[0]);
 }));
 ToolManager.addHandler(new Handler("line.onMouseMove", "mousemove", false, LineFactory, function(event){
   Graphics.refresh();

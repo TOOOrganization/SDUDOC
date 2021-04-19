@@ -115,9 +115,9 @@ ToolManager.addTool(new Tool("move_page_minus", "前移一页", "mdi-arrow-left-
   await DocumentManager.movePageMinus();
 }));
 ToolManager.addTool(new Tool("move_page_set", "设定页码", "mdi-counter", Tool.Type.PAGE, "", function(){
-  Engine.prompt("输入目标页码", "请输入要移动到的页码", SDUDocument.current_page,async function(){
+  Engine.prompt("输入目标页码", ["请输入要移动到的页码"], [SDUDocument.current_page],async function(){
     Engine.owner.prompt_dialog = false;
-    await DocumentManager.movePage(Number(Engine.owner.prompt_text));
+    await DocumentManager.movePage(Number(Engine.owner.prompt_text[0]));
   });
 }));
 ToolManager.addTool(new Tool("move_page_add", "后移一页", "mdi-arrow-right-bold", Tool.Type.PAGE, "", async function(){
@@ -130,4 +130,12 @@ ToolManager.addTool(new Tool("delete_page", "删除页面", "mdi-close", Tool.Ty
     await DocumentManager.deletePage();
   });
 }));
+ToolManager.addTool(new Tool("module_page", "以模板切割页面", "mdi-view-compact-outline", Tool.Type.PAGE, "", function(){
+  if(SDUDocument.current_page <= 0) return;
+  Engine.prompt("输入模板分割数", ["请输入横向分割数", "请输入纵向分割数"], [5, 5],function(){
+    Engine.owner.prompt_dialog = false;
+    DocumentManager.createModulePage(Number(Engine.owner.prompt_text[0]), Number(Engine.owner.prompt_text[1]))
+  });
+}));
+
 // ================================================================================

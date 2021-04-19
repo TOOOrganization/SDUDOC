@@ -204,10 +204,10 @@ ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, Word
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
   if(collide_list.length > 0){
     let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
-    Engine.prompt("输入文字", "请输入该多边形包含的文字", null, function(){
+    Engine.prompt("输入文字", ["请输入该多边形包含的文字"], [null], function(){
       Engine.owner.prompt_dialog = false;
       DocumentManager.addElement("Word", WordFactory.makeObject(DocumentManager.getCurrentPageId(),
-        point.x, point.y, collide_list[0], Engine.owner.prompt_text));
+        point.x, point.y, collide_list[0], Engine.owner.prompt_text[0]));
     })
   }
 }));
@@ -230,7 +230,7 @@ RenderManager.addRenderer(new Renderer("_word.normal", 20, PolygonFactory, funct
     }
   }
 }));
-RenderManager.addRenderer(new Renderer("word.polygon.collide", 11, WordFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("word.polygon.collide", 6, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
   for(let i in SDUDocument.data["Polygon2D"]){

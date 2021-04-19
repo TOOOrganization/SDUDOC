@@ -63,7 +63,7 @@ ToolManager.addHandler(new Handler("auto_polygon.onMouseOut", "mouseout", false,
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("auto_polygon.mouse", 100, AutoPolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("auto_polygon.mouse", 5, AutoPolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let mouse_point = MouseInput.getMousePoint();

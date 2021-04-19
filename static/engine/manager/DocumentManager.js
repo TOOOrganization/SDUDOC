@@ -74,6 +74,77 @@ DocumentManager.deletePage = async function(){
   this.push();
 }
 // --------------------------------------------------------------------------------
+DocumentManager.createModulePage = function(x, y){
+  SDUDocument.clearPage(SDUDocument.getCurrentPage());
+  let width = Graphics._image.width;
+  let height = Graphics._image.height;
+  let page = this.getCurrentPageId()
+  let base_dots = [], base_lines = [];
+  base_dots[0] = DotFactory.makeObject(page, Dot2D.Type.FREE, 0, 0);
+  base_dots[1] = DotFactory.makeObject(page, Dot2D.Type.FREE, width, 0);
+  base_dots[2] = DotFactory.makeObject(page, Dot2D.Type.FREE, width, height);
+  base_dots[3] = DotFactory.makeObject(page, Dot2D.Type.FREE, 0, height);
+  for(let i = 0; i < base_dots.length; i++){
+    SDUDocument.addElement("Dot2D", base_dots[i]);
+    base_dots[i] = base_dots[i].id;
+  }
+  base_lines[0] = LineFactory.makeObject(page, base_dots[0], base_dots[1]);
+  base_lines[1] = LineFactory.makeObject(page, base_dots[1], base_dots[2]);
+  base_lines[2] = LineFactory.makeObject(page, base_dots[2], base_dots[3]);
+  base_lines[3] = LineFactory.makeObject(page, base_dots[3], base_dots[0]);
+  for(let i = 0; i < base_lines.length; i++){
+    SDUDocument.addElement("Line2D", base_lines[i]);
+    base_lines[i] = base_lines[i].id;
+  }
+  let dependent_dots = [[],[],[],[]], dependent_lines = [[],[]];
+  for(let i = 0; i < x - 1; i++){
+    let dot1 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[0], (1 / x * (i + 1)));
+    let dot2 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[2], 1 - (1 / x * (i + 1)));
+    SDUDocument.addElement("Dot2D", dot1);
+    SDUDocument.addElement("Dot2D", dot2);
+    dependent_dots[0].push(dot1.id);
+    dependent_dots[2].push(dot2.id);
+    let line = LineFactory.makeObject(page, dot1.id, dot2.id);
+    SDUDocument.addElement("Line2D", line);
+    dependent_lines[0].push(line.id);
+  }
+  for(let i = 0; i < y - 1; i++){
+    let dot1 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[1], (1 / y * (i + 1)));
+    let dot2 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[3], 1 - (1 / y * (i + 1)));
+    SDUDocument.addElement("Dot2D", dot1);
+    SDUDocument.addElement("Dot2D", dot2);
+    dependent_dots[1].push(dot1.id);
+    dependent_dots[3].push(dot2.id);
+    let line = LineFactory.makeObject(page, dot1.id, dot2.id);
+    SDUDocument.addElement("Line2D", line);
+    dependent_lines[1].push(line.id);
+  }
+  let intersection_dots = [];
+  for(let i = 0; i < y - 1; i++){
+    intersection_dots.push([]);
+    for(let j = 0; j < x - 1; j++){
+      let dot = DotFactory.makeObject(page, Dot2D.Type.INTERSECTION, dependent_lines[0][j], dependent_lines[1][i]);
+      SDUDocument.addElement("Dot2D", dot);
+      intersection_dots[i].push(dot.id);
+    }
+  }
+  let dot_map = [];
+  dot_map.push([base_dots[0]].concat(dependent_dots[0]).concat([base_dots[1]]));
+  for(let i = 0; i < y - 1; i++){
+    dot_map.push([dependent_dots[3][i]].concat(intersection_dots[i]).concat([dependent_dots[1][i]]));
+  }
+  dot_map.push([base_dots[3]].concat(dependent_dots[2]).concat([base_dots[2]]));
+  for(let i = 0; i < y; i++){
+    for(let j = 0; j < x; j++){
+      let points = [dot_map[i][j], dot_map[i][j + 1], dot_map[i + 1][j + 1], dot_map[i + 1][j]];
+      let polygon = PolygonFactory.makeObject(page, points);
+      SDUDocument.addElement("Polygon2D", polygon);
+    }
+  }
+  Graphics.refresh();
+  this.push();
+}
+// --------------------------------------------------------------------------------
 DocumentManager.movePagePlus = async function(){
   await SDUDocument.movePagePlus();
   this.updateList();
@@ -195,7 +266,7 @@ DocumentManager.export = function(){
 // --------------------------------------------------------------------------------
 DocumentManager.push = function(){
   this._history.splice(++ this._now_history, this._history.length - this._now_history);
-  this._history.push(SDUDocument.saveJson());
+  this._history.push([SDUDocument.saveJson(), SDUDocument.getCurrentPage()]);
   if(this._history.length >= this.MAX_HISTORY){
     this._history.shift();
   }
@@ -203,13 +274,17 @@ DocumentManager.push = function(){
 }
 DocumentManager.undo = async function(){
   if(this._now_history > 0){
-    await SDUDocument.loadJson(this._history[-- this._now_history]);
+    let index = -- this._now_history;
+    await SDUDocument.loadJson(this._history[index][0]);
+    await SDUDocument.setCurrentPage(this._history[index][1]);
     this.updateList();
   }
 }
 DocumentManager.redo = async function(){
   if(this._now_history < this._history.length - 1){
-    await SDUDocument.loadJson(this._history[++ this._now_history]);
+    let index = ++ this._now_history;
+    await SDUDocument.loadJson(this._history[index]);
+    await SDUDocument.setCurrentPage(this._history[index][1]);
     this.updateList();
   }
 }

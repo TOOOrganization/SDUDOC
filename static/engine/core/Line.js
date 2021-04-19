@@ -61,10 +61,10 @@ Line.prototype.getDot = function(x, y, k, r){
   return [new Point(x1, y1), new Point(x2, y2)];
 }
 Line.prototype.getDrawPolygon = function(radius, start, end){
-  if(start.y === end.y){
+  if(Math.abs(start.y - end.y) < 0.01){
     return new Polygon([new Point(start.x, start.y + radius), new Point(start.x, start.y - radius), radius,
       new Point(end.x, end.y - radius), new Point(end.x, end.y + radius)]);
-  }else if(start.x === end.x){
+  }else if(Math.abs(start.x - end.x) < 0.01){
     return new Polygon([new Point(start.x + radius, start.y), new Point(start.x - radius, start.y), radius,
       new Point(end.x - radius, end.y), new Point(end.x + radius, end.y)]);
   }
