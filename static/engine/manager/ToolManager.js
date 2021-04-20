@@ -170,5 +170,6 @@ ToolManager.setCurrentPlugin = function(id){
       Engine.owner.current_plugin = i;
     }
   }
+  Graphics.refresh();
 }
 // ================================================================================

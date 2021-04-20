@@ -4,5 +4,8 @@
   "Line.js",
   "Polygon.js",
   "AutoPolygon.js",
-  "Character.js"
+  "Character.js",
+  "Word.js",
+  "Sentence.js",
+  "Paragraph.js"
 ]

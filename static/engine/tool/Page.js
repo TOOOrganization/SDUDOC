@@ -61,7 +61,9 @@ Page.prototype.getObject = function(){
 Page.prototype.onDelete = function(){
   let dots = SDUDocument.getCurrentPageElements("Dot2D");
   for(let i in dots){
-    SDUDocument.deleteElement("Dot2D", i);
+    if(SDUDocument.getElement("Dot2D", i)) {
+      SDUDocument.deleteElement("Dot2D", i);
+    }
   }
 };
 // --------------------------------------------------------------------------------

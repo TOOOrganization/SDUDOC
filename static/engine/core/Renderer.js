@@ -59,5 +59,4 @@ Object.defineProperty(Renderer.prototype, 'render', {
   },
   configurable: true
 });
-
 // ================================================================================

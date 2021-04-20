@@ -13,8 +13,8 @@
 // ================================================================================
 
 // ================================================================================
-// * Polygon2D
-// ================================================================================
+// * Character
+// --------------------------------------------------------------------------------
 function Character(){
   this.initialize.apply(this, arguments);
 }
@@ -169,7 +169,7 @@ Character.prototype.exportJson = function(){
 
 // ================================================================================
 // * CharacterFactory
-// ================================================================================
+// --------------------------------------------------------------------------------
 function CharacterFactory(){
   throw new Error('This is a static class');
 }
@@ -186,7 +186,7 @@ CharacterFactory.getNextIndex = function(){
 
 // ================================================================================
 // * Register Plugin Tool
-// ================================================================================
+// --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("character", "文字工具", "mdi-format-text-variant", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
 }));
@@ -213,7 +213,7 @@ ToolManager.addHandler(new Handler("character.onMouseOut", "mouseout", false, Ch
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("_character.normal", 20, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("character.normal", 20, PolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let characters = SDUDocument.getCurrentPageElements("Character");
   for(let i in characters){

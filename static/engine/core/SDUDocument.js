@@ -12,7 +12,7 @@
 
 // ================================================================================
 // * SDUDocument
-// ================================================================================
+// --------------------------------------------------------------------------------
 function SDUDocument(){
   throw new Error('This is a static class');
 }
@@ -60,15 +60,15 @@ Object.defineProperty(SDUDocument, 'current_page', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-SDUDocument.addElement = function(type, element){
+SDUDocument.addElement = function(type, element, not_update){
   if(!this._data[type]) this._data[type] = {};
   this._data[type][element.id] = element;
-  this.updateCurrentPageData();
+  if(!not_update) this.updateCurrentPageData();
 }
-SDUDocument.deleteElement = function(type, id){
+SDUDocument.deleteElement = function(type, id, not_update){
   this._data[type][id].onDelete.call(this._data[type][id]);
   delete this._data[type][id];
-  this.updateCurrentPageData();
+  if(!not_update) this.updateCurrentPageData();
 }
 // --------------------------------------------------------------------------------
 SDUDocument.getNextIndex = function(type){
@@ -78,6 +78,7 @@ SDUDocument.getNextIndex = function(type){
 // --------------------------------------------------------------------------------
 SDUDocument.updateCurrentPageData = function(){
   this._current_page_data = {};
+  CollideManager.clear();
   if(this._current_page <= 0 || this._data["Page"].length === 0) return;
   let current_page_id = this.getCurrentPageId();
   for(let i in this._data){

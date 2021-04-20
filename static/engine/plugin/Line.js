@@ -130,7 +130,9 @@ Line2D.prototype.onDelete = function(){
   let dots = SDUDocument.getCurrentPageElements("Dot2D");
   for(let i in dots){
     if(dots[i].father === this._id || dots[i].father1 === this._id || dots[i].father2 === this._id){
-      SDUDocument.deleteElement("Dot2D", i);
+      if(SDUDocument.getElement("Dot2D", i)) {
+        SDUDocument.deleteElement("Dot2D", i);
+      }
     }
   }
 };

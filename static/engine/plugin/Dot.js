@@ -191,14 +191,19 @@ Dot2D.prototype.onDelete = function(){
   let lines = SDUDocument.getCurrentPageElements("Line2D");
   for(let i in lines){
     if(lines[i].start === this._id || lines[i].end === this._id){
-      SDUDocument.deleteElement("Line2D", i);
+      if(SDUDocument.getElement("Line2D", i)) {
+        SDUDocument.deleteElement("Line2D", i);
+      }
     }
   }
+
   let polygons = SDUDocument.getCurrentPageElements("Polygon2D");
   for(let i in polygons){
     for(let j in polygons[i].points){
       if(polygons[i].points[j] === this._id){
-        SDUDocument.deleteElement("Polygon2D", i);
+        if(SDUDocument.getElement("Polygon2D", i)) {
+          SDUDocument.deleteElement("Polygon2D", i);
+        }
         break;
       }
     }
