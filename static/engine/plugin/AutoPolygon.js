@@ -24,7 +24,7 @@ function AutoPolygonFactory(){
 AutoPolygonFactory.getTempDots = function(point){
   let temp = [null, null, null, null];
   let temp_distance = [-1, -1, -1, -1];
-  let dots = SDUDocument.getCurrentPageElements("Dot2D")
+  let dots = SDUDocument.getCurrentPageElements(Dot2D.TAG)
   for(let i in dots){
     if(dots[i].page === DocumentManager.getCurrentPageId()){
       let delta = dots[i].minus(point);
@@ -53,7 +53,7 @@ ToolManager.addTool(new Tool("auto_polygon", "自动多边形工具", "mdi-shape
 ToolManager.addHandler(new Handler("auto_polygon.onLeftClick", "left_click", false, AutoPolygonFactory, function(event){
   let temp = AutoPolygonFactory.getTempDots(Graphics.getGridPoint(new Point(event.layerX, event.layerY)));
   if(temp){
-    DocumentManager.addElement("Polygon2D", PolygonFactory.makeObject(
+    DocumentManager.addElement(Polygon2D.TAG, PolygonFactory.makeObject(
       DocumentManager.getCurrentPageId(), temp));
   }
 }));
@@ -72,7 +72,7 @@ RenderManager.addRenderer(new Renderer("auto_polygon.mouse", 5, AutoPolygonFacto
   if(temp){
     let points = temp;
     for(let i = 0; i < points.length; i++){
-      points[i] = SDUDocument.getCurrentPageElement("Dot2D", points[i]);
+      points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, points[i]);
     }
     let polygon = new Polygon(points);
     polygon.fillCanvas(ctx, 'rgba(0, 0, 0, 0.3)');

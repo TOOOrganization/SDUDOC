@@ -80,10 +80,10 @@ SDUDocument.getNextIndex = function(type){
 SDUDocument.updateCurrentPageData = function(){
   this._current_page_data = {};
   CollideManager.clear();
-  if(this._current_page <= 0 || this._data["Page"].length === 0) return;
+  if(this._current_page <= 0 || this._data[Page.TAG].length === 0) return;
   let current_page_id = this.getCurrentPageId();
   for(let i in this._data){
-    if(i !== "Page"){
+    if(i !== Page.TAG){
       this._current_page_data[i] = {};
       for(let j in this._data[i]){
         if(this._data[i][j]._page && this._data[i][j]._page === current_page_id){
@@ -161,7 +161,7 @@ SDUDocument.getCurrentPage = function(){
   return this._current_page;
 }
 SDUDocument.getCurrentPageId = function(){
-  return this._current_page > 0 ? this._data["Page"][this._current_page - 1].id : null;
+  return this._current_page > 0 ? this._data[Page.TAG][this._current_page - 1].id : null;
 }
 SDUDocument.setCurrentPage = async function(index){
   if(index < 0 || index > this._data.Page.length) return;
@@ -185,7 +185,7 @@ SDUDocument.loadJson = async function(json){
   for(let i in temp){
     if(i === "Index"){
       this._next_index = temp[i];
-    }else if(i === "Page"){
+    }else if(i === Page.TAG){
       this._data[i] = [];
       for(let j in temp[i]){
         let element = window[i].prototype.getObject();

@@ -19,6 +19,10 @@ function Page(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+Page.TAG = "Page";
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
 Page._id = "";
@@ -59,10 +63,10 @@ Page.prototype.getObject = function(){
 }
 // --------------------------------------------------------------------------------
 Page.prototype.onDelete = function(){
-  let dots = SDUDocument.getCurrentPageElements("Dot2D");
+  let dots = SDUDocument.getCurrentPageElements(Dot2D.TAG);
   for(let i in dots){
-    if(SDUDocument.getElement("Dot2D", i)) {
-      SDUDocument.deleteElement("Dot2D", i);
+    if(SDUDocument.getElement(Dot2D.TAG, i)) {
+      SDUDocument.deleteElement(Dot2D.TAG, i);
     }
   }
 };
@@ -100,7 +104,7 @@ PageFactory.makeObject = function(src){
   return new Page(this.getNextIndex(), src);
 }
 PageFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex("Page");
+  return DocumentManager.getNextIndex(Page.TAG);
 }
 // ================================================================================
 
@@ -125,7 +129,6 @@ ToolManager.addTool(new Tool("move_page_add", "后移一页", "mdi-arrow-right-b
   await DocumentManager.movePagePlus();
 }));
 ToolManager.addTool(new Tool("delete_page", "删除页面", "mdi-close", Tool.Type.PAGE, "", function(){
-  console.log(SDUDocument.data);
   if(SDUDocument.current_page <= 0) return;
   Engine.alert("您确认要删除页面吗？", async function(){
     Engine.owner.alert_dialog = false;

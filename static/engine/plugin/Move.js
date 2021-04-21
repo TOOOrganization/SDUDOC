@@ -40,9 +40,9 @@ ToolManager.addTool(new Tool("move", "移动工具", "mdi-arrow-all", Tool.Type.
   ToolManager.setCurrentPlugin(id);
 }));
 ToolManager.addHandler(new Handler("move.onMouseLeftDown", "left_down", false, MoveFactory, function(event){
-  let collide_list = CollideManager.getCollideList("Dot2D", 1);
+  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0) {
-    if(SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).type !== Dot2D.Type.INTERSECTION){
+    if(SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).type !== Dot2D.Type.INTERSECTION){
       MoveFactory.setTarget(collide_list[0]);
     }
   }
@@ -58,12 +58,12 @@ ToolManager.addHandler(new Handler("move.onMouseLeftUp", "left_up", false, MoveF
 ToolManager.addHandler(new Handler("move.onMouseMove", "mousemove", false, MoveFactory, function(event){
   if(MoveFactory.getTarget()) {
     let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
-    switch (SDUDocument.getCurrentPageElement("Dot2D", MoveFactory.getTarget()).type){
+    switch (SDUDocument.getCurrentPageElement(Dot2D.TAG, MoveFactory.getTarget()).type){
       case Dot2D.Type.FREE:
-        SDUDocument.getCurrentPageElement("Dot2D", MoveFactory.getTarget()).move(Graphics.getGridScalePoint(distance));
+        SDUDocument.getCurrentPageElement(Dot2D.TAG, MoveFactory.getTarget()).move(Graphics.getGridScalePoint(distance));
         break;
       case Dot2D.Type.DEPENDENT:
-        SDUDocument.getCurrentPageElement("Dot2D", MoveFactory.getTarget()).move(MouseInput.getMousePoint());
+        SDUDocument.getCurrentPageElement(Dot2D.TAG, MoveFactory.getTarget()).move(MouseInput.getMousePoint());
         break;
     }
     Graphics.refresh();
@@ -83,10 +83,10 @@ ToolManager.addHandler(new Handler("move.onMouseOut", "mouseout", false, MoveFac
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("move.collide", 12, MoveFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Dot2D", 1);
+  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0){
-    if(SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).type !== Dot2D.Type.INTERSECTION){
-      SDUDocument.getCurrentPageElement("Dot2D", collide_list[0]).renderCollide(ctx);
+    if(SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).type !== Dot2D.Type.INTERSECTION){
+      SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).renderCollide(ctx);
     }
   }
 }));

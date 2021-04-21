@@ -21,6 +21,10 @@ function Word(){
 Word.prototype = Object.create(PolygonGroup.prototype);
 Word.prototype.constructor = Word;
 // --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+Word.TAG = "Word";
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
 Word.prototype._id = "";
@@ -69,9 +73,9 @@ Word.prototype.getObject = function(){
 Word.prototype.getMergePoints = function(){
   let points = [];
   for(let i = 0; i < this._children.length; i++){
-    let character = SDUDocument.getCurrentPageElement("Character", this._children[i]);
+    let character = SDUDocument.getCurrentPageElement(Character.TAG, this._children[i]);
     if(character){
-      let polygon = SDUDocument.getCurrentPageElement("Polygon2D", character.polygon);
+      let polygon = SDUDocument.getCurrentPageElement(Polygon2D.TAG, character.polygon);
       points.push(polygon.points);
     }
   }
@@ -82,7 +86,7 @@ Word.prototype.render = function(ctx){
   for(let i = 0; i < this._points.length; i++){
     let points = [];
     for(let j = 0; j < this._points[i].length; j++){
-      points[j] = SDUDocument.getCurrentPageElement("Dot2D", this._points[i][j]);
+      points[j] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i][j]);
     }
     PolygonGroup.prototype.strokeCanvas.call(new Polygon(points), ctx, this._line_width, this._color);
   }
@@ -100,7 +104,7 @@ Word.prototype.onDelete = function(){
 Word.prototype.getExportCharacters = function(){
   let characters = [];
   for(let i = 0; i < this._children.length; i++){
-    characters[i] = SDUDocument.getCurrentPageElement("Character", this._children[i]);
+    characters[i] = SDUDocument.getCurrentPageElement(Character.TAG, this._children[i]);
   }
   return characters;
 }
@@ -152,7 +156,7 @@ WordFactory.makeObject = function(page){
   return new Word(this.getNextIndex(), page);
 };
 WordFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex("Word");
+  return DocumentManager.getNextIndex(Word.TAG);
 };
 // ================================================================================
 
@@ -165,16 +169,16 @@ ToolManager.addTool(new Tool("word", "词汇工具", "mdi-file-word-box", Tool.T
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, WordFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character;
+    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
     if(character){
-      let character_object = SDUDocument.getCurrentPageElement("Character", character);
+      let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
       if(character_object.word){
         WordFactory.setCurrentWord(character_object.word);
       }else{
         if(WordFactory.getCurrentWord()){
-          let word_object = SDUDocument.getCurrentPageElement("Word", WordFactory.getCurrentWord());
+          let word_object = SDUDocument.getCurrentPageElement(Word.TAG, WordFactory.getCurrentWord());
           word_object.append(character);
           character_object.word = word_object.id;
           DocumentManager.push();
@@ -183,7 +187,7 @@ ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, Word
           word_object.append(character);
           character_object.word = word_object.id;
           WordFactory.setCurrentWord(word_object.id);
-          DocumentManager.addElement("Word", word_object);
+          DocumentManager.addElement(Word.TAG, word_object);
           return;
         }
       }
@@ -193,19 +197,19 @@ ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, Word
 }));
 ToolManager.addHandler(new Handler("word.onRightClick", "right_click", false, WordFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character;
+    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
     if(character){
-      let character_object = SDUDocument.getCurrentPageElement("Character", character);
+      let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
       let word = character_object.word;
       if(word){
         if(!WordFactory.getCurrentWord() || word === WordFactory.getCurrentWord()){
-          let word_object = SDUDocument.getCurrentPageElement("Word", word);
+          let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
           character_object.word = '';
           word_object.remove(character);
           if(word_object.isEmpty()){
-            DocumentManager.deleteElement("Word", word);
+            DocumentManager.deleteElement(Word.TAG, word);
             WordFactory.clearCurrentWord();
           }else{
             WordFactory.setCurrentWord(word);
@@ -230,23 +234,23 @@ ToolManager.addHandler(new Handler("word.onMouseOut", "mouseout", false, WordFac
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("word.normal", 7, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let words = SDUDocument.getCurrentPageElements("Word");
+  let words = SDUDocument.getCurrentPageElements(Word.TAG);
   for(let i in words){
     words[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("word.character.normal", 20, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let characters = SDUDocument.getCurrentPageElements("Character");
+  let characters = SDUDocument.getCurrentPageElements(Character.TAG);
   for(let i in characters){
     characters[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("word.polygon.collide", 6, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).renderCollide(ctx);
+    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
   }
 }));
 // ================================================================================

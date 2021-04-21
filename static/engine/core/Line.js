@@ -75,13 +75,13 @@ Line.prototype.getDrawPolygon = function(radius, start, end){
 };
 // --------------------------------------------------------------------------------
 Line.prototype.fillCanvas = function(ctx, radius, color){
-  let start = SDUDocument.getCurrentPageElement("Dot2D", this._start);
-  let end = SDUDocument.getCurrentPageElement("Dot2D", this._end);
+  let start = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._start);
+  let end = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._end);
   this.fill(ctx, radius, color, Graphics.getRenderPoint(start), Graphics.getRenderPoint(end));
 };
 Line.prototype.strokeCanvas = function(ctx, radius, lineWidth, color) {
-  let start = SDUDocument.getCurrentPageElement("Dot2D", this._start);
-  let end = SDUDocument.getCurrentPageElement("Dot2D", this._end);
+  let start = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._start);
+  let end = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._end);
   this.stroke(ctx, radius, lineWidth, color, Graphics.getRenderPoint(start), Graphics.getRenderPoint(end));
 }
 Line.prototype.fillSelf = function(ctx, radius, color){

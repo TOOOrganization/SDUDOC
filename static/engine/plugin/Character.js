@@ -19,6 +19,10 @@ function Character(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+Character.TAG = "Character";
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
 Character.prototype._id = "";
@@ -102,7 +106,7 @@ Character.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Character.prototype.fillCanvas = function(ctx, radius, background_color, text_color){
-  let polygon = SDUDocument.getCurrentPageElement("Polygon2D", this._polygon);
+  let polygon = SDUDocument.getCurrentPageElement(Polygon2D.TAG, this._polygon);
   this.fill(ctx, radius, background_color, text_color, Graphics.getRenderPoint(polygon.getCorePoint()), this._character);
 };
 Character.prototype.fill = function(ctx, radius, background_color, text_color, point, text){
@@ -136,9 +140,9 @@ Character.prototype.fill = function(ctx, radius, background_color, text_color, p
 };
 // --------------------------------------------------------------------------------
 Character.prototype.onDelete = function(){
-  let polygon = SDUDocument.getCurrentPageElement("Polygon2D", this._polygon);
+  let polygon = SDUDocument.getCurrentPageElement(Polygon2D.TAG, this._polygon);
   if(polygon) polygon.character = '';
-  let word = SDUDocument.getCurrentPageElement("Word", this._word);
+  let word = SDUDocument.getCurrentPageElement(Word.TAG, this._word);
   if(word) word.remove(this._id);
 };
 // --------------------------------------------------------------------------------
@@ -146,9 +150,9 @@ Character.prototype.onDelete = function(){
 // --------------------------------------------------------------------------------
 Character.prototype.getExportPoints = function(){
   let temp = [];
-  let points = SDUDocument.getElement("Polygon2D", this._polygon).points;
+  let points = SDUDocument.getElement(Polygon2D.TAG, this._polygon).points;
   for(let i in points){
-    let point = SDUDocument.getElement("Dot2D", points[i]);
+    let point = SDUDocument.getElement(Dot2D.TAG, points[i]);
     temp.push([point.x, point.y]);
   }
   return temp;
@@ -194,7 +198,7 @@ CharacterFactory.makeObject = function(page, polygon, character){
   return new Character(this.getNextIndex(), page, polygon, character);
 };
 CharacterFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex("Character");
+  return DocumentManager.getNextIndex(Character.TAG);
 };
 // ================================================================================
 
@@ -207,25 +211,25 @@ ToolManager.addTool(new Tool("character", "文字工具", "mdi-format-text-varia
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("character.onLeftClick", "left_click", false, CharacterFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    if(SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character) return;
+    if(SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character) return;
     Engine.prompt("输入文字", ["请输入该多边形包含的文字"], [null], function(){
       Engine.owner.prompt_dialog = false;
       let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
         collide_list[0], Engine.owner.prompt_text[0])
-      SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character = character.id;
-      DocumentManager.addElement("Character", character);
+      SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character = character.id;
+      DocumentManager.addElement(Character.TAG, character);
     })
   }
 }));
 ToolManager.addHandler(new Handler("character.onRightClick", "right_click", false, CharacterFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character;
+    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
     if(character){
-      DocumentManager.deleteElement("Character", character);
+      DocumentManager.deleteElement(Character.TAG, character);
     }
   }
   Graphics.refresh();
@@ -239,23 +243,23 @@ ToolManager.addHandler(new Handler("character.onMouseOut", "mouseout", false, Ch
 // --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("character.normal", 20, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let characters = SDUDocument.getCurrentPageElements("Character");
+  let characters = SDUDocument.getCurrentPageElements(Character.TAG);
   for(let i in characters){
     characters[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("character.word.normal", 7, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let words = SDUDocument.getCurrentPageElements("Word");
+  let words = SDUDocument.getCurrentPageElements(Word.TAG);
   for(let i in words){
     words[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("character.polygon.collide", 6, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).renderCollide(ctx);
+    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
   }
 }));
 // ================================================================================
