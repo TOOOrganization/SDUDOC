@@ -13,9 +13,268 @@
 // ================================================================================
 
 // ================================================================================
+// * Paragraph
+// --------------------------------------------------------------------------------
+function Paragraph(){
+  this.initialize.apply(this, arguments);
+}
+Paragraph.prototype = Object.create(PolygonGroup.prototype);
+Paragraph.prototype.constructor = Paragraph;
+// --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+Paragraph.TAG = "Paragraph";
+// --------------------------------------------------------------------------------
+// * Property
+// --------------------------------------------------------------------------------
+Paragraph.prototype._id = "";
+Paragraph.prototype._page = "";
+// --------------------------------------------------------------------------------
+Paragraph.prototype._line_width = 0;
+Paragraph.prototype._color = '';
+// --------------------------------------------------------------------------------
+// * Initialize
+// --------------------------------------------------------------------------------
+Paragraph.prototype.initialize = function(id, page){
+  PolygonGroup.prototype.initialize.call(this);
+
+  this._line_width = 4 * 2;
+  this._color = 'rgba(255, 0, 0, 0.5)';
+
+  this._id = id;
+  this._page = page;
+};
+// --------------------------------------------------------------------------------
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(Paragraph.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
+Object.defineProperty(Paragraph.prototype, 'page', {
+  get: function() {
+    return this._page;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
+Paragraph.prototype.setColor = function(color){
+  this._color = color;
+}
+// --------------------------------------------------------------------------------
+Paragraph.prototype.getObject = function(){
+  return new Paragraph("", "");
+}
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
+Paragraph.prototype.callFatherCalcPoints = function(){
+
+};
+// --------------------------------------------------------------------------------
+Paragraph.prototype.getMergePoints = function(){
+  let points = [];
+  for(let i = 0; i < this._children.length; i++){
+    let sentence = SDUDocument.getCurrentPageElement(Sentence.TAG, this._children[i]);
+    if(sentence){
+      points = points.concat(sentence.points);
+    }
+  }
+  return points;
+};
+// --------------------------------------------------------------------------------
+Paragraph.prototype.render = function(ctx){
+  for(let i = 0; i < this._points.length; i++){
+    let points = [];
+    for(let j = 0; j < this._points[i].length; j++){
+      points[j] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i][j]);
+    }
+    PolygonGroup.prototype.strokeCanvas.call(new Polygon(points), ctx, this._line_width, this._color);
+  }
+};
+Paragraph.prototype.renderCollide = function(ctx){
+
+};
+// --------------------------------------------------------------------------------
+Paragraph.prototype.onDelete = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+Paragraph.prototype.getExportString = function(){
+  let str = [];
+  for(let i = 0; i < this._children.length; i++){
+    str.push(SDUDocument.getCurrentPageElement(Sentence.TAG, this._children[i]).getExportString());
+  }
+  return str;
+}
+// --------------------------------------------------------------------------------
+Paragraph.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._children = json._children;
+  this._father = json._father;
+  this._points = json._points;
+}
+Paragraph.prototype.saveJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _children: this._children,
+    _father: this._father,
+    _points: this._points
+  }
+}
+Paragraph.prototype.exportJson = function(){
+  return {
+    _id: this._id,
+    _page: this._page,
+    _children: this._children,
+    _father: this._father,
+    _string: this.getExportString(),
+    _points: this._points
+  }
+}
+// ================================================================================
+
+// ================================================================================
+// * ParagraphFactory
+// --------------------------------------------------------------------------------
+function ParagraphFactory(){
+  throw new Error('This is a static class');
+}
+ParagraphFactory._currentParagraph = null;
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
+ParagraphFactory.getCurrentParagraph = function(){
+  return this._currentParagraph;
+};
+ParagraphFactory.setCurrentParagraph = function(id){
+  this._currentParagraph = id;
+};
+ParagraphFactory.clearCurrentParagraph = function(){
+  this._currentParagraph = null;
+};
+ParagraphFactory.makeObject = function(page){
+  return new Paragraph(this.getNextIndex(), page);
+};
+ParagraphFactory.getNextIndex = function(){
+  return DocumentManager.getNextIndex(Paragraph.TAG);
+};
+// ================================================================================
+
+// ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("paragraph", "段落工具", "mdi-format-align-left", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+}));
+// --------------------------------------------------------------------------------
+ToolManager.addHandler(new Handler("paragraph.onLeftClick", "left_click", false, ParagraphFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0){
+    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
+    if(character){
+      let word = SDUDocument.getCurrentPageElement(Character.TAG, character).father;
+      if(word){
+        let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
+        if(sentence){
+          let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
+          if(sentence_object.father){
+            ParagraphFactory.setCurrentParagraph(sentence_object.father);
+          }else{
+            if(ParagraphFactory.getCurrentParagraph()){
+              let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, ParagraphFactory.getCurrentParagraph());
+              paragraph_object.append(sentence_object);
+              DocumentManager.push();
+            }else{
+              let paragraph_object = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
+              paragraph_object.append(sentence_object);
+              ParagraphFactory.setCurrentParagraph(paragraph_object.id);
+              DocumentManager.addElement(Paragraph.TAG, paragraph_object);
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+  Graphics.refresh();
+}));
+ToolManager.addHandler(new Handler("paragraph.onRightClick", "right_click", false, ParagraphFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0){
+    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
+    if(character){
+      let word = SDUDocument.getCurrentPageElement(Character.TAG, character).father;
+      if(word){
+        let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
+        if(sentence){
+          let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
+          let paragraph = sentence_object.father;
+          if(paragraph){
+            if(!ParagraphFactory.getCurrentParagraph() || paragraph === ParagraphFactory.getCurrentParagraph()){
+              let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
+              paragraph_object.remove(sentence_object);
+              if(paragraph_object.isEmpty()){
+                DocumentManager.deleteElement(Paragraph.TAG, paragraph);
+                ParagraphFactory.clearCurrentParagraph();
+              }else{
+                ParagraphFactory.setCurrentParagraph(paragraph);
+                DocumentManager.push();
+              }
+              Graphics.refresh();
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+  ParagraphFactory.clearCurrentParagraph();
+  Graphics.refresh();
+}));
+ToolManager.addHandler(new Handler("paragraph.onMouseMove", "mousemove", false, ParagraphFactory, function(event){
+  Graphics.refresh();
+}));
+ToolManager.addHandler(new Handler("paragraph.onMouseOut", "mouseout", false, ParagraphFactory, function(event){
+  ParagraphFactory.clearCurrentParagraph();
+  Graphics.refresh();
+}));
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer("paragraph.doc.normal", 7, ParagraphFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let words = SDUDocument.getCurrentPageElements(Word.TAG);
+  for(let i in words){
+    words[i].render(ctx);
+  }
+  let sentences = SDUDocument.getCurrentPageElements(Sentence.TAG);
+  for(let i in sentences){
+    sentences[i].render(ctx);
+  }
+  let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
+  for(let i in paragraphs){
+    paragraphs[i].render(ctx);
+  }
+}));
+RenderManager.addRenderer(new Renderer("paragraph.character.normal", 20, ParagraphFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let characters = SDUDocument.getCurrentPageElements(Character.TAG);
+  for(let i in characters){
+    characters[i].render(ctx);
+  }
+}));
+RenderManager.addRenderer(new Renderer("paragraph.polygon.collide", 6, ParagraphFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
+  }
 }));
 // ================================================================================

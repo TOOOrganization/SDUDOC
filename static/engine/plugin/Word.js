@@ -70,6 +70,12 @@ Word.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Word.prototype.callFatherCalcPoints = function(){
+  if(this._father){
+    SDUDocument.getCurrentPageElement(Sentence.TAG, this._father).calcPoints();
+  }
+};
+// --------------------------------------------------------------------------------
 Word.prototype.getMergePoints = function(){
   let points = [];
   for(let i = 0; i < this._children.length; i++){
@@ -101,18 +107,19 @@ Word.prototype.onDelete = function(){
 // --------------------------------------------------------------------------------
 // * Save & Export
 // --------------------------------------------------------------------------------
-Word.prototype.getExportCharacters = function(){
-  let characters = [];
+Word.prototype.getExportString = function(){
+  let str = [];
   for(let i = 0; i < this._children.length; i++){
-    characters[i] = SDUDocument.getCurrentPageElement(Character.TAG, this._children[i]);
+    str.push(SDUDocument.getCurrentPageElement(Character.TAG, this._children[i]).char);
   }
-  return characters;
+  return str;
 }
 // --------------------------------------------------------------------------------
 Word.prototype.loadJson = function(json){
   this._id = json._id;
   this._page = json._page;
   this._children = json._children;
+  this._father = json._father;
   this._points = json._points;
 }
 Word.prototype.saveJson = function(){
@@ -120,6 +127,7 @@ Word.prototype.saveJson = function(){
     _id: this._id,
     _page: this._page,
     _children: this._children,
+    _father: this._father,
     _points: this._points
   }
 }
@@ -127,7 +135,9 @@ Word.prototype.exportJson = function(){
   return {
     _id: this._id,
     _page: this._page,
-    _characters: this.getExportCharacters(),
+    _children: this._children,
+    _father: this._father,
+    _string: this.getExportString(),
     _points: this._points
   }
 }
@@ -174,18 +184,16 @@ ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, Word
     let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
     if(character){
       let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
-      if(character_object.word){
-        WordFactory.setCurrentWord(character_object.word);
+      if(character_object.father){
+        WordFactory.setCurrentWord(character_object.father);
       }else{
         if(WordFactory.getCurrentWord()){
           let word_object = SDUDocument.getCurrentPageElement(Word.TAG, WordFactory.getCurrentWord());
-          word_object.append(character);
-          character_object.word = word_object.id;
+          word_object.append(character_object);
           DocumentManager.push();
         }else{
           let word_object = WordFactory.makeObject(DocumentManager.getCurrentPageId());
-          word_object.append(character);
-          character_object.word = word_object.id;
+          word_object.append(character_object);
           WordFactory.setCurrentWord(word_object.id);
           DocumentManager.addElement(Word.TAG, word_object);
           return;
@@ -202,12 +210,11 @@ ToolManager.addHandler(new Handler("word.onRightClick", "right_click", false, Wo
     let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
     if(character){
       let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
-      let word = character_object.word;
+      let word = character_object.father;
       if(word){
         if(!WordFactory.getCurrentWord() || word === WordFactory.getCurrentWord()){
           let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
-          character_object.word = '';
-          word_object.remove(character);
+          word_object.remove(character_object);
           if(word_object.isEmpty()){
             DocumentManager.deleteElement(Word.TAG, word);
             WordFactory.clearCurrentWord();
@@ -232,11 +239,19 @@ ToolManager.addHandler(new Handler("word.onMouseOut", "mouseout", false, WordFac
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("word.normal", 7, WordFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("word.doc.normal", 7, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let words = SDUDocument.getCurrentPageElements(Word.TAG);
   for(let i in words){
     words[i].render(ctx);
+  }
+  let sentences = SDUDocument.getCurrentPageElements(Sentence.TAG);
+  for(let i in sentences){
+    sentences[i].render(ctx);
+  }
+  let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
+  for(let i in paragraphs){
+    paragraphs[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("word.character.normal", 20, WordFactory, function(ctx){

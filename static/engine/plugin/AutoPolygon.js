@@ -51,11 +51,25 @@ ToolManager.addTool(new Tool("auto_polygon", "自动多边形工具", "mdi-shape
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("auto_polygon.onLeftClick", "left_click", false, AutoPolygonFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0) return;
+
   let temp = AutoPolygonFactory.getTempDots(Graphics.getGridPoint(new Point(event.layerX, event.layerY)));
   if(temp){
     DocumentManager.addElement(Polygon2D.TAG, PolygonFactory.makeObject(
       DocumentManager.getCurrentPageId(), temp));
   }
+}));
+ToolManager.addHandler(new Handler("auto_polygon.onRightClick", "right_click", false, AutoPolygonFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length === 0) {
+    Graphics.refresh();
+    return;
+  }
+  DocumentManager.deleteElement(Polygon2D.TAG, collide_list[0]);
 }));
 ToolManager.addHandler(new Handler("auto_polygon.onMouseMove", "mousemove", false, AutoPolygonFactory, function(event){
   Graphics.refresh();
@@ -64,8 +78,18 @@ ToolManager.addHandler(new Handler("auto_polygon.onMouseOut", "mouseout", false,
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer("auto_polygon.polygon.collide", 6, PolygonFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0){
+    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
+  }
+}));
+// --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer("auto_polygon.mouse", 5, AutoPolygonFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+  if(collide_list.length > 0) return;
 
   let mouse_point = MouseInput.getMousePoint();
   let temp = AutoPolygonFactory.getTempDots(Graphics.getGridPoint(mouse_point));

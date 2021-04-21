@@ -27,17 +27,17 @@ Character.TAG = "Character";
 // --------------------------------------------------------------------------------
 Character.prototype._id = "";
 Character.prototype._page = "";
-Character.prototype._character = "";
+Character.prototype._char = "";
 // --------------------------------------------------------------------------------
 Character.prototype._polygon = "";
-Character.prototype._word = '';
+Character.prototype._father = '';
 // --------------------------------------------------------------------------------
 Character.prototype._background_color = '';
 Character.prototype._text_color = '';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Character.prototype.initialize = function(id, page, polygon, character){
+Character.prototype.initialize = function(id, page, polygon, char){
 
   this._background_color = 'rgba(255, 255, 255, 0.8)';
   this._text_color =  'rgba(0, 0, 0, 1)';
@@ -46,9 +46,9 @@ Character.prototype.initialize = function(id, page, polygon, character){
   this._page = page;
 
   this._polygon = polygon;
-  this._character = character;
+  this._char = char;
 
-  this._word = '';
+  this._father = '';
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -71,18 +71,18 @@ Object.defineProperty(Character.prototype, 'polygon', {
   },
   configurable: true
 });
-Object.defineProperty(Character.prototype, 'character', {
+Object.defineProperty(Character.prototype, 'char', {
   get: function() {
-    return this._character;
+    return this._char;
   },
   configurable: true
 });
-Object.defineProperty(Character.prototype, 'word', {
+Object.defineProperty(Character.prototype, 'father', {
   get: function() {
-    return this._word;
+    return this._father;
   },
   set: function(value) {
-    this._word = value;
+    this._father = value;
   },
   configurable: true
 });
@@ -107,7 +107,7 @@ Character.prototype.renderCollide = function(ctx){
 // --------------------------------------------------------------------------------
 Character.prototype.fillCanvas = function(ctx, radius, background_color, text_color){
   let polygon = SDUDocument.getCurrentPageElement(Polygon2D.TAG, this._polygon);
-  this.fill(ctx, radius, background_color, text_color, Graphics.getRenderPoint(polygon.getCorePoint()), this._character);
+  this.fill(ctx, radius, background_color, text_color, Graphics.getRenderPoint(polygon.getCorePoint()), this._char);
 };
 Character.prototype.fill = function(ctx, radius, background_color, text_color, point, text){
   ctx.save();
@@ -142,7 +142,7 @@ Character.prototype.fill = function(ctx, radius, background_color, text_color, p
 Character.prototype.onDelete = function(){
   let polygon = SDUDocument.getCurrentPageElement(Polygon2D.TAG, this._polygon);
   if(polygon) polygon.character = '';
-  let word = SDUDocument.getCurrentPageElement(Word.TAG, this._word);
+  let word = SDUDocument.getCurrentPageElement(Word.TAG, this._father);
   if(word) word.remove(this._id);
 };
 // --------------------------------------------------------------------------------
@@ -161,26 +161,26 @@ Character.prototype.getExportPoints = function(){
 Character.prototype.loadJson = function(json){
   this._id = json._id;
   this._page = json._page;
-  this._character = json._character;
+  this._char = json._char;
+  this._father = json._father;
   this._polygon = json._polygon;
-  this._word = json._word;
 }
 Character.prototype.saveJson = function(){
   return {
     _id: this._id,
     _page: this._page,
-    _character: this._character,
-    _polygon: this._polygon,
-    _word: this._word
+    _char: this._char,
+    _father: this._father,
+    _polygon: this._polygon
   }
 }
 Character.prototype.exportJson = function(){
   return {
     _id: this._id,
     _page: this._page,
-    _character: this._character,
-    _points: this.getExportPoints(),
-    _word: this._word
+    _father: this._father,
+    _string: this._char,
+    _points: this.getExportPoints()
   }
 }
 // ================================================================================
@@ -194,8 +194,8 @@ function CharacterFactory(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-CharacterFactory.makeObject = function(page, polygon, character){
-  return new Character(this.getNextIndex(), page, polygon, character);
+CharacterFactory.makeObject = function(page, polygon, char){
+  return new Character(this.getNextIndex(), page, polygon, char);
 };
 CharacterFactory.getNextIndex = function(){
   return DocumentManager.getNextIndex(Character.TAG);
@@ -241,18 +241,26 @@ ToolManager.addHandler(new Handler("character.onMouseOut", "mouseout", false, Ch
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("character.normal", 20, CharacterFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("_character.normal", 20, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let characters = SDUDocument.getCurrentPageElements(Character.TAG);
   for(let i in characters){
     characters[i].render(ctx);
   }
 }));
-RenderManager.addRenderer(new Renderer("character.word.normal", 7, CharacterFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("character.doc.normal", 7, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let words = SDUDocument.getCurrentPageElements(Word.TAG);
   for(let i in words){
     words[i].render(ctx);
+  }
+  let sentences = SDUDocument.getCurrentPageElements(Sentence.TAG);
+  for(let i in sentences){
+    sentences[i].render(ctx);
+  }
+  let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
+  for(let i in paragraphs){
+    paragraphs[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("character.polygon.collide", 6, CharacterFactory, function(ctx){

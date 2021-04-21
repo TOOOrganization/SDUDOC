@@ -21,13 +21,18 @@ function PolygonGroup() {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+PolygonGroup.prototype._id = '';
+// --------------------------------------------------------------------------------
 PolygonGroup.prototype._children = [];
+PolygonGroup.prototype._father = '';
 PolygonGroup.prototype._points = [];
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.initialize = function(){
+  this._id = '';
   this._children = [];
+  this._father = '';
   this._points = [];
 };
 // --------------------------------------------------------------------------------
@@ -39,6 +44,15 @@ Object.defineProperty(PolygonGroup.prototype, 'children', {
   },
   set: function(value) {
     this._children = value;
+  },
+  configurable: true
+});
+Object.defineProperty(PolygonGroup.prototype, 'father', {
+  get: function() {
+    return this._father;
+  },
+  set: function(value) {
+    this._father = value;
   },
   configurable: true
 });
@@ -54,16 +68,26 @@ Object.defineProperty(PolygonGroup.prototype, 'points', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype.append = function(id){
-  this._children.push(id);
-  this._points = this.mergePoints(this.getMergePoints());
+PolygonGroup.prototype.append = function(obj){
+  this._children.push(obj.id);
+  obj.father = this._id;
+  this.calcPoints();
 };
-PolygonGroup.prototype.remove = function(id){
-  this._children.splice(this._children.indexOf(id), 1);
-  this._points = this.mergePoints(this.getMergePoints());
+PolygonGroup.prototype.remove = function(obj){
+  this._children.splice(this._children.indexOf(obj.id), 1);
+  obj.father = '';
+  this.calcPoints();
 };
 PolygonGroup.prototype.isEmpty = function(){
   return this._children.length === 0;
+};
+// --------------------------------------------------------------------------------
+PolygonGroup.prototype.calcPoints = function(){
+  this._points = this.mergePoints(this.getMergePoints());
+  this.callFatherCalcPoints();
+};
+PolygonGroup.prototype.callFatherCalcPoints = function(){
+
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.isLine = function(dot1, dot2, points){
