@@ -26,6 +26,7 @@ Character.prototype._page = "";
 Character.prototype._character = "";
 // --------------------------------------------------------------------------------
 Character.prototype._polygon = "";
+Character.prototype._word = '';
 // --------------------------------------------------------------------------------
 Character.prototype._background_color = '';
 Character.prototype._text_color = '';
@@ -34,14 +35,16 @@ Character.prototype._text_color = '';
 // --------------------------------------------------------------------------------
 Character.prototype.initialize = function(id, page, polygon, character){
 
-  this._color = 'rgba(0, 0, 255, 0.3)';
-  this._collide_color = 'rgba(255, 0, 0, 0.3)';
+  this._background_color = 'rgba(255, 255, 255, 0.8)';
+  this._text_color =  'rgba(0, 0, 0, 1)';
 
   this._id = id;
   this._page = page;
 
   this._polygon = polygon;
   this._character = character;
+
+  this._word = '';
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -70,6 +73,15 @@ Object.defineProperty(Character.prototype, 'character', {
   },
   configurable: true
 });
+Object.defineProperty(Character.prototype, 'word', {
+  get: function() {
+    return this._word;
+  },
+  set: function(value) {
+    this._word = value;
+  },
+  configurable: true
+});
 // --------------------------------------------------------------------------------
 Character.prototype.setColor = function(background_color, text_color){
   this._background_color = background_color;
@@ -82,12 +94,8 @@ Character.prototype.getObject = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Character.prototype.checkCollide = function(point){
-  return SDUDocument.getCurrentPageElement("Polygon2D", this._polygon).checkCollide(point);
-};
-// --------------------------------------------------------------------------------
 Character.prototype.render = function(ctx){
-  this.fillCanvas(ctx, 8, 'rgba(255, 255, 255, 0.8)', 'rgba(0, 0, 0, 1)');
+  this.fillCanvas(ctx, 8, this._background_color, this._text_color);
 };
 Character.prototype.renderCollide = function(ctx){
 
@@ -128,7 +136,10 @@ Character.prototype.fill = function(ctx, radius, background_color, text_color, p
 };
 // --------------------------------------------------------------------------------
 Character.prototype.onDelete = function(){
-
+  let polygon = SDUDocument.getCurrentPageElement("Polygon2D", this._polygon);
+  if(polygon) polygon.character = '';
+  let word = SDUDocument.getCurrentPageElement("Word", this._word);
+  if(word) word.remove(this._id);
 };
 // --------------------------------------------------------------------------------
 // * Save & Export
@@ -148,13 +159,15 @@ Character.prototype.loadJson = function(json){
   this._page = json._page;
   this._character = json._character;
   this._polygon = json._polygon;
+  this._word = json._word;
 }
 Character.prototype.saveJson = function(){
   return {
     _id: this._id,
     _page: this._page,
     _character: this._character,
-    _polygon: this._polygon
+    _polygon: this._polygon,
+    _word: this._word
   }
 }
 Character.prototype.exportJson = function(){
@@ -162,7 +175,8 @@ Character.prototype.exportJson = function(){
     _id: this._id,
     _page: this._page,
     _character: this._character,
-    _points: this.getExportPoints()
+    _points: this.getExportPoints(),
+    _word: this._word
   }
 }
 // ================================================================================
@@ -195,15 +209,25 @@ ToolManager.addHandler(new Handler("character.onLeftClick", "left_click", false,
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList("Polygon2D", 1);
   if(collide_list.length > 0){
-    let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
+    if(SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character) return;
     Engine.prompt("输入文字", ["请输入该多边形包含的文字"], [null], function(){
       Engine.owner.prompt_dialog = false;
-      DocumentManager.addElement("Character", CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
-        collide_list[0], Engine.owner.prompt_text[0]));
+      let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
+        collide_list[0], Engine.owner.prompt_text[0])
+      SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character = character.id;
+      DocumentManager.addElement("Character", character);
     })
   }
 }));
 ToolManager.addHandler(new Handler("character.onRightClick", "right_click", false, CharacterFactory, function(event){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let collide_list = CollideManager.getCollideList("Polygon2D", 1);
+  if(collide_list.length > 0){
+    let character = SDUDocument.getCurrentPageElement("Polygon2D", collide_list[0]).character;
+    if(character){
+      DocumentManager.deleteElement("Character", character);
+    }
+  }
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("character.onMouseMove", "mousemove", false, CharacterFactory, function(event){
@@ -213,11 +237,18 @@ ToolManager.addHandler(new Handler("character.onMouseOut", "mouseout", false, Ch
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("character.normal", 20, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer("character.normal", 20, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let characters = SDUDocument.getCurrentPageElements("Character");
   for(let i in characters){
     characters[i].render(ctx);
+  }
+}));
+RenderManager.addRenderer(new Renderer("character.word.normal", 7, CharacterFactory, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+  let words = SDUDocument.getCurrentPageElements("Word");
+  for(let i in words){
+    words[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("character.polygon.collide", 6, CharacterFactory, function(ctx){

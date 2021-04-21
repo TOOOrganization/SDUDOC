@@ -135,6 +135,12 @@ Engine.saveFile = function(filename, content){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Engine.clearFactory = function(){
+  PolygonFactory.clearPoints();
+  LineFactory.clearFirstPoint();
+  WordFactory.clearCurrentWord();
+}
+// --------------------------------------------------------------------------------
 Engine.alert = function(title, callback){
   Engine.owner.pop_title = title;
   Engine.owner.pop_callback = callback;

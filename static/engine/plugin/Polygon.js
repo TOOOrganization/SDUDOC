@@ -29,6 +29,8 @@ Polygon2D.prototype._page = "";
 Polygon2D.prototype._color = '';
 Polygon2D.prototype._collide_color = '';
 // --------------------------------------------------------------------------------
+Polygon2D.prototype._character = '';
+// --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.initialize = function(id, page, points){
@@ -39,6 +41,8 @@ Polygon2D.prototype.initialize = function(id, page, points){
 
   this._id = id;
   this._page = page;
+
+  this._character = '';
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -52,6 +56,15 @@ Object.defineProperty(Polygon2D.prototype, 'id', {
 Object.defineProperty(Polygon2D.prototype, 'page', {
   get: function() {
     return this._page;
+  },
+  configurable: true
+});
+Object.defineProperty(Polygon2D.prototype, 'character', {
+  get: function() {
+    return this._character;
+  },
+  set: function(value) {
+    this._character = value;
   },
   configurable: true
 });
@@ -123,12 +136,8 @@ Polygon2D.prototype.renderCollide = function(ctx){
 };
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onDelete = function(){
-  let characters = SDUDocument.getCurrentPageElements("Character");
-  for(let i in characters){
-    if(characters[i].polygon === this._id){
-      SDUDocument.deleteElement("Character", i);
-    }
-  }
+  SDUDocument.deleteElement("Character", this._character);
+  this._character = '';
 };
 // --------------------------------------------------------------------------------
 // * Save & Export
@@ -137,12 +146,14 @@ Polygon2D.prototype.loadJson = function(json){
   this._id = json._id;
   this._page = json._page;
   this._points = json._points;
+  this._character = json._character;
 }
 Polygon2D.prototype.saveJson = function(){
   return {
     _id: this._id,
     _page: this._page,
-    _points: this._points
+    _points: this._points,
+    _character: this._character
   }
 }
 // ================================================================================

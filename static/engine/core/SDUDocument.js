@@ -66,6 +66,7 @@ SDUDocument.addElement = function(type, element, not_update){
   if(!not_update) this.updateCurrentPageData();
 }
 SDUDocument.deleteElement = function(type, id, not_update){
+  if(!id || !this._data[type] || !this._data[type][id]) return;
   this._data[type][id].onDelete.call(this._data[type][id]);
   delete this._data[type][id];
   if(!not_update) this.updateCurrentPageData();

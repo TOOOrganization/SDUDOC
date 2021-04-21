@@ -125,6 +125,7 @@ ToolManager.addTool(new Tool("move_page_add", "后移一页", "mdi-arrow-right-b
   await DocumentManager.movePagePlus();
 }));
 ToolManager.addTool(new Tool("delete_page", "删除页面", "mdi-close", Tool.Type.PAGE, "", function(){
+  console.log(SDUDocument.data);
   if(SDUDocument.current_page <= 0) return;
   Engine.alert("您确认要删除页面吗？", async function(){
     Engine.owner.alert_dialog = false;

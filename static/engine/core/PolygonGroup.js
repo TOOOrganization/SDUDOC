@@ -21,24 +21,24 @@ function PolygonGroup() {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype._polygons = [];
+PolygonGroup.prototype._children = [];
 PolygonGroup.prototype._points = [];
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.initialize = function(){
-  this._polygons = [];
+  this._children = [];
   this._points = [];
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(PolygonGroup.prototype, 'polygons', {
+Object.defineProperty(PolygonGroup.prototype, 'children', {
   get: function() {
-    return this._polygons;
+    return this._children;
   },
   set: function(value) {
-    this._polygons = value;
+    this._children = value;
   },
   configurable: true
 });
@@ -55,12 +55,15 @@ Object.defineProperty(PolygonGroup.prototype, 'points', {
 // * Functions
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.append = function(id){
-  this._polygons.push(id);
-  this._points = this.calcPoints();
+  this._children.push(id);
+  this._points = this.mergePoints(this.getMergePoints());
 };
 PolygonGroup.prototype.remove = function(id){
-  this._polygons.splice(this._polygons.indexOf(id), 1);
-  this._points = this.calcPoints();
+  this._children.splice(this._children.indexOf(id), 1);
+  this._points = this.mergePoints(this.getMergePoints());
+};
+PolygonGroup.prototype.isEmpty = function(){
+  return this._children.length === 0;
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.isLine = function(dot1, dot2, points){
@@ -78,7 +81,7 @@ PolygonGroup.prototype.hasCommonLine = function(points_1, points_2){
     }else{
       a = i; b = i + 1;
     }
-    if(this.isLine(a, b, points_2)){
+    if(this.isLine(points_1[a], points_1[b], points_2)){
       return true;
     }
   }
@@ -93,14 +96,14 @@ PolygonGroup.prototype.getGroupBFS = function(map){
   let polygons = [];
   for(let i = 0; i < visited.length; i++){
     if(!visited[i]){
-      polygons.push([i]);
-      visited[i] = true;
+      polygons.push([]);
       queue.push(i);
+      visited[i] = true;
       while(queue.length !== 0) {
         let target = queue.shift();
-        for (let j = 0; j < map[i].length; j++) {
-          if (map[i][j] && !visited[j]) {
-            polygons[polygons.length - 1].push(j);
+        polygons[polygons.length - 1].push(target);
+        for (let j = 0; j < map[target].length; j++) {
+          if (map[target][j] && !visited[j]) {
             queue.push(j);
             visited[j] = true;
           }
@@ -157,19 +160,19 @@ PolygonGroup.prototype.mergePolygon = function(polygon_1, polygon_2){
   }
   return polygon;
 }
-PolygonGroup.prototype.merge = function(){
+PolygonGroup.prototype.mergePoints = function(points){
   let polygon_map = [];
-  for(let i = 0; i < this._points.length; i++) {
-    polygon_map.push(new Array(this._points.length));
+  for(let i = 0; i < points.length; i++) {
+    polygon_map.push(new Array(points.length));
   }
   for(let i = 0; i < polygon_map.length; i++) {
     for (let j = 0; j < polygon_map[i].length; j++) {
       polygon_map[i][j] = false;
     }
   }
-  for(let i = 0; i < this._points.length; i++) {
-    for (let j = i + 1; j < this._points.length; j++) {
-      if (this.hasCommonLine(this._points[i], this._points[j])){
+  for(let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      if (this.hasCommonLine(points[i], points[j])){
         polygon_map[i][j] = true;
         polygon_map[j][i] = true;
       }
@@ -178,35 +181,39 @@ PolygonGroup.prototype.merge = function(){
   let polygon_group = this.getGroupBFS(polygon_map);
   let points_group = [];
   for(let i = 0; i < polygon_group.length; i++){
-
+    points_group.push(points[polygon_group[i].splice(0, 1)]);
+    while(polygon_group[i].length > 0){
+      for(let j = 0; j < polygon_group[i].length; j++){
+        if(this.hasCommonLine(points_group[i], points[polygon_group[i][j]])){
+          points_group[i] = this.mergePolygon(points_group[i], points[polygon_group[i].splice(j, 1)]);
+          break;
+        }
+      }
+    }
   }
-
+  return points_group;
 };
-PolygonGroup.prototype.calcPoints = function(){
-  this._points = [];
-  for(let i = 0; i < this._polygons.length; i++){
-    this._points.push(this._polygons[i].points);
+PolygonGroup.prototype.getMergePoints = function(){
+  let points = [];
+  for(let i = 0; i < this._children.length; i++){
+    points.push(this._children[i].points);
   }
-  this.merge();
+  return points;
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.fillCanvas = function(ctx, color){
+  let points = [];
   for(let i = 0; i < this._points.length; i++){
-    let points = [];
-    for(let j = 0; j < this._points[i].length; j++){
-      points[j] = Graphics.getRenderPoint(this._points[i][j]);
-    }
-    this.fill(ctx, color, new Polygon(points));
+    points[i] = Graphics.getRenderPoint(this._points[i]);
   }
+  PolygonGroup.prototype.fill.call(this, ctx, color, new Polygon(points));
 };
 PolygonGroup.prototype.strokeCanvas = function(ctx, lineWidth, color) {
+  let points = [];
   for(let i = 0; i < this._points.length; i++){
-    let points = [];
-    for(let j = 0; j < this._points[i].length; j++){
-      points[j] = Graphics.getRenderPoint(this._points[i][j]);
-    }
-    this.stroke(ctx, lineWidth, color, new Polygon(points));
+    points[i] = Graphics.getRenderPoint(this._points[i]);
   }
+  PolygonGroup.prototype.stroke.call(this, ctx, lineWidth, color, new Polygon(points));
 }
 PolygonGroup.prototype.fillSelf = function(ctx, color){
   for(let i = 0; i < this._points.length; i++){
@@ -234,17 +241,33 @@ PolygonGroup.prototype.fill = function(ctx, color, polygon){
 };
 PolygonGroup.prototype.stroke = function(ctx, lineWidth, color, polygon){
   let points = polygon.points;
+  let temp_ctx = Graphics.temp_ctx;
+
+  Graphics.clearTempCanvas();
+
+  temp_ctx.save();
+  temp_ctx.strokeStyle = color;
+  temp_ctx.lineWidth = lineWidth;
+  temp_ctx.beginPath();
+  temp_ctx.moveTo(points[0].x, points[0].y);
+  for(let i = 1; i < points.length; i++) {
+    temp_ctx.lineTo(points[i].x, points[i].y);
+  }
+  temp_ctx.closePath();
+  temp_ctx.stroke();
+
+  temp_ctx.globalCompositeOperation="destination-in";
+
+  temp_ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+  temp_ctx.fill();
+
+  temp_ctx.globalCompositeOperation="source-over";
+  temp_ctx.restore();
 
   ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for(let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  ctx.closePath();
-  ctx.stroke();
+  ctx.drawImage(Graphics.temp_canvas, 0, 0);
   ctx.restore();
+
+  Graphics.clearTempCanvas();
 };
 // ================================================================================

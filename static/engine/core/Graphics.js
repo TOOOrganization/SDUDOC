@@ -27,6 +27,9 @@ Graphics._element = null;
 Graphics._ctx = null;
 Graphics._canvas_rect = null;
 // --------------------------------------------------------------------------------
+Graphics._temp_canvas = null;
+Graphics._temp_ctx = null;
+// --------------------------------------------------------------------------------
 Graphics._image = null;
 Graphics._image_src = null;
 Graphics._image_rect = null;
@@ -92,6 +95,24 @@ Object.defineProperty(Graphics, 'ctx', {
   },
   configurable: true
 });
+Object.defineProperty(Graphics, 'temp_canvas', {
+  get: function() {
+    return this._temp_canvas;
+  },
+  set: function(value) {
+    this._temp_canvas = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Graphics, 'temp_ctx', {
+  get: function() {
+    return this._temp_ctx;
+  },
+  set: function(value) {
+    this._temp_ctx = value;
+  },
+  configurable: true
+});
 Object.defineProperty(Graphics, 'canvas_rect', {
   get: function() {
     return this._canvas_rect;
@@ -118,7 +139,14 @@ Graphics.setCanvas = function(canvas, element){
   this._element = element;
   this._ctx = this._canvas.getContext("2d");
 
+  this.createTempCanvas();
   this.refreshCanvas();
+};
+Graphics.createTempCanvas = function(){
+  this._temp_canvas = document.createElement('canvas');
+  this._temp_canvas.width = this._canvas.width;
+  this._temp_canvas.height = this._canvas.height;
+  this._temp_ctx = this._temp_canvas.getContext("2d");
 };
 Graphics.setImage = async function(src){
   if(!src) return this.clearImage();
@@ -161,6 +189,7 @@ Graphics.addCanvasHandler = function(canvas){
 Graphics.refreshCanvas = function(){
   this._canvas.width = this._element.clientWidth;
   this._canvas.height = this._element.clientHeight;
+  this.refreshTempCanvas();
   this.calcInitialOrigin();
   this.refresh();
 };
@@ -175,6 +204,14 @@ Graphics.calcInitialOrigin = function(){
       this._origin = new Point(0, 0);
     }
   }
+};
+// --------------------------------------------------------------------------------
+Graphics.refreshTempCanvas = function(){
+  this._temp_canvas.width = this._canvas.width;
+  this._temp_canvas.height = this._canvas.height;
+}
+Graphics.clearTempCanvas = function(){
+  this._canvas_rect.clear(this._temp_ctx);
 };
 // --------------------------------------------------------------------------------
 Graphics.loadImage = function(src){
@@ -239,6 +276,7 @@ Graphics.refresh = function(){
   }
   if(this._canvas) {
     this.drawGrid(this._ctx);
+    this.refreshTempCanvas();
     CollideManager.update();
     RenderManager.callRenderer(this._ctx);
   }
