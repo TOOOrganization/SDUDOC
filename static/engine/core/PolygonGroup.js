@@ -225,6 +225,18 @@ PolygonGroup.prototype.getMergePoints = function(){
   return points;
 };
 // --------------------------------------------------------------------------------
+PolygonGroup.prototype.getExportPoints = function(){
+  let temp = [];
+  for(let i = 0; i < this.points.length; i++){
+    temp.push([]);
+    for(let j = 0; j < this.points[i].length; j++){
+      let point = SDUDocument.getElement(Dot2D.TAG, this._points[i][j]);
+      temp[temp.length - 1].push([point.x, point.y]);
+    }
+  }
+  return temp;
+};
+// --------------------------------------------------------------------------------
 PolygonGroup.prototype.fillCanvas = function(ctx, color){
   let points = [];
   for(let i = 0; i < this._points.length; i++){

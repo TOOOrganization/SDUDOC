@@ -135,7 +135,7 @@ Paragraph.prototype.exportJson = function(){
     _children: this._children,
     _father: this._father,
     _string: this.getExportString(),
-    _points: this._points
+    _points: this.getExportPoints()
   }
 }
 // ================================================================================
