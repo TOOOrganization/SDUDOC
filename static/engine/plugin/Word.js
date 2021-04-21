@@ -254,13 +254,6 @@ RenderManager.addRenderer(new Renderer("word.doc.normal", 7, WordFactory, functi
     paragraphs[i].render(ctx);
   }
 }));
-RenderManager.addRenderer(new Renderer("word.character.normal", 20, WordFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let characters = SDUDocument.getCurrentPageElements(Character.TAG);
-  for(let i in characters){
-    characters[i].render(ctx);
-  }
-}));
 RenderManager.addRenderer(new Renderer("word.polygon.collide", 6, WordFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);

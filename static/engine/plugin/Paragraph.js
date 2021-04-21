@@ -263,13 +263,6 @@ RenderManager.addRenderer(new Renderer("paragraph.doc.normal", 7, ParagraphFacto
     paragraphs[i].render(ctx);
   }
 }));
-RenderManager.addRenderer(new Renderer("paragraph.character.normal", 20, ParagraphFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let characters = SDUDocument.getCurrentPageElements(Character.TAG);
-  for(let i in characters){
-    characters[i].render(ctx);
-  }
-}));
 RenderManager.addRenderer(new Renderer("paragraph.polygon.collide", 6, ParagraphFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
