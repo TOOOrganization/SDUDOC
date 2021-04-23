@@ -132,12 +132,12 @@ Sentence.prototype.saveJson = function(){
 }
 Sentence.prototype.exportJson = function(){
   return {
-    _id: this._id,
-    _page: this._page,
-    _children: this._children,
-    _father: this._father,
-    _string: this.getExportString(),
-    _points: this.getExportPoints()
+    id: this._id,
+    page: this._page,
+    children: this._children,
+    father: this._father,
+    string: this.getExportString(),
+    points: this.getExportPoints()
   }
 }
 // ================================================================================
@@ -223,7 +223,7 @@ ToolManager.addHandler(new Handler("sentence.onRightClick", "right_click", false
               DocumentManager.deleteElement(Sentence.TAG, sentence);
               SentenceFactory.clearCurrentSentence();
             }else{
-              Sentence.setCurrentSentence(sentence);
+              SentenceFactory.setCurrentSentence(sentence);
               DocumentManager.push();
             }
             Graphics.refresh();

@@ -153,7 +153,7 @@ Character.prototype.getExportPoints = function(){
   let points = SDUDocument.getElement(Polygon2D.TAG, this._polygon).points;
   for(let i in points){
     let point = SDUDocument.getElement(Dot2D.TAG, points[i]);
-    temp.push([point.x, point.y]);
+    temp.push([point.x.toFixed(2), point.y.toFixed(2)]);
   }
   return temp;
 }
@@ -176,11 +176,11 @@ Character.prototype.saveJson = function(){
 }
 Character.prototype.exportJson = function(){
   return {
-    _id: this._id,
-    _page: this._page,
-    _father: this._father,
-    _string: this._char,
-    _points: this.getExportPoints()
+    id: this._id,
+    page: this._page,
+    father: this._father,
+    string: this._char,
+    points: this.getExportPoints()
   }
 }
 // ================================================================================

@@ -130,12 +130,12 @@ Paragraph.prototype.saveJson = function(){
 }
 Paragraph.prototype.exportJson = function(){
   return {
-    _id: this._id,
-    _page: this._page,
-    _children: this._children,
-    _father: this._father,
-    _string: this.getExportString(),
-    _points: this.getExportPoints()
+    id: this._id,
+    page: this._page,
+    children: this._children,
+    father: this._father,
+    string: this.getExportString(),
+    points: this.getExportPoints()
   }
 }
 // ================================================================================

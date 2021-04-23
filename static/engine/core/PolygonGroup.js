@@ -231,7 +231,7 @@ PolygonGroup.prototype.getExportPoints = function(){
     temp.push([]);
     for(let j = 0; j < this.points[i].length; j++){
       let point = SDUDocument.getElement(Dot2D.TAG, this._points[i][j]);
-      temp[temp.length - 1].push([point.x, point.y]);
+      temp[temp.length - 1].push([point.x.toFixed(2), point.y.toFixed(2)]);
     }
   }
   return temp;
