@@ -109,6 +109,7 @@ SDUDocument.getCurrentPageElement = function(type, id){
 SDUDocument.addPage = async function(page){
   this._data.Page.splice(this._current_page, 0, page);
   await this.setCurrentPage(this._current_page + 1);
+  this.getCurrentPageObject().setSize(Graphics.image_rect.width, Graphics.image_rect.height)
 }
 SDUDocument.clearPage = function(index){
   this._data.Page[index - 1].onDelete.call(this._data.Page[index - 1]);
@@ -159,6 +160,9 @@ SDUDocument.movePage = async function(target){
 // --------------------------------------------------------------------------------
 SDUDocument.getCurrentPage = function(){
   return this._current_page;
+}
+SDUDocument.getCurrentPageObject = function(){
+  return this._current_page > 0 ? this._data[Page.TAG][this._current_page - 1] : null;
 }
 SDUDocument.getCurrentPageId = function(){
   return this._current_page > 0 ? this._data[Page.TAG][this._current_page - 1].id : null;

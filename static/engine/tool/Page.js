@@ -28,11 +28,16 @@ Page.TAG = "Page";
 Page._id = "";
 Page._src = "";
 // --------------------------------------------------------------------------------
+Page._width = 0;
+Page._height = 0;
+// --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 Page.prototype.initialize = function(id, src){
   this._id = id;
   this._src = src;
+  this._width = 0;
+  this._height = 0;
 }
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -52,10 +57,33 @@ Object.defineProperty(Page.prototype, 'src', {
   },
   configurable: true
 });
+Object.defineProperty(Page.prototype, 'width', {
+  get: function() {
+    return this._width;
+  },
+  set: function(value) {
+    this._width = value;
+  },
+  configurable: true
+});
+Object.defineProperty(Page.prototype, 'height', {
+  get: function() {
+    return this._height;
+  },
+  set: function(value) {
+    this._height = value;
+  },
+  configurable: true
+});
 // --------------------------------------------------------------------------------
 Page.prototype.setData = function(id, src){
   this._id = id;
   this._src = src;
+}
+// --------------------------------------------------------------------------------
+Page.prototype.setSize = function(width, height){
+  this._width = width;
+  this._height = height;
 }
 // --------------------------------------------------------------------------------
 Page.prototype.getObject = function(){
@@ -76,17 +104,23 @@ Page.prototype.onDelete = function(){
 Page.prototype.loadJson = function(json){
   this._id = json._id;
   this._src = json._src;
+  this._width = json._width;
+  this._height = json._height;
 }
 Page.prototype.saveJson = function(){
   return {
     _id: this._id,
-    _src: this._src
+    _src: this._src,
+    _width: this._width,
+    _height: this._height
   }
 }
 Page.prototype.exportJson = function(){
   return {
     id: this._id,
-    src: this._src
+    src: this._src,
+    width: this._width,
+    height: this._height
   }
 }
 // ================================================================================
