@@ -262,6 +262,14 @@ RenderManager.addRenderer(new Renderer("character.doc.normal", 7, CharacterFacto
   for(let i in paragraphs){
     paragraphs[i].render(ctx);
   }
+  let articles = SDUDocument.getCurrentPageElements(Article.TAG);
+  for(let i in articles){
+    articles[i].render(ctx);
+  }
+  let books = SDUDocument.getCurrentPageElements(Book.TAG);
+  for(let i in books){
+    books[i].render(ctx);
+  }
 }));
 RenderManager.addRenderer(new Renderer("character.polygon.collide", 6, CharacterFactory, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;

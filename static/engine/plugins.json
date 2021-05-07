@@ -7,5 +7,7 @@
   "Character.js",
   "Word.js",
   "Sentence.js",
-  "Paragraph.js"
+  "Paragraph.js",
+  "Article.js",
+  "Book.js"
 ]

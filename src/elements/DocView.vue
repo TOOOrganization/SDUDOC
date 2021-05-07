@@ -76,7 +76,7 @@
           <v-card-title class="headline">
             <v-icon class="mr-2">mdi-file-document-edit-outline</v-icon> {{pop_title}}
           </v-card-title>
-          <v-container v-for="(prompt, index) in prompt_tooltip" :key="index">
+          <v-container class="my-1" v-for="(prompt, index) in prompt_tooltip" :key="index">
             <v-text-field required :label="prompt_tooltip[index]" class="mx-6" v-model="prompt_text[index]"></v-text-field>
           </v-container>
           <v-card-actions>
@@ -160,6 +160,7 @@
 
 <script>
 import {EngineLoader} from "../engine/EngineLoader";
+import axios from 'axios'
 
 export default {
   name: "DocView",
@@ -187,7 +188,7 @@ export default {
   },
   methods: {
     async loadEngine() {
-      await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, this);
+      await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, this);
       this.tools_document = ToolManager.getToolList(Tool.Type.DOCUMENT);
       this.tools_history = ToolManager.getToolList(Tool.Type.HISTORY);
       this.tools_plugin = ToolManager.getToolList(Tool.Type.PLUGIN);

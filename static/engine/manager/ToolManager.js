@@ -138,12 +138,16 @@ ToolManager.getToolList = function(type){
   let data = [];
   for(let i in this._tools){
     if(this._tools[i].type === type){
+      let callback_function = this._tools[i].callback;
       data.push({
         id: this._tools[i].id,
         tooltip: this._tools[i].tooltip,
         icon: this._tools[i].icon,
         description: this._tools[i].description,
-        callback: this._tools[i].callback
+        callback: function(id){
+          Engine.clearFactory()
+          callback_function(id)
+        }
       })
     }
   }

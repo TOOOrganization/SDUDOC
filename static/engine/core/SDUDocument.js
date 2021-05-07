@@ -22,6 +22,7 @@ function SDUDocument(){
 SDUDocument._data = {};
 SDUDocument._page_data = {};
 SDUDocument._next_index = {};
+SDUDocument._header = null;
 SDUDocument._current_page = 0;
 // --------------------------------------------------------------------------------
 // * Initialize
@@ -33,6 +34,7 @@ SDUDocument.clear = function(){
   this._data = {Page: []};
   this._current_page_data = {};
   this._next_index = {Page: 0};
+  this._header = new Header();
   this._current_page = 0;
   Graphics.clearImage();
 }
@@ -77,16 +79,23 @@ SDUDocument.getNextIndex = function(type){
   return type + "." + (this._next_index[type] ++);
 }
 // --------------------------------------------------------------------------------
+SDUDocument.isObjectInCurrentPage = function(obj){
+  if(obj.page){
+    return obj.page === this.getCurrentPageId()
+  }else if(obj.pages){
+    return obj.pages.indexOf(this.getCurrentPageId()) !== -1
+  }
+  return false
+}
 SDUDocument.updateCurrentPageData = function(){
   this._current_page_data = {};
   CollideManager.clear();
   if(this._current_page <= 0 || this._data[Page.TAG].length === 0) return;
-  let current_page_id = this.getCurrentPageId();
   for(let i in this._data){
     if(i !== Page.TAG){
       this._current_page_data[i] = {};
       for(let j in this._data[i]){
-        if(this._data[i][j]._page && this._data[i][j]._page === current_page_id){
+        if(this.isObjectInCurrentPage(this._data[i][j])){
           this._current_page_data[i][j] = this._data[i][j];
         }
       }
@@ -106,10 +115,16 @@ SDUDocument.getCurrentPageElement = function(type, id){
   return this._current_page_data[type][id];
 }
 // --------------------------------------------------------------------------------
+SDUDocument.getHeader = function(){
+  if (this._header === null){
+    this._header = new Header();
+  }
+  return this._header
+}
+// --------------------------------------------------------------------------------
 SDUDocument.addPage = async function(page){
   this._data.Page.splice(this._current_page, 0, page);
   await this.setCurrentPage(this._current_page + 1);
-  this.getCurrentPageObject().setSize(Graphics.image_rect.width, Graphics.image_rect.height)
 }
 SDUDocument.clearPage = function(index){
   this._data.Page[index - 1].onDelete.call(this._data.Page[index - 1]);
@@ -181,6 +196,7 @@ SDUDocument.setCurrentPage = async function(index){
   }
   this.updateCurrentPageData();
   await Graphics.setImage(this._data.Page[this._current_page - 1].src);
+  this.getCurrentPageObject().setSize(Graphics._image.width, Graphics._image.height)
 }
 // --------------------------------------------------------------------------------
 SDUDocument.loadJson = async function(json){
@@ -189,17 +205,20 @@ SDUDocument.loadJson = async function(json){
   for(let i in temp){
     if(i === "Index"){
       this._next_index = temp[i];
+    }else if(i === Header.TAG){
+      let header = window[i].prototype.getObject();
+      header.loadJson(temp[i]);
+      this._header = header;
     }else if(i === Page.TAG){
       this._data[i] = [];
       for(let j in temp[i]){
-        let element = window[i].prototype.getObject();
-        element.loadJson(temp[i][j]);
-        this._data[i].push(element);
+        let page = window[i].prototype.getObject();
+        page.loadJson(temp[i][j]);
+        this._data[i].push(page);
       }
     }else{
       this._data[i] = {};
       for(let j in temp[i]){
-
         let element = window[i].prototype.getObject();
         element.loadJson(temp[i][j]);
         this._data[i][temp[i][j]._id] = element;
@@ -210,7 +229,8 @@ SDUDocument.loadJson = async function(json){
 }
 SDUDocument.saveJson = function(){
   let temp = {
-    Index: this._next_index
+    Index: this._next_index,
+    Header: this._header.saveJson()
   };
   for(let i in this._data){
     temp[i] = [];
@@ -223,7 +243,9 @@ SDUDocument.saveJson = function(){
   return JSON.stringify(temp);
 }
 SDUDocument.exportJson = function(){
-  let temp = {};
+  let temp = {
+    Header: this._header.exportJson()
+  };
   for(let i in this._data){
     temp[i] = [];
     for(let j in this._data[i]){

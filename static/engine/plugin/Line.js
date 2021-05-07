@@ -260,8 +260,8 @@ LineFactory.getDependent = function(line, point){
   }
 };
 LineFactory.getDependentPoint = function(line, dependent){
-  let start = SDUDocument.getCurrentPageElement(Dot2D.TAG, line.start);
-  let end = SDUDocument.getCurrentPageElement(Dot2D.TAG, line.end);
+  let start = SDUDocument.getElement(Dot2D.TAG, line.start);
+  let end = SDUDocument.getElement(Dot2D.TAG, line.end);
   return new Point(start.x + (end.x - start.x) * dependent,
     start.y + (end.y - start.y) * dependent);
 };

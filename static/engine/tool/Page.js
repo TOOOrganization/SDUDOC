@@ -146,8 +146,20 @@ PageFactory.getNextIndex = function(){
 // * Register Tool
 // ================================================================================
 ToolManager.addTool(new Tool("new_page", "新建页面", "mdi-card-plus-outline", Tool.Type.PAGE, "", async function(){
-  await Engine.readImage(this,function(src){
-    DocumentManager.newPage(src);
+  await Engine.readImage(this,function(src, filename){
+    Engine._axios({
+      method: 'post',
+      url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
+      data: { base64 : src, filename: filename},
+      headers: {'content-type': "application/json"},
+      responseType: 'json'
+    }).then(response => {
+      console.log(response);
+      let src_link = 'http://211.87.232.197:8081/sdudoc/img/get_by_id?id=' + response.data;
+      DocumentManager.newPage(src_link);
+    }).catch(error => {
+      console.log(error);
+    });
   });
 }));
 ToolManager.addTool(new Tool("move_page_minus", "前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", async function(){
@@ -176,5 +188,4 @@ ToolManager.addTool(new Tool("module_page", "以模板切割页面", "mdi-view-c
     DocumentManager.createModulePage(Number(Engine.owner.prompt_text[0]), Number(Engine.owner.prompt_text[1]))
   });
 }));
-
 // ================================================================================

@@ -27,10 +27,8 @@ Article.TAG = "Article";
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Article.prototype._id = "";
-Article.prototype._page = "";
-// --------------------------------------------------------------------------------
 Article.prototype._line_width = 0;
+Article.prototype._line_scale = 0;
 Article.prototype._color = '';
 // --------------------------------------------------------------------------------
 // * Initialize
@@ -38,27 +36,15 @@ Article.prototype._color = '';
 Article.prototype.initialize = function(id, page){
   PolygonGroup.prototype.initialize.call(this);
 
-  this._line_width = 4 * 2;
-  this._color = 'rgba(255, 0, 0, 0.5)';
+  this._line_width = 2;
+  this._line_scale = 5;
+  this._color = 'rgba(0, 255, 255, 0.8)';
 
   this._id = id;
-  this._page = page;
+  this._pages = [page];
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
-// --------------------------------------------------------------------------------
-Object.defineProperty(Article.prototype, 'id', {
-  get: function() {
-    return this._id;
-  },
-  configurable: true
-});
-Object.defineProperty(Article.prototype, 'page', {
-  get: function() {
-    return this._page;
-  },
-  configurable: true
-});
 // --------------------------------------------------------------------------------
 Article.prototype.setColor = function(color){
   this._color = color;
@@ -71,27 +57,51 @@ Article.prototype.getObject = function(){
 // * Functions
 // --------------------------------------------------------------------------------
 Article.prototype.callFatherCalcPoints = function(){
-
+  if(this._father){
+    SDUDocument.getElement(Book.TAG, this._father).calcPoints();
+  }
+};
+Article.prototype.callFatherCalcPages = function(){
+  if(this._father){
+    SDUDocument.getElement(Book.TAG, this._father).calcPages();
+  }
 };
 // --------------------------------------------------------------------------------
 Article.prototype.getMergePoints = function(){
-  let points = [];
+  let points = {};
+  for(let i = 0; i < this._pages.length; i++){
+    points[this._pages[i]] = []
+  }
   for(let i = 0; i < this._children.length; i++){
-    let paragraph = SDUDocument.getCurrentPageElement(Paragraph.TAG, this._children[i]);
+    let paragraph = SDUDocument.getElement(Paragraph.TAG, this._children[i]);
     if(paragraph){
-      points = points.concat(paragraph.points);
+      for(let page in paragraph.points){
+        points[page] = points[page].concat(paragraph.points[page]);
+      }
     }
   }
   return points;
 };
+Article.prototype.getMergePages = function(){
+  let pages = [];
+  for(let i = 0; i < this._children.length; i++){
+    let paragraph = SDUDocument.getElement(Paragraph.TAG, this._children[i]);
+    if(paragraph){
+      pages.push(paragraph.pages)
+    }
+  }
+  return pages;
+};
 // --------------------------------------------------------------------------------
 Article.prototype.render = function(ctx){
-  for(let i = 0; i < this._points.length; i++){
+  let point_list = this._points[SDUDocument.getCurrentPageId()]
+  for(let i = 0; i < point_list.length; i++){
     let points = [];
-    for(let j = 0; j < this._points[i].length; j++){
-      points[j] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i][j]);
+    for(let j = 0; j < point_list[i].length; j++){
+      points[j] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, point_list[i][j]));
     }
-    PolygonGroup.prototype.strokeCanvas.call(new Polygon(points), ctx, this._line_width, this._color);
+    let polygon = new Polygon(points).getScaledPolygon(this._line_scale);
+    PolygonGroup.prototype.strokeCanvas.call(polygon, ctx, this._line_width, this._color);
   }
 };
 Article.prototype.renderCollide = function(ctx){
@@ -107,14 +117,14 @@ Article.prototype.onDelete = function(){
 Article.prototype.getExportString = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getCurrentPageElement(Paragraph.TAG, this._children[i]).getExportString());
+    str.push(SDUDocument.getElement(Paragraph.TAG, this._children[i]).getExportString());
   }
   return str;
 }
 // --------------------------------------------------------------------------------
 Article.prototype.loadJson = function(json){
   this._id = json._id;
-  this._page = json._page;
+  this._pages = json._pages;
   this._children = json._children;
   this._father = json._father;
   this._points = json._points;
@@ -122,7 +132,7 @@ Article.prototype.loadJson = function(json){
 Article.prototype.saveJson = function(){
   return {
     _id: this._id,
-    _page: this._page,
+    _pages: this._pages,
     _children: this._children,
     _father: this._father,
     _points: this._points
@@ -131,7 +141,7 @@ Article.prototype.saveJson = function(){
 Article.prototype.exportJson = function(){
   return {
     id: this._id,
-    page: this._page,
+    pages: this._pages,
     children: this._children,
     father: this._father,
     string: this.getExportString(),
@@ -170,7 +180,7 @@ ArticleFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("article", "文章工具", "mdi-text-box", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("article", "文章工具", "mdi-file-document-outline", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
 }));
 // --------------------------------------------------------------------------------
@@ -184,20 +194,23 @@ ToolManager.addHandler(new Handler("article.onLeftClick", "left_click", false, A
       if(word){
         let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
         if(sentence){
-          let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
-          if(sentence_object.father){
-            ParagraphFactory.setCurrentParagraph(sentence_object.father);
-          }else{
-            if(ParagraphFactory.getCurrentParagraph()){
-              let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, ParagraphFactory.getCurrentParagraph());
-              paragraph_object.append(sentence_object);
-              DocumentManager.push();
+          let paragraph = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence).father;
+          if(paragraph){
+            let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
+            if(paragraph_object.father){
+              ArticleFactory.setCurrentArticle(paragraph_object.father);
             }else{
-              let paragraph_object = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
-              paragraph_object.append(sentence_object);
-              ParagraphFactory.setCurrentParagraph(paragraph_object.id);
-              DocumentManager.addElement(Paragraph.TAG, paragraph_object);
-              return;
+              if(ArticleFactory.getCurrentArticle()){
+                let article_object = SDUDocument.getElement(Article.TAG, ArticleFactory.getCurrentArticle());
+                article_object.append(paragraph_object);
+                DocumentManager.push();
+              }else{
+                let article_object = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
+                article_object.append(paragraph_object);
+                ArticleFactory.setCurrentArticle(article_object.id);
+                DocumentManager.addElement(Article.TAG, article_object);
+                return;
+              }
             }
           }
         }
@@ -216,35 +229,37 @@ ToolManager.addHandler(new Handler("article.onRightClick", "right_click", false,
       if(word){
         let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
         if(sentence){
-          let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
-          let paragraph = sentence_object.father;
+          let paragraph = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence).father;
           if(paragraph){
-            if(!ParagraphFactory.getCurrentParagraph() || paragraph === ParagraphFactory.getCurrentParagraph()){
-              let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
-              paragraph_object.remove(sentence_object);
-              if(paragraph_object.isEmpty()){
-                DocumentManager.deleteElement(Paragraph.TAG, paragraph);
-                ParagraphFactory.clearCurrentParagraph();
-              }else{
-                ParagraphFactory.setCurrentParagraph(paragraph);
-                DocumentManager.push();
+            let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
+            let article = paragraph_object.father;
+            if(article){
+              if(!ArticleFactory.getCurrentArticle() || article === ArticleFactory.getCurrentArticle()){
+                let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
+                article_object.remove(paragraph_object);
+                if(article_object.isEmpty()){
+                  DocumentManager.deleteElement(Article.TAG, article);
+                  ArticleFactory.clearCurrentArticle();
+                }else{
+                  ArticleFactory.setCurrentArticle(article);
+                  DocumentManager.push();
+                }
+                Graphics.refresh();
+                return;
               }
-              Graphics.refresh();
-              return;
             }
           }
         }
       }
     }
   }
-  ParagraphFactory.clearCurrentParagraph();
+  ArticleFactory.clearCurrentArticle();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("article.onMouseMove", "mousemove", false, ArticleFactory, function(event){
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("article.onMouseOut", "mouseout", false, ArticleFactory, function(event){
-  ArticleFactory.clearCurrentParagraph();
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
@@ -261,6 +276,14 @@ RenderManager.addRenderer(new Renderer("article.doc.normal", 7, ArticleFactory, 
   let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
   for(let i in paragraphs){
     paragraphs[i].render(ctx);
+  }
+  let articles = SDUDocument.getCurrentPageElements(Article.TAG);
+  for(let i in articles){
+    articles[i].render(ctx);
+  }
+  let books = SDUDocument.getCurrentPageElements(Book.TAG);
+  for(let i in books){
+    books[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("article.polygon.collide", 6, ArticleFactory, function(ctx){

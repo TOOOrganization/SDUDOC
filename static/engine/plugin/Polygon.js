@@ -96,32 +96,12 @@ Polygon2D.prototype.getCorePoint = function(){
   return point.division(points.length);
 };
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.checkProjection = function(start, end, point){
-  if((start.y < end.y && (start.y < point.y && point.y < end.y)) ||
-    (start.y > end.y && (start.y > point.y && point.y > end.y))){
-    return true;
-  }
-  return false;
-}
 Polygon2D.prototype.checkCollide = function(point){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
     points[i] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i]));
   }
-  points = points.concat(points[0]);
-  if (points.length <= 3) return -1;
-  let count = 0, a = 0, b = 0, c = 0;
-  for (let i = 0; i < points.length - 1 ; i++) {
-    a = points[i].y - points[i + 1].y;
-    b = points[i].x - points[i + 1].x;
-    c = points[i].x * points[i + 1].y - points[i + 1].x * points[i].y;
-    if (a === 0 || (b * point.y - c) / a >= point.x){
-      if(this.checkProjection(points[i], points[i + 1], point)){
-        count ++;
-      }
-    }
-  }
-  return count % 2 - 1;
+  return new Polygon(points).isPointInSelf(point);
 };
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.render = function(ctx){

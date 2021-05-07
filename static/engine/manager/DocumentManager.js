@@ -256,7 +256,9 @@ DocumentManager.new = function(){
   this.push();
 }
 DocumentManager.load = async function(json, filename){
-  this._filename = filename;
+  let name = filename.split('.')
+  await name.pop()
+  this._filename = name.join('.');
   await SDUDocument.loadJson(json);
   this.updateList();
   this.clearHistory();
@@ -280,6 +282,7 @@ DocumentManager.push = function(){
     this._history.shift();
   }
   this._now_history = this._history.length - 1;
+  SDUDocument.updateCurrentPageData();
 }
 DocumentManager.undo = async function(){
   if(this._now_history > 0){
@@ -292,7 +295,7 @@ DocumentManager.undo = async function(){
 DocumentManager.redo = async function(){
   if(this._now_history < this._history.length - 1){
     let index = ++ this._now_history;
-    await SDUDocument.loadJson(this._history[index]);
+    await SDUDocument.loadJson(this._history[index][0]);
     await SDUDocument.setCurrentPage(this._history[index][1]);
     this.updateList();
   }

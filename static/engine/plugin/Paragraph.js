@@ -27,10 +27,8 @@ Paragraph.TAG = "Paragraph";
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Paragraph.prototype._id = "";
-Paragraph.prototype._page = "";
-// --------------------------------------------------------------------------------
 Paragraph.prototype._line_width = 0;
+Paragraph.prototype._line_scale = 0;
 Paragraph.prototype._color = '';
 // --------------------------------------------------------------------------------
 // * Initialize
@@ -38,27 +36,15 @@ Paragraph.prototype._color = '';
 Paragraph.prototype.initialize = function(id, page){
   PolygonGroup.prototype.initialize.call(this);
 
-  this._line_width = 4 * 2;
-  this._color = 'rgba(255, 0, 0, 0.5)';
+  this._line_width = 2;
+  this._line_scale = 7;
+  this._color = 'rgba(255, 0, 0, 0.8)';
 
   this._id = id;
-  this._page = page;
+  this._pages = [page];
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
-// --------------------------------------------------------------------------------
-Object.defineProperty(Paragraph.prototype, 'id', {
-  get: function() {
-    return this._id;
-  },
-  configurable: true
-});
-Object.defineProperty(Paragraph.prototype, 'page', {
-  get: function() {
-    return this._page;
-  },
-  configurable: true
-});
 // --------------------------------------------------------------------------------
 Paragraph.prototype.setColor = function(color){
   this._color = color;
@@ -71,27 +57,51 @@ Paragraph.prototype.getObject = function(){
 // * Functions
 // --------------------------------------------------------------------------------
 Paragraph.prototype.callFatherCalcPoints = function(){
-
+  if(this._father){
+    SDUDocument.getElement(Article.TAG, this._father).calcPoints();
+  }
+};
+Paragraph.prototype.callFatherCalcPages = function(){
+  if(this._father){
+    SDUDocument.getElement(Article.TAG, this._father).calcPages();
+  }
 };
 // --------------------------------------------------------------------------------
 Paragraph.prototype.getMergePoints = function(){
-  let points = [];
+  let points = {};
+  for(let i = 0; i < this._pages.length; i++){
+    points[this._pages[i]] = []
+  }
   for(let i = 0; i < this._children.length; i++){
-    let sentence = SDUDocument.getCurrentPageElement(Sentence.TAG, this._children[i]);
+    let sentence = SDUDocument.getElement(Sentence.TAG, this._children[i]);
     if(sentence){
-      points = points.concat(sentence.points);
+      for(let page in sentence.points){
+        points[page] = points[page].concat(sentence.points[page]);
+      }
     }
   }
   return points;
 };
+Paragraph.prototype.getMergePages = function(){
+  let pages = [];
+  for(let i = 0; i < this._children.length; i++){
+    let sentence = SDUDocument.getElement(Sentence.TAG, this._children[i]);
+    if(sentence){
+      pages.push(sentence.pages)
+    }
+  }
+  return pages;
+};
 // --------------------------------------------------------------------------------
 Paragraph.prototype.render = function(ctx){
-  for(let i = 0; i < this._points.length; i++){
+  let point_list = this._points[SDUDocument.getCurrentPageId()]
+  for(let i = 0; i < point_list.length; i++){
     let points = [];
-    for(let j = 0; j < this._points[i].length; j++){
-      points[j] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i][j]);
+    for(let j = 0; j < point_list[i].length; j++){
+      points[j] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, point_list[i][j]));
     }
-    PolygonGroup.prototype.strokeCanvas.call(new Polygon(points), ctx, this._line_width, this._color);
+    let polygon = new Polygon(points).getScaledPolygon(this._line_scale);
+    PolygonGroup.prototype.strokeCanvas.call(polygon, ctx, this._line_width, this._color);
   }
 };
 Paragraph.prototype.renderCollide = function(ctx){
@@ -107,14 +117,14 @@ Paragraph.prototype.onDelete = function(){
 Paragraph.prototype.getExportString = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getCurrentPageElement(Sentence.TAG, this._children[i]).getExportString());
+    str.push(SDUDocument.getElement(Sentence.TAG, this._children[i]).getExportString());
   }
   return str;
 }
 // --------------------------------------------------------------------------------
 Paragraph.prototype.loadJson = function(json){
   this._id = json._id;
-  this._page = json._page;
+  this._pages = json._pages;
   this._children = json._children;
   this._father = json._father;
   this._points = json._points;
@@ -122,7 +132,7 @@ Paragraph.prototype.loadJson = function(json){
 Paragraph.prototype.saveJson = function(){
   return {
     _id: this._id,
-    _page: this._page,
+    _pages: this._pages,
     _children: this._children,
     _father: this._father,
     _points: this._points
@@ -131,7 +141,7 @@ Paragraph.prototype.saveJson = function(){
 Paragraph.prototype.exportJson = function(){
   return {
     id: this._id,
-    page: this._page,
+    pages: this._pages,
     children: this._children,
     father: this._father,
     string: this.getExportString(),
@@ -189,7 +199,7 @@ ToolManager.addHandler(new Handler("paragraph.onLeftClick", "left_click", false,
             ParagraphFactory.setCurrentParagraph(sentence_object.father);
           }else{
             if(ParagraphFactory.getCurrentParagraph()){
-              let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, ParagraphFactory.getCurrentParagraph());
+              let paragraph_object = SDUDocument.getElement(Paragraph.TAG, ParagraphFactory.getCurrentParagraph());
               paragraph_object.append(sentence_object);
               DocumentManager.push();
             }else{
@@ -244,7 +254,6 @@ ToolManager.addHandler(new Handler("paragraph.onMouseMove", "mousemove", false, 
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("paragraph.onMouseOut", "mouseout", false, ParagraphFactory, function(event){
-  ParagraphFactory.clearCurrentParagraph();
   Graphics.refresh();
 }));
 // --------------------------------------------------------------------------------
@@ -261,6 +270,14 @@ RenderManager.addRenderer(new Renderer("paragraph.doc.normal", 7, ParagraphFacto
   let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
   for(let i in paragraphs){
     paragraphs[i].render(ctx);
+  }
+  let articles = SDUDocument.getCurrentPageElements(Article.TAG);
+  for(let i in articles){
+    articles[i].render(ctx);
+  }
+  let books = SDUDocument.getCurrentPageElements(Book.TAG);
+  for(let i in books){
+    books[i].render(ctx);
   }
 }));
 RenderManager.addRenderer(new Renderer("paragraph.polygon.collide", 6, ParagraphFactory, function(ctx){

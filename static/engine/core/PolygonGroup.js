@@ -22,21 +22,36 @@ function PolygonGroup() {
 // * Property
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype._id = '';
+PolygonGroup.prototype._pages = '';
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype._children = [];
 PolygonGroup.prototype._father = '';
-PolygonGroup.prototype._points = [];
+PolygonGroup.prototype._points = {};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.initialize = function(){
   this._id = '';
+  this._pages = []
   this._children = [];
   this._father = '';
-  this._points = [];
+  this._points = {};
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(PolygonGroup.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
+Object.defineProperty(PolygonGroup.prototype, 'pages', {
+  get: function() {
+    return this._pages;
+  },
+  configurable: true
+});
 // --------------------------------------------------------------------------------
 Object.defineProperty(PolygonGroup.prototype, 'children', {
   get: function() {
@@ -71,11 +86,13 @@ Object.defineProperty(PolygonGroup.prototype, 'points', {
 PolygonGroup.prototype.append = function(obj){
   this._children.push(obj.id);
   obj.father = this._id;
+  this.calcPages();
   this.calcPoints();
 };
 PolygonGroup.prototype.remove = function(obj){
   this._children.splice(this._children.indexOf(obj.id), 1);
   obj.father = '';
+  this.calcPages();
   this.calcPoints();
 };
 PolygonGroup.prototype.isEmpty = function(){
@@ -83,12 +100,25 @@ PolygonGroup.prototype.isEmpty = function(){
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.calcPoints = function(){
-  this._points = this.mergePoints(this.getMergePoints());
+  this._points = {}
+  let points_list = this.getMergePoints()
+  for(let i = 0; i < this._pages.length; i++){
+    this._points[this._pages[i]] = this.mergePoints(points_list[this._pages[i]])
+  }
   this.callFatherCalcPoints();
 };
 PolygonGroup.prototype.callFatherCalcPoints = function(){
 
 };
+// --------------------------------------------------------------------------------
+PolygonGroup.prototype.calcPages = function(){
+  this._pages = this.mergePages(this.getMergePages());
+  this.callFatherCalcPages();
+};
+PolygonGroup.prototype.callFatherCalcPages = function(){
+
+};
+
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.isLine = function(dot1, dot2, points){
   let a = points.indexOf(dot1);
@@ -218,38 +248,47 @@ PolygonGroup.prototype.mergePoints = function(points){
   return points_group;
 };
 PolygonGroup.prototype.getMergePoints = function(){
-  let points = [];
-  for(let i = 0; i < this._children.length; i++){
-    points.push(this._children[i].points);
+
+};
+// --------------------------------------------------------------------------------
+PolygonGroup.prototype.mergePages = function(pages){
+  let page_list = []
+  for(let i = 0; i < pages.length; i++) {
+    for (let j = 0; j < pages[i].length; j++) {
+      if (page_list.indexOf(pages[i][j]) === -1){
+        page_list.push(pages[i][j])
+      }
+    }
   }
-  return points;
+  return page_list;
+};
+PolygonGroup.prototype.getMergePages = function(){
+
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.getExportPoints = function(){
-  let temp = [];
-  for(let i = 0; i < this.points.length; i++){
-    temp.push([]);
-    for(let j = 0; j < this.points[i].length; j++){
-      let point = SDUDocument.getElement(Dot2D.TAG, this._points[i][j]);
-      temp[temp.length - 1].push([point.x.toFixed(2), point.y.toFixed(2)]);
+  let temp = {}
+  for(let key in this.points){
+    temp[key] = []
+    for(let i = 0; i < this.points[key].length; i++){
+      temp[key].push([]);
+      for(let j = 0; j < this.points[key][i].length; j++){
+        let point = SDUDocument.getElement(Dot2D.TAG, this._points[key][i][j]);
+        temp[key][temp[key].length - 1].push([point.x.toFixed(2), point.y.toFixed(2)]);
+      }
     }
   }
   return temp;
 };
+PolygonGroup.prototype.getExportString = function(){
+
+};
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.fillCanvas = function(ctx, color){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = Graphics.getRenderPoint(this._points[i]);
-  }
-  PolygonGroup.prototype.fill.call(this, ctx, color, new Polygon(points));
+  PolygonGroup.prototype.fill.call(this, ctx, color, new Polygon(this._points));
 };
 PolygonGroup.prototype.strokeCanvas = function(ctx, lineWidth, color) {
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = Graphics.getRenderPoint(this._points[i]);
-  }
-  PolygonGroup.prototype.stroke.call(this, ctx, lineWidth, color, new Polygon(points));
+  PolygonGroup.prototype.stroke.call(this, ctx, lineWidth, color, new Polygon(this._points));
 }
 PolygonGroup.prototype.fillSelf = function(ctx, color){
   for(let i = 0; i < this._points.length; i++){
@@ -305,5 +344,20 @@ PolygonGroup.prototype.stroke = function(ctx, lineWidth, color, polygon){
   ctx.restore();
 
   Graphics.clearTempCanvas();
+};
+PolygonGroup.prototype.stroke = function(ctx, lineWidth, color, polygon){
+  let points = polygon.points;
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for(let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
 };
 // ================================================================================

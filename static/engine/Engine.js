@@ -27,6 +27,7 @@ function Engine(){
 // --------------------------------------------------------------------------------
 Engine._input = null;
 Engine._owner = null;
+Engine._axios = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
@@ -44,8 +45,9 @@ Engine.initialize = function(){
   RenderManager.initialize();
   ToolManager.initialize();
 };
-Engine.setElements = function(canvas, element, owner){
+Engine.setElements = function(canvas, element, axios, owner){
   this._owner = owner;
+  this._axios = axios;
   Graphics.setCanvas(canvas, element);
   MouseInput.setupTargetHandlers(canvas);
 };
@@ -73,14 +75,16 @@ Engine.createInputBox = function(){
   this._input.setAttribute('type','file');
   this._input.setAttribute("style",'visibility:hidden; display:none');
   this._input._reader = new FileReader();
-  this._input._filename = null;
+  this._input._file = null;
   this._input._readAsTest = false;
   this._input.addEventListener('change', function(event){
-    this._filename = event.target.files[0];
-    if(this._readAsTest){
-      this._reader.readAsText(event.target.files[0], "UTF-8")
-    }else{
-      this._reader.readAsDataURL(event.target.files[0]);
+    this._file = event.target.files[0];
+    if(this._file){
+      if(this._readAsTest){
+        this._reader.readAsText(event.target.files[0], "UTF-8")
+      }else{
+        this._reader.readAsDataURL(event.target.files[0]);
+      }
     }
     this.value = null;
   }.bind(this._input));
@@ -103,7 +107,7 @@ Engine.readImage = function(owner, callback){
     this._input.setAttribute('accept', 'image/*');
     this._input._readAsTest = false;
     this._input._reader.onload = function(event){
-      callback.call(owner, event.target.result);
+      callback.call(owner, event.target.result, Engine._input._file.name);
       resolve();
     }
     this._input.click();
@@ -114,7 +118,7 @@ Engine.readJson = function(owner, callback){
     this._input.setAttribute('accept', '.sjs');
     this._input._readAsTest = true;
     this._input._reader.onload = function(event){
-      callback.call(owner, event.target.result, Engine._input.filename);
+      callback.call(owner, event.target.result, Engine._input._file.name);
       resolve();
     }
     this._input.click();
@@ -138,6 +142,11 @@ Engine.saveFile = function(filename, content){
 Engine.clearFactory = function(){
   PolygonFactory.clearPoints();
   LineFactory.clearFirstPoint();
+
+  BookFactory.clearCurrentBook();
+  ArticleFactory.clearCurrentArticle();
+  ParagraphFactory.clearCurrentParagraph();
+  SentenceFactory.clearCurrentSentence();
   WordFactory.clearCurrentWord();
 }
 // --------------------------------------------------------------------------------
