@@ -63,6 +63,26 @@ DocumentManager.newDocument = function(){
   this.updateList();
   this.push();
 }
+DocumentManager.newWebPage = function(src, filename){
+  return new Promise((resolve) => {
+    Engine._axios({
+      method: 'post',
+      url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
+      data: { base64 : src, filename: filename},
+      headers: {'content-type': "application/json"},
+      responseType: 'json'
+    }).then(response => {
+      console.log(response);
+      let src_link = 'http://211.87.232.197:8081/sdudoc/img/get_by_id?id=' + response.data;
+      DocumentManager.newPage(src_link).then(r => {
+        resolve();
+      });
+    }).catch(error => {
+      console.log(error);
+      resolve();
+    });
+  });
+}
 DocumentManager.newPage = async function(src){
   await SDUDocument.addPage(PageFactory.makeObject(src));
   this.updateList();
@@ -74,16 +94,16 @@ DocumentManager.deletePage = async function(){
   this.push();
 }
 // --------------------------------------------------------------------------------
-DocumentManager.createModulePage = function(x, y){
+DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
   SDUDocument.clearPage(SDUDocument.getCurrentPage());
-  let width = Graphics._image.width;
-  let height = Graphics._image.height;
+  let width = Graphics._image.width - padding.left - padding.right;
+  let height = Graphics._image.height - padding.top - padding.bottom;
   let page = this.getCurrentPageId()
   let base_dots = [], base_lines = [];
-  base_dots[0] = DotFactory.makeObject(page, Dot2D.Type.FREE, 0, 0);
-  base_dots[1] = DotFactory.makeObject(page, Dot2D.Type.FREE, width, 0);
-  base_dots[2] = DotFactory.makeObject(page, Dot2D.Type.FREE, width, height);
-  base_dots[3] = DotFactory.makeObject(page, Dot2D.Type.FREE, 0, height);
+  base_dots[0] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left, padding.top);
+  base_dots[1] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left + width, padding.top);
+  base_dots[2] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left + width, padding.top + height);
+  base_dots[3] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left, padding.top + height);
   for(let i = 0; i < base_dots.length; i++){
     SDUDocument.addElement(Dot2D.TAG, base_dots[i], true);
     base_dots[i] = base_dots[i].id;
@@ -134,15 +154,85 @@ DocumentManager.createModulePage = function(x, y){
     dot_map.push([dependent_dots[3][i]].concat(intersection_dots[i]).concat([dependent_dots[1][i]]));
   }
   dot_map.push([base_dots[3]].concat(dependent_dots[2]).concat([base_dots[2]]));
-  for(let i = 0; i < y; i++){
-    for(let j = 0; j < x; j++){
-      let points = [dot_map[i][j], dot_map[i][j + 1], dot_map[i + 1][j + 1], dot_map[i + 1][j]];
+  for(let i = x - 1; i >= 0; i--){
+    for(let j = 0; j < y; j++){
+      let points = [dot_map[j][i], dot_map[j][i + 1], dot_map[j + 1][i + 1], dot_map[j + 1][i]];
       let polygon = PolygonFactory.makeObject(page, points);
       SDUDocument.addElement(Polygon2D.TAG, polygon, true);
+      polygon_callback.call(this, polygon);
     }
   }
   SDUDocument.updateCurrentPageData();
   Graphics.refresh();
+  this.push();
+}
+// --------------------------------------------------------------------------------
+DocumentManager.generateDocumentByText = async function(img_width, img_height, char_horizontal, char_vertical, padding, text){
+  this.newDocument();
+  let canvas = document.createElement('canvas');
+  canvas.width = img_width;
+  canvas.height = img_height;
+  let ctx = canvas.getContext("2d");
+  let rect = new Rectangle(0, 0, img_width, img_height)
+  let max_width = img_width - padding.left - padding.right;
+  let max_height = img_height - padding.top - padding.bottom;
+  let max_char_width = Math.floor(max_width / char_horizontal);
+  let max_char_height = Math.floor(max_height / char_vertical);
+  let char_size = Math.min(max_char_width, max_char_height);
+  let width = char_size * char_horizontal;
+  let height = char_size * char_vertical;
+  let x = (img_width - width) / 2;
+  let y = (img_height - height) / 2;
+  let draw_padding = {'left': x, 'right':x, 'top':y, 'bottom':y};
+  let newPage = async function(draw_text, start_index){
+    rect.clear(ctx);
+    rect.fillSelf(ctx, 'rgba(255, 255, 255, 1)');
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    for(let i = 0; i <= char_horizontal; i++){
+      let draw_x = x + (i * char_size);
+      ctx.fillRect(draw_x - 2, y, 4, height);
+    }
+    ctx.fillRect(x, y - 2, width, 4);
+    ctx.fillRect(x, y + height - 2, width, 4);
+    ctx.font = (char_size * 0.9) + 'px 楷体';
+    ctx.textBaseline = 'middle';
+    let place = start_index;
+    for(let i = char_horizontal - 1; i >= 0; i--){
+      for(let j = 0; j < char_vertical; j++){
+        let char_x = x + (i * char_size);
+        let char_y = y + (j * char_size);
+        if(place < draw_text.length){
+          let width = ctx.measureText(text.charAt(place)).width;
+          let draw_x = char_x + (char_size - width) / 2;
+          let draw_y = char_y + (0.5 * char_size);
+          ctx.fillText(text.charAt(place ++), draw_x, draw_y);
+        }
+      }
+    }
+    ctx.restore();
+
+    let data = canvas.toDataURL('image/jpeg');
+    await DocumentManager.newWebPage(data, String(Math.random()) + '.jpg')
+
+    let character_index = start_index;
+    //let word_object = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+    DocumentManager.createModulePage(char_horizontal, char_vertical, draw_padding, function(polygon){
+      if(character_index < text.length){
+        let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
+          polygon.id, text.charAt(character_index ++));
+        polygon.character = character.id;
+        DocumentManager.addElement(Character.TAG, character);
+        //word_object.append(character);
+      }
+    });
+    //DocumentManager.addElement(Word.TAG, word_object);
+    return place;
+  }
+  let current_place = 0;
+  while(current_place < text.length){
+    current_place = await newPage(text, current_place);
+  }
   this.push();
 }
 // --------------------------------------------------------------------------------

@@ -115,6 +115,13 @@ Book.prototype.getExportString = function(){
   for(let i = 0; i < this._children.length; i++){
     str.push(SDUDocument.getElement(Article.TAG, this._children[i]).getExportString());
   }
+  return str.join('\n\n');
+}
+Book.prototype.getExportStringArray = function(){
+  let str = [];
+  for(let i = 0; i < this._children.length; i++){
+    str.push(SDUDocument.getElement(Article.TAG, this._children[i]).getExportStringArray());
+  }
   return str;
 }
 // --------------------------------------------------------------------------------
@@ -140,7 +147,7 @@ Book.prototype.exportJson = function(){
     pages: this._pages,
     children: this._children,
     father: this._father,
-    string: this.getExportString(),
+    string: this.getExportStringArray(),
     points: this.getExportPoints()
   }
 }

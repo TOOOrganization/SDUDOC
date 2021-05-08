@@ -85,17 +85,18 @@ Rectangle.prototype.setSize = function(width, height){
 // --------------------------------------------------------------------------------
 Rectangle.prototype.fillCanvas = function(ctx, color){
   this.fill(ctx, color, Graphics.getRenderPoint(new Point(this._x, this._y)),
-    Graphics.getRenderPoint(new Point(this._width, this._height)));
+    Graphics.getRenderPoint(new Point(this._x + this._width, this._y + this._height)));
 };
 Rectangle.prototype.strokeCanvas = function(ctx, lineWidth, color){
   this.stroke(ctx, lineWidth, color, Graphics.getRenderPoint(new Point(this._x, this._y)),
-    Graphics.getRenderPoint(new Point(this._width, this._height)));
+    Graphics.getRenderPoint(new Point(this._x + this._width, this._y + this._height)));
 };
 Rectangle.prototype.fillSelf = function(ctx, color){
-  this.fill(ctx, color, new Point(this._x, this._y), new Point(this._width, this._height));
+  this.fill(ctx, color, new Point(this._x, this._y), new Point(this._x + this._width, this._y + this._height));
 };
 Rectangle.prototype.strokeSelf = function(ctx, lineWidth, color){
-  this.stroke(ctx, lineWidth, color, new Point(this._x, this._y), new Point(this._width, this._height));
+  this.stroke(ctx, lineWidth, color, new Point(this._x, this._y),
+    new Point(this._x + this._width, this._y + this._height));
 };
 Rectangle.prototype.fill = function(ctx, color, point1, point2){
   ctx.save();

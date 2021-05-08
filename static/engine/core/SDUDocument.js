@@ -199,6 +199,49 @@ SDUDocument.setCurrentPage = async function(index){
   this.getCurrentPageObject().setSize(Graphics._image.width, Graphics._image.height)
 }
 // --------------------------------------------------------------------------------
+SDUDocument.getExportDocument = function(){
+  let top_tag = Character.TAG;
+  if (this._data[Word.TAG]) {
+    for (let key in this._data[Word.TAG]) {
+      top_tag = Word.TAG;
+      break;
+    }
+  }
+  if (this._data[Sentence.TAG]) {
+    for (let key in this._data[Sentence.TAG]) {
+      top_tag = Sentence.TAG;
+      break;
+    }
+  }
+  if (this._data[Paragraph.TAG]) {
+    for (let key in this._data[Paragraph.TAG]) {
+      top_tag = Paragraph.TAG;
+      break;
+    }
+  }
+  if (this._data[Article.TAG]) {
+    for (let key in this._data[Article.TAG]) {
+      top_tag = Article.TAG;
+      break;
+    }
+  }
+  if (this._data[Book.TAG]) {
+    for (let key in this._data[Book.TAG]) {
+      top_tag = Book.TAG;
+      break;
+    }
+  }
+
+  let output = []
+  if (top_tag === Character.TAG)
+    return output;
+
+  for (let key in this._data[top_tag]){
+    output.push(this._data[top_tag][key].getExportString());
+  }
+  return output;
+}
+// --------------------------------------------------------------------------------
 SDUDocument.loadJson = async function(json){
   this._data = {};
   let temp = JSON.parse(json);
@@ -244,7 +287,8 @@ SDUDocument.saveJson = function(){
 }
 SDUDocument.exportJson = function(){
   let temp = {
-    Header: this._header.exportJson()
+    Header: this._header.exportJson(),
+    Document: this.getExportDocument()
   };
   for(let i in this._data){
     temp[i] = [];

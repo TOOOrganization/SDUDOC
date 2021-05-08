@@ -118,6 +118,13 @@ Word.prototype.getExportString = function(){
   for(let i = 0; i < this._children.length; i++){
     str.push(SDUDocument.getElement(Character.TAG, this._children[i]).char);
   }
+  return str.join('');
+}
+Word.prototype.getExportStringArray = function(){
+  let str = [];
+  for(let i = 0; i < this._children.length; i++){
+    str.push(SDUDocument.getElement(Character.TAG, this._children[i]).char);
+  }
   return str;
 }
 // --------------------------------------------------------------------------------
@@ -143,7 +150,7 @@ Word.prototype.exportJson = function(){
     pages: this._pages,
     children: this._children,
     father: this._father,
-    string: this.getExportString(),
+    string: this.getExportStringArray(),
     points: this.getExportPoints()
   }
 }

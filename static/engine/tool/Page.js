@@ -146,20 +146,8 @@ PageFactory.getNextIndex = function(){
 // * Register Tool
 // ================================================================================
 ToolManager.addTool(new Tool("new_page", "新建页面", "mdi-card-plus-outline", Tool.Type.PAGE, "", async function(){
-  await Engine.readImage(this,function(src, filename){
-    Engine._axios({
-      method: 'post',
-      url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
-      data: { base64 : src, filename: filename},
-      headers: {'content-type': "application/json"},
-      responseType: 'json'
-    }).then(response => {
-      console.log(response);
-      let src_link = 'http://211.87.232.197:8081/sdudoc/img/get_by_id?id=' + response.data;
-      DocumentManager.newPage(src_link);
-    }).catch(error => {
-      console.log(error);
-    });
+  await Engine.readImage(this,async function(src, filename){
+    await DocumentManager.newWebPage(src, filename);
   });
 }));
 ToolManager.addTool(new Tool("move_page_minus", "前移一页", "mdi-arrow-left-bold", Tool.Type.PAGE, "", async function(){
@@ -185,7 +173,17 @@ ToolManager.addTool(new Tool("module_page", "以模板切割页面", "mdi-view-c
   if(SDUDocument.current_page <= 0) return;
   Engine.prompt("输入模板分割数", ["请输入横向分割数", "请输入纵向分割数"], [5, 5],function(){
     Engine.owner.prompt_dialog = false;
-    DocumentManager.createModulePage(Number(Engine.owner.prompt_text[0]), Number(Engine.owner.prompt_text[1]))
+    DocumentManager.createModulePage(Number(Engine.owner.prompt_text[0]), Number(Engine.owner.prompt_text[1]),
+      {'left': 0, 'right':0, 'top':0, 'bottom':0}, function(polygon){})
+  });
+}));
+ToolManager.addTool(new Tool("auto_book", "自动生成文档", "mdi-book", Tool.Type.PAGE, "", function(){
+  Engine.prompt("输入书籍字符", ["请输入字符"], [null],async function(){
+    Engine.owner.prompt_dialog = false;
+    if(Engine.owner.prompt_text[0]){
+      await DocumentManager.generateDocumentByText(1750, 2479, 10, 16,
+        {'left': 150, 'right':150, 'top':130, 'bottom':130}, Engine.owner.prompt_text[0])
+    }
   });
 }));
 // ================================================================================

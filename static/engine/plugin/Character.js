@@ -216,10 +216,12 @@ ToolManager.addHandler(new Handler("character.onLeftClick", "left_click", false,
     if(SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character) return;
     Engine.prompt("输入文字", ["请输入该多边形包含的文字"], [null], function(){
       Engine.owner.prompt_dialog = false;
-      let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
-        collide_list[0], Engine.owner.prompt_text[0])
-      SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character = character.id;
-      DocumentManager.addElement(Character.TAG, character);
+      if(Engine.owner.prompt_text[0]){
+        let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
+          collide_list[0], Engine.owner.prompt_text[0])
+        SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character = character.id;
+        DocumentManager.addElement(Character.TAG, character);
+      }
     })
   }
 }));
