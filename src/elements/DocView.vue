@@ -205,7 +205,7 @@ export default {
       DocumentManager.setCurrentPage(index);
     },
     async upLoadDoc(){
-      //await DocumentManager.upLoadDoc();
+      await DocumentManager.upLoadDoc();
       Engine.alert('上传成功', function(){
         Engine.owner.alert_dialog = false;
       });
