@@ -52,7 +52,7 @@
       </div>
 
       <div class="my-2">
-        <v-btn class="tool_button" color="blue lighten-2" dark>
+        <v-btn class="tool_button" color="blue lighten-2" dark @click="upLoadDoc">
           上传
         </v-btn>
       </div>
@@ -203,6 +203,12 @@ export default {
     },
     changePage(index){
       DocumentManager.setCurrentPage(index);
+    },
+    async upLoadDoc(){
+      //await DocumentManager.upLoadDoc();
+      Engine.alert('上传成功', function(){
+        Engine.owner.alert_dialog = false;
+      });
     }
   }
 }

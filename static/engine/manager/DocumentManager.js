@@ -58,6 +58,24 @@ DocumentManager.deleteElement = function(type, id){
   this.push();
 }
 // --------------------------------------------------------------------------------
+DocumentManager.upLoadDoc = function(){
+  return new Promise((resolve) => {
+    Engine._axios({
+      method: 'post',
+      url: 'http://211.87.232.198:8080/search-engine/solr/insert_sdudoc',
+      data: SDUDocument.exportJson(),
+      headers: {'content-type': "application/json"},
+      responseType: 'json'
+    }).then(response => {
+      console.log(response);
+      resolve();
+    }).catch(error => {
+      console.log(error);
+      resolve();
+    });
+  });
+}
+// --------------------------------------------------------------------------------
 DocumentManager.newDocument = function(){
   this.clear();
   this.updateList();
@@ -184,6 +202,10 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
   let x = (img_width - width) / 2;
   let y = (img_height - height) / 2;
   let draw_padding = {'left': x, 'right':x, 'top':y, 'bottom':y};
+
+  let book, article, paragraph, sentence, word;
+  let jump_index = 0;
+
   let newPage = async function(draw_text, start_index){
     rect.clear(ctx);
     rect.fillSelf(ctx, 'rgba(255, 255, 255, 1)');
@@ -203,10 +225,31 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
         let char_x = x + (i * char_size);
         let char_y = y + (j * char_size);
         if(place < draw_text.length){
-          let width = ctx.measureText(text.charAt(place)).width;
-          let draw_x = char_x + (char_size - width) / 2;
-          let draw_y = char_y + (0.5 * char_size);
-          ctx.fillText(text.charAt(place ++), draw_x, draw_y);
+          let char = text.charAt(place);
+          switch (char){
+            case '，': case ' ':
+              place ++;
+              j--;
+              break;
+            case '\\':
+              if(text.charAt(place + 1) === 'n'){
+                if(text.charAt(place + 2) === '\\' && text.charAt(place + 3) === 'n'){
+                  place += 4;
+                  j--;
+                  break;
+                }else{
+                  place += 2;
+                  j--;
+                  break;
+                }
+              }
+            default:
+              let width = ctx.measureText(char).width;
+              let draw_x = char_x + (char_size - width) / 2;
+              let draw_y = char_y + (0.5 * char_size);
+              ctx.fillText(char, draw_x, draw_y);
+              place ++;
+          }
         }
       }
     }
@@ -215,24 +258,96 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
     let data = canvas.toDataURL('image/jpeg');
     await DocumentManager.newWebPage(data, String(Math.random()) + '.jpg')
 
+    if(!book) book = BookFactory.makeObject(DocumentManager.getCurrentPageId());
+    if(!article) article = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
+    if(!paragraph) paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
+    if(!sentence) sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
+    if(!word) word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+
     let character_index = start_index;
-    //let word_object = WordFactory.makeObject(DocumentManager.getCurrentPageId());
     DocumentManager.createModulePage(char_horizontal, char_vertical, draw_padding, function(polygon){
+      if(jump_index > 0){
+        //SDUDocument.deleteElement(Polygon2D.TAG, polygon.id);
+      }
       if(character_index < text.length){
-        let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
-          polygon.id, text.charAt(character_index ++));
-        polygon.character = character.id;
-        DocumentManager.addElement(Character.TAG, character);
-        //word_object.append(character);
+        let char = text.charAt(character_index);
+        switch (char){
+          case ' ':
+            SDUDocument.addElement(Word.TAG, word, true);
+            sentence.append(word);
+            word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+            character_index ++;
+            break;
+          case '，':
+            SDUDocument.addElement(Word.TAG, word, true);
+            sentence.append(word);
+            word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+            SDUDocument.addElement(Sentence.TAG, sentence, true);
+            paragraph.append(sentence);
+            sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
+            character_index ++;
+            break;
+          case '\\':
+            if(text.charAt(character_index + 1) === 'n'){
+              if(text.charAt(character_index + 2) === '\\' && text.charAt(character_index + 3) === 'n'){
+                SDUDocument.addElement(Word.TAG, word, true);
+                sentence.append(word);
+                word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+                SDUDocument.addElement(Sentence.TAG, sentence, true);
+                paragraph.append(sentence);
+                sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
+                SDUDocument.addElement(Paragraph.TAG, paragraph, true);
+                article.append(paragraph);
+                paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
+                SDUDocument.addElement(Article.TAG, article, true);
+                book.append(article);
+                article = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
+                character_index += 4;
+                break;
+              }else{
+                SDUDocument.addElement(Word.TAG, word, true);
+                sentence.append(word);
+                word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+                SDUDocument.addElement(Sentence.TAG, sentence, true);
+                paragraph.append(sentence);
+                sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
+                SDUDocument.addElement(Paragraph.TAG, paragraph, true);
+                article.append(paragraph);
+                paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
+                character_index += 2;
+                break;
+              }
+            }
+            break;
+        }
+        if(character_index < text.length) {
+          let char = text.charAt(character_index);
+          let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
+            polygon.id, char);
+          polygon.character = character.id;
+          SDUDocument.addElement(Character.TAG, character, true);
+          word.append(character);
+          character_index ++;
+        }
       }
     });
-    //DocumentManager.addElement(Word.TAG, word_object);
     return place;
   }
   let current_place = 0;
   while(current_place < text.length){
     current_place = await newPage(text, current_place);
   }
+
+  SDUDocument.addElement(Word.TAG, word, true);
+  sentence.append(word);
+  SDUDocument.addElement(Sentence.TAG, sentence, true);
+  paragraph.append(sentence);
+  SDUDocument.addElement(Paragraph.TAG, paragraph, true);
+  article.append(paragraph);
+  SDUDocument.addElement(Article.TAG, article, true);
+  book.append(article);
+  SDUDocument.addElement(Book.TAG, book, true);
+
   this.push();
 }
 // --------------------------------------------------------------------------------
