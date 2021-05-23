@@ -189,6 +189,7 @@ ParagraphFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("paragraph", "段落工具", "mdi-format-align-left", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_PARAGRAPH);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("paragraph.onLeftClick", "left_click", false, ParagraphFactory, function(event){

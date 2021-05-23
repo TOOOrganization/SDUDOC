@@ -189,6 +189,7 @@ SentenceFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("sentence", "句子工具", "mdi-text", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_SENTENCE);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("sentence.onLeftClick", "left_click", false, SentenceFactory, function(event){

@@ -185,6 +185,7 @@ BookFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("book", "书籍工具", "mdi-book-open-outline", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_BOOK);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("book.onLeftClick", "left_click", false, BookFactory, function(event){

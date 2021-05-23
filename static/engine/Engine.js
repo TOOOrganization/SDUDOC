@@ -150,6 +150,9 @@ Engine.clearFactory = function(){
   WordFactory.clearCurrentWord();
 }
 // --------------------------------------------------------------------------------
+Engine.setTodo = function(text){
+  Engine.owner.todo_text = 'Todo: ' + text;
+}
 Engine.alert = function(title, callback){
   Engine.owner.pop_title = title;
   Engine.owner.pop_callback = callback;

@@ -178,6 +178,7 @@ PolygonFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pentagon-outline", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_POLYGON);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("polygon.onLeftClick", "left_click", false, PolygonFactory, function(event){

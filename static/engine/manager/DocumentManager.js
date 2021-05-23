@@ -58,13 +58,46 @@ DocumentManager.deleteElement = function(type, id){
   this.push();
 }
 // --------------------------------------------------------------------------------
+DocumentManager.extractGetElementById = function(id){
+  this.extractGetElement(id.split(SDUDocument.SAPARATOR)[0], id);
+}
+DocumentManager.extractGetElement = function(type, id){
+  let element = SDUDocument.getElement(type, id);
+  this.extractElement(element);
+}
+DocumentManager.extractElement = function(element){
+  let json = element.saveJson();
+  let str = JSON.stringify(json);
+  let id = json._id + '';
+  str = str.substring(1, str.length - 1);
+  str = str.split(',');
+  str.shift();
+  str = str.join(',');
+  str = str.replaceAll(',\"', '\n\"');
+  Engine.owner.check_id = id;
+  Engine.owner.check_info = str;
+}
+DocumentManager.updateElement = function(){
+  let id = Engine.owner.check_id;
+  let info = Engine.owner.check_info;
+  let str = info.replaceAll('\n\"', ',\"');
+  str = '{\"_id\":\"' + id + '\",' + str + '}';
+  let json = JSON.parse(str);
+  SDUDocument.updateElement(id.split(SDUDocument.SAPARATOR)[0], id, json);
+  Graphics.refresh();
+  this.push();
+}
+// --------------------------------------------------------------------------------
 DocumentManager.upLoadDoc = function(){
   return new Promise((resolve) => {
     Engine._axios({
       method: 'post',
-      url: 'http://211.87.232.198:8080/search-engine/solr/insert_sdudoc',
+      url: 'http://211.87.232.198:8081/search-engine/solr/insert_sdudoc',
       data: SDUDocument.exportJson(),
-      headers: {'content-type': "application/json"},
+      headers: {
+        'content-type': 'application/json',
+        'Access-Control-Allow-Origin': 'http://211.87.232.197'
+      },
       responseType: 'json'
     }).then(response => {
       console.log(response);

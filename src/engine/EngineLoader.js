@@ -36,10 +36,10 @@ EngineLoader.CORE_LIST = [
   "Input", "MouseInput"
 ];
 EngineLoader.MANAGER_LIST = [
-  "DocumentManager", "RenderManager", "CollideManager", "ToolManager"
+  "LanguageManager", "DocumentManager", "RenderManager", "CollideManager", "ToolManager"
 ];
 EngineLoader.TOOL_LIST = [
-  "Page", "History", "Document"
+  "Page", "History", "Document", "Check"
 ];
 // --------------------------------------------------------------------------------
 EngineLoader.PLUGIN = EngineLoader.PATH + "plugin/";

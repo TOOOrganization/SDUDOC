@@ -279,6 +279,7 @@ LineFactory.getNextIndex = function(){
 // ================================================================================
 ToolManager.addTool(new Tool("line", "直线工具", "mdi-ray-start-end", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_LINE);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("line.onLeftClick", "left_click", false, LineFactory, function(event){

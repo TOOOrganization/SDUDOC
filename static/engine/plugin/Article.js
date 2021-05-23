@@ -189,6 +189,7 @@ ArticleFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("article", "文章工具", "mdi-file-document-outline", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_ARTICLE);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("article.onLeftClick", "left_click", false, ArticleFactory, function(event){

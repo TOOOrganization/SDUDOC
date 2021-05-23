@@ -38,6 +38,7 @@ MoveFactory.clearTarget = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("move", "移动工具", "mdi-arrow-all", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_MOVE);
 }));
 ToolManager.addHandler(new Handler("move.onMouseLeftDown", "left_down", false, MoveFactory, function(event){
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);

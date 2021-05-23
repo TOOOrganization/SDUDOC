@@ -145,8 +145,8 @@ ToolManager.getToolList = function(type){
         icon: this._tools[i].icon,
         description: this._tools[i].description,
         callback: function(id){
-          Engine.clearFactory()
-          callback_function(id)
+          Engine.clearFactory();
+          callback_function(id);
         }
       })
     }

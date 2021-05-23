@@ -19,6 +19,8 @@ function SDUDocument(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+SDUDocument.SAPARATOR = '_'
+// --------------------------------------------------------------------------------
 SDUDocument._data = {};
 SDUDocument._page_data = {};
 SDUDocument._next_index = {};
@@ -73,10 +75,17 @@ SDUDocument.deleteElement = function(type, id, not_update){
   delete this._data[type][id];
   if(!not_update) this.updateCurrentPageData();
 }
+SDUDocument.updateElement = function(type, id, json, not_update){
+  if(!id || !this._data[type] || !this._data[type][id]) return;
+  for(let key in json){
+    this._data[type][id][key] = json[key];
+  }
+  if(!not_update) this.updateCurrentPageData();
+}
 // --------------------------------------------------------------------------------
 SDUDocument.getNextIndex = function(type){
   if(!this._next_index[type]) this._next_index[type] = 1;
-  return type + "." + (this._next_index[type] ++);
+  return type + SDUDocument.SAPARATOR + (this._next_index[type] ++);
 }
 // --------------------------------------------------------------------------------
 SDUDocument.isObjectInCurrentPage = function(obj){

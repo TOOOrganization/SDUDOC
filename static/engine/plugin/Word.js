@@ -188,6 +188,7 @@ WordFactory.getNextIndex = function(){
 // --------------------------------------------------------------------------------
 ToolManager.addTool(new Tool("word", "词汇工具", "mdi-file-word-box", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_WORD);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, WordFactory, function(event){

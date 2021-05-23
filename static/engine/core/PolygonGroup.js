@@ -278,9 +278,25 @@ PolygonGroup.prototype.getExportPoints = function(){
       }
     }
   }
-  return temp;
+  let output = [];
+  for(let i = 0; i < this._pages.length; i++){
+    let points_list = temp[this._pages[i]];
+    let string = "" + this._pages[i];
+    for(let j = 0; j < points_list.length; j++){
+      string += "|";
+      for(let k = 0; k < points_list[j].length; k++) {
+        string += points_list[j][k][0] + ":" + points_list[j][k][1] + ";";
+      }
+      string = string.substring(0, string.length - 1);
+    }
+    output.push(string);
+  }
+  return output;
 };
 PolygonGroup.prototype.getExportString = function(){
+
+};
+PolygonGroup.prototype.getExportStringArray = function(){
 
 };
 // --------------------------------------------------------------------------------

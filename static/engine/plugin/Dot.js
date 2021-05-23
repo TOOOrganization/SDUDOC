@@ -264,12 +264,17 @@ DotFactory.getNextIndex = function(){
 // ================================================================================
 ToolManager.addTool(new Tool("dot", "点工具", "mdi-circle-medium", Tool.Type.PLUGIN, "", function(id){
   ToolManager.setCurrentPlugin(id);
+  Engine.setTodo(LanguageManager.TOOL_DOT);
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, DotFactory, function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
-  if(collide_list.length > 0) return;
+
+  if(collide_list.length > 0) {
+    DocumentManager.extractGetElementById(collide_list[0]);
+    return;
+  }
 
   collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   if(collide_list.length === 2){
