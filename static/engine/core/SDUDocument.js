@@ -115,12 +115,14 @@ SDUDocument.getElements = function(type){
   return this._data[type];
 }
 SDUDocument.getElement = function(type, id){
+  if(!this._data || !this._data[type]) return null;
   return this._data[type][id];
 }
 SDUDocument.getCurrentPageElements = function(type){
   return this._current_page_data[type];
 }
 SDUDocument.getCurrentPageElement = function(type, id){
+  if(!this._current_page_data || !this._current_page_data[type]) return null;
   return this._current_page_data[type][id];
 }
 // --------------------------------------------------------------------------------
