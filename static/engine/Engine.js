@@ -76,11 +76,11 @@ Engine.createInputBox = function(){
   this._input.setAttribute("style",'visibility:hidden; display:none');
   this._input._reader = new FileReader();
   this._input._file = null;
-  this._input._readAsTest = false;
+  this._input._readAsText = false;
   this._input.addEventListener('change', function(event){
     this._file = event.target.files[0];
     if(this._file){
-      if(this._readAsTest){
+      if(this._readAsText){
         this._reader.readAsText(event.target.files[0], "UTF-8")
       }else{
         this._reader.readAsDataURL(event.target.files[0]);
@@ -105,7 +105,7 @@ Object.defineProperty(Engine, 'owner', {
 Engine.readImage = function(owner, callback){
   return new Promise((resolve) => {
     this._input.setAttribute('accept', 'image/*');
-    this._input._readAsTest = false;
+    this._input._readAsText = false;
     this._input._reader.onload = function(event){
       callback.call(owner, event.target.result, Engine._input._file.name);
       resolve();
@@ -116,7 +116,7 @@ Engine.readImage = function(owner, callback){
 Engine.readJson = function(owner, callback){
   return new Promise((resolve) => {
     this._input.setAttribute('accept', '.sjs');
-    this._input._readAsTest = true;
+    this._input._readAsText = true;
     this._input._reader.onload = function(event){
       callback.call(owner, event.target.result, Engine._input._file.name);
       resolve();
