@@ -13,10 +13,7 @@
 // ================================================================================
 // * Register Tool
 // ================================================================================
-ToolManager.addTool(new Tool("t", "检查", "mdi-file-plus-outline", Tool.Type.CHECK, "", function(){
-  DocumentManager.extractElement("Page", );
-}));
-ToolManager.addTool(new Tool("t2", "检查", "mdi-file-plus-outline", Tool.Type.CHECK, "", function(){
+ToolManager.addTool(new Tool("update", "合并修改", "mdi-upload", Tool.Type.CHECK, "", function(){
   DocumentManager.updateElement();
 }));
 // ================================================================================

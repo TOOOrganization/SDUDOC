@@ -159,19 +159,9 @@ Book.prototype.exportJson = function(){
 function BookFactory(){
   throw new Error('This is a static class');
 }
-BookFactory._currentBook = null;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-BookFactory.getCurrentBook = function(){
-  return this._currentBook;
-};
-BookFactory.setCurrentBook = function(id){
-  this._currentBook = id;
-};
-BookFactory.clearCurrentBook = function(){
-  this._currentBook = null;
-};
 BookFactory.makeObject = function(page){
   return new Book(this.getNextIndex(), page);
 };
@@ -204,17 +194,17 @@ ToolManager.addHandler(new Handler("book.onLeftClick", "left_click", false, Book
             if(article){
               let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
               if(article_object.father){
-                BookFactory.setCurrentBook(article_object.father);
+                SelectManager.selectId(article_object.father);
               }else{
-                if(BookFactory.getCurrentBook()){
-                  let book_object = SDUDocument.getElement(Book.TAG, BookFactory.getCurrentBook());
+                if(SelectManager.isType(Book.TAG)){
+                  let book_object = SDUDocument.getElement(Book.TAG, SelectManager.getObject());
                   book_object.append(article_object);
                   DocumentManager.push();
                 }else{
                   let book_object = BookFactory.makeObject(DocumentManager.getCurrentPageId());
                   book_object.append(article_object);
-                  BookFactory.setCurrentBook(book_object.id);
                   DocumentManager.addElement(Book.TAG, book_object);
+                  SelectManager.selectId(book_object.id);
                   return;
                 }
               }
@@ -243,14 +233,14 @@ ToolManager.addHandler(new Handler("book.onRightClick", "right_click", false, Bo
               let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
               let book = article_object.father;
               if(book){
-                if(!BookFactory.getCurrentBook() || book === BookFactory.getCurrentBook()){
+                if(!SelectManager.isType(Book.TAG) || book === SelectManager.getObject()){
                   let book_object = SDUDocument.getCurrentPageElement(Book.TAG, book);
                   book_object.remove(article_object);
                   if(book_object.isEmpty()){
                     DocumentManager.deleteElement(Book.TAG, book);
-                    BookFactory.clearCurrentBook();
+                    SelectManager.unSelect();
                   }else{
-                    BookFactory.setCurrentBook(book);
+                    SelectManager.selectId(book)
                     DocumentManager.push();
                   }
                   Graphics.refresh();
@@ -263,7 +253,7 @@ ToolManager.addHandler(new Handler("book.onRightClick", "right_click", false, Bo
       }
     }
   }
-  BookFactory.clearCurrentBook();
+  SelectManager.unSelect();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("book.onMouseMove", "mousemove", false, BookFactory, function(event){

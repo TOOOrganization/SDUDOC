@@ -272,7 +272,7 @@ ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, DotFa
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
 
   if(collide_list.length > 0) {
-    DocumentManager.extractGetElementById(collide_list[0]);
+    SelectManager.select(Dot2D.TAG, collide_list[0]);
     return;
   }
 

@@ -163,19 +163,9 @@ Paragraph.prototype.exportJson = function(){
 function ParagraphFactory(){
   throw new Error('This is a static class');
 }
-ParagraphFactory._currentParagraph = null;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-ParagraphFactory.getCurrentParagraph = function(){
-  return this._currentParagraph;
-};
-ParagraphFactory.setCurrentParagraph = function(id){
-  this._currentParagraph = id;
-};
-ParagraphFactory.clearCurrentParagraph = function(){
-  this._currentParagraph = null;
-};
 ParagraphFactory.makeObject = function(page){
   return new Paragraph(this.getNextIndex(), page);
 };
@@ -204,17 +194,17 @@ ToolManager.addHandler(new Handler("paragraph.onLeftClick", "left_click", false,
         if(sentence){
           let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
           if(sentence_object.father){
-            ParagraphFactory.setCurrentParagraph(sentence_object.father);
+            SelectManager.selectId(sentence_object.father);
           }else{
-            if(ParagraphFactory.getCurrentParagraph()){
-              let paragraph_object = SDUDocument.getElement(Paragraph.TAG, ParagraphFactory.getCurrentParagraph());
+            if(SelectManager.isType(Paragraph.TAG)){
+              let paragraph_object = SDUDocument.getElement(Paragraph.TAG, SelectManager.getObject());
               paragraph_object.append(sentence_object);
               DocumentManager.push();
             }else{
               let paragraph_object = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
               paragraph_object.append(sentence_object);
-              ParagraphFactory.setCurrentParagraph(paragraph_object.id);
               DocumentManager.addElement(Paragraph.TAG, paragraph_object);
+              SelectManager.selectId(paragraph_object.id);
               return;
             }
           }
@@ -237,14 +227,14 @@ ToolManager.addHandler(new Handler("paragraph.onRightClick", "right_click", fals
           let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
           let paragraph = sentence_object.father;
           if(paragraph){
-            if(!ParagraphFactory.getCurrentParagraph() || paragraph === ParagraphFactory.getCurrentParagraph()){
+            if(!SelectManager.isType(Paragraph.TAG) || paragraph === SelectManager.getObject()){
               let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
               paragraph_object.remove(sentence_object);
               if(paragraph_object.isEmpty()){
                 DocumentManager.deleteElement(Paragraph.TAG, paragraph);
-                ParagraphFactory.clearCurrentParagraph();
+                SelectManager.unSelect();
               }else{
-                ParagraphFactory.setCurrentParagraph(paragraph);
+                SelectManager.selectId(paragraph);
                 DocumentManager.push();
               }
               Graphics.refresh();
@@ -255,7 +245,7 @@ ToolManager.addHandler(new Handler("paragraph.onRightClick", "right_click", fals
       }
     }
   }
-  ParagraphFactory.clearCurrentParagraph();
+  SelectManager.unSelect();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("paragraph.onMouseMove", "mousemove", false, ParagraphFactory, function(event){

@@ -162,19 +162,9 @@ Word.prototype.exportJson = function(){
 function WordFactory(){
   throw new Error('This is a static class');
 }
-WordFactory._currentWord = null;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-WordFactory.getCurrentWord = function(){
-  return this._currentWord;
-};
-WordFactory.setCurrentWord = function(id){
-  this._currentWord = id;
-};
-WordFactory.clearCurrentWord = function(){
-  this._currentWord = null;
-};
 WordFactory.makeObject = function(page){
   return new Word(this.getNextIndex(), page);
 };
@@ -199,17 +189,17 @@ ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, Word
     if(character){
       let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
       if(character_object.father){
-        WordFactory.setCurrentWord(character_object.father);
+        SelectManager.selectId(character_object.father);
       }else{
-        if(WordFactory.getCurrentWord()){
-          let word_object = SDUDocument.getElement(Word.TAG, WordFactory.getCurrentWord());
+        if(SelectManager.isType(Word.TAG)){
+          let word_object = SDUDocument.getElement(Word.TAG, SelectManager.getObject());
           word_object.append(character_object);
           DocumentManager.push();
         }else{
           let word_object = WordFactory.makeObject(DocumentManager.getCurrentPageId());
           word_object.append(character_object);
-          WordFactory.setCurrentWord(word_object.id);
           DocumentManager.addElement(Word.TAG, word_object);
+          SelectManager.selectId(word_object.id);
           return;
         }
       }
@@ -226,14 +216,14 @@ ToolManager.addHandler(new Handler("word.onRightClick", "right_click", false, Wo
       let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
       let word = character_object.father;
       if(word){
-        if(!WordFactory.getCurrentWord() || word === WordFactory.getCurrentWord()){
+        if(!SelectManager.isType(Word.TAG) || word === SelectManager.getObject()){
           let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
           word_object.remove(character_object);
           if(word_object.isEmpty()){
             DocumentManager.deleteElement(Word.TAG, word);
-            WordFactory.clearCurrentWord();
+            SelectManager.unSelect();
           }else{
-            WordFactory.setCurrentWord(word);
+            SelectManager.selectId(word);
             DocumentManager.push();
           }
           Graphics.refresh();
@@ -242,7 +232,7 @@ ToolManager.addHandler(new Handler("word.onRightClick", "right_click", false, Wo
       }
     }
   }
-  WordFactory.clearCurrentWord();
+  SelectManager.unSelect();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("word.onMouseMove", "mousemove", false, WordFactory, function(event){

@@ -163,19 +163,9 @@ Sentence.prototype.exportJson = function(){
 function SentenceFactory(){
   throw new Error('This is a static class');
 }
-SentenceFactory._currentSentence = null;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-SentenceFactory.getCurrentSentence = function(){
-  return this._currentSentence;
-};
-SentenceFactory.setCurrentSentence = function(id){
-  this._currentSentence = id;
-};
-SentenceFactory.clearCurrentSentence = function(){
-  this._currentSentence = null;
-};
 SentenceFactory.makeObject = function(page){
   return new Sentence(this.getNextIndex(), page);
 };
@@ -202,17 +192,17 @@ ToolManager.addHandler(new Handler("sentence.onLeftClick", "left_click", false, 
       if(word){
         let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
         if(word_object.father){
-          SentenceFactory.setCurrentSentence(word_object.father);
+          SelectManager.selectId(word_object.father);
         }else{
-          if(SentenceFactory.getCurrentSentence()){
-            let sentence_object = SDUDocument.getElement(Sentence.TAG, SentenceFactory.getCurrentSentence());
+          if(SelectManager.isType(Sentence.TAG)){
+            let sentence_object = SDUDocument.getElement(Sentence.TAG, SelectManager.getObject());
             sentence_object.append(word_object);
             DocumentManager.push();
           }else{
             let sentence_object = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
             sentence_object.append(word_object);
-            SentenceFactory.setCurrentSentence(sentence_object.id);
             DocumentManager.addElement(Sentence.TAG, sentence_object);
+            SelectManager.selectId(sentence_object.id);
             return;
           }
         }
@@ -232,14 +222,14 @@ ToolManager.addHandler(new Handler("sentence.onRightClick", "right_click", false
         let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
         let sentence = word_object.father;
         if(sentence){
-          if(!SentenceFactory.getCurrentSentence() || sentence === SentenceFactory.getCurrentSentence()){
+          if(!SelectManager.isType(Sentence.TAG) || sentence === SelectManager.getObject()){
             let sentence_object = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence);
             sentence_object.remove(word_object);
             if(sentence_object.isEmpty()){
               DocumentManager.deleteElement(Sentence.TAG, sentence);
-              SentenceFactory.clearCurrentSentence();
+              SelectManager.unSelect();
             }else{
-              SentenceFactory.setCurrentSentence(sentence);
+              SelectManager.selectId(sentence);
               DocumentManager.push();
             }
             Graphics.refresh();
@@ -249,7 +239,7 @@ ToolManager.addHandler(new Handler("sentence.onRightClick", "right_click", false
       }
     }
   }
-  SentenceFactory.clearCurrentSentence();
+  SelectManager.unSelect();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("sentence.onMouseMove", "mousemove", false, SentenceFactory, function(event){

@@ -129,7 +129,7 @@
           <canvas id="doc_canvas" ref="doc_canvas" class="doc" @contextmenu.prevent/>
         </div>
 
-        <v-card tile outlined class="right">
+        <v-card tile outlined class="right" style="border: none">
           <div class="right-page" v-if="tab === 0">
             <div class="mt-5 mb-4">
               <v-chip label outlined class="tool_label">页面工具</v-chip>
@@ -179,7 +179,7 @@
           </div>
 
           <v-navigation-drawer :mini-variant.sync="check_mini" floating absolute permanent
-                               right class="navigator">
+                               right class="navigator" style="background-color: antiquewhite">
             <v-list nav dense>
               <v-list-item v-for="(item, i) in tabs" :key="i" link @click="tab = !check_mini ? i : tab"
                            @click.stop="check_mini = !check_mini">

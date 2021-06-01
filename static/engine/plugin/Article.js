@@ -163,19 +163,9 @@ Article.prototype.exportJson = function(){
 function ArticleFactory(){
   throw new Error('This is a static class');
 }
-ArticleFactory._currentArticle = null;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-ArticleFactory.getCurrentArticle = function(){
-  return this._currentArticle;
-};
-ArticleFactory.setCurrentArticle = function(id){
-  this._currentArticle = id;
-};
-ArticleFactory.clearCurrentArticle = function(){
-  this._currentArticle = null;
-};
 ArticleFactory.makeObject = function(page){
   return new Article(this.getNextIndex(), page);
 };
@@ -206,17 +196,17 @@ ToolManager.addHandler(new Handler("article.onLeftClick", "left_click", false, A
           if(paragraph){
             let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
             if(paragraph_object.father){
-              ArticleFactory.setCurrentArticle(paragraph_object.father);
+              SelectManager.selectId(paragraph_object.father);
             }else{
-              if(ArticleFactory.getCurrentArticle()){
-                let article_object = SDUDocument.getElement(Article.TAG, ArticleFactory.getCurrentArticle());
+              if(SelectManager.isType(Article.TAG)){
+                let article_object = SDUDocument.getElement(Article.TAG, SelectManager.getObject());
                 article_object.append(paragraph_object);
                 DocumentManager.push();
               }else{
                 let article_object = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
                 article_object.append(paragraph_object);
-                ArticleFactory.setCurrentArticle(article_object.id);
                 DocumentManager.addElement(Article.TAG, article_object);
+                SelectManager.selectId(article_object.id);
                 return;
               }
             }
@@ -242,14 +232,14 @@ ToolManager.addHandler(new Handler("article.onRightClick", "right_click", false,
             let paragraph_object = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph);
             let article = paragraph_object.father;
             if(article){
-              if(!ArticleFactory.getCurrentArticle() || article === ArticleFactory.getCurrentArticle()){
+              if(!SelectManager.isType(Article.TAG) || article === SelectManager.getObject()){
                 let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
                 article_object.remove(paragraph_object);
                 if(article_object.isEmpty()){
                   DocumentManager.deleteElement(Article.TAG, article);
-                  ArticleFactory.clearCurrentArticle();
+                  SelectManager.unSelect();
                 }else{
-                  ArticleFactory.setCurrentArticle(article);
+                  SelectManager.selectId(article)
                   DocumentManager.push();
                 }
                 Graphics.refresh();
@@ -261,7 +251,7 @@ ToolManager.addHandler(new Handler("article.onRightClick", "right_click", false,
       }
     }
   }
-  ArticleFactory.clearCurrentArticle();
+  SelectManager.unSelect();
   Graphics.refresh();
 }));
 ToolManager.addHandler(new Handler("article.onMouseMove", "mousemove", false, ArticleFactory, function(event){

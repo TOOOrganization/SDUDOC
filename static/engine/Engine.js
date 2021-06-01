@@ -142,12 +142,7 @@ Engine.saveFile = function(filename, content){
 Engine.clearFactory = function(){
   PolygonFactory.clearPoints();
   LineFactory.clearFirstPoint();
-
-  BookFactory.clearCurrentBook();
-  ArticleFactory.clearCurrentArticle();
-  ParagraphFactory.clearCurrentParagraph();
-  SentenceFactory.clearCurrentSentence();
-  WordFactory.clearCurrentWord();
+  SelectManager.unSelect();
 }
 // --------------------------------------------------------------------------------
 Engine.setTodo = function(text){

@@ -73,14 +73,18 @@ DocumentManager.extractElement = function(element){
   str = str.split(',');
   str.shift();
   str = str.join(',');
-  str = str.replaceAll(',\"', '\n\"');
+  str = str.replaceAll(',\"_', '\n\"_');
   Engine.owner.check_id = id;
   Engine.owner.check_info = str;
+}
+DocumentManager.clearElement = function(){
+  Engine.owner.check_id = null;
+  Engine.owner.check_info = null;
 }
 DocumentManager.updateElement = function(){
   let id = Engine.owner.check_id;
   let info = Engine.owner.check_info;
-  let str = info.replaceAll('\n\"', ',\"');
+  let str = info.replaceAll('\n\"_', ',\"_');
   str = '{\"_id\":\"' + id + '\",' + str + '}';
   let json = JSON.parse(str);
   SDUDocument.updateElement(id.split(SDUDocument.SAPARATOR)[0], id, json);
@@ -92,7 +96,7 @@ DocumentManager.upLoadDoc = function(){
   return new Promise((resolve) => {
     Engine._axios({
       method: 'post',
-      url: 'http://211.87.232.198:8081/search-engine/solr/insert_sdudoc',
+      url: 'http://211.87.232.197:8081/sdudoc/doc/insert_sdudoc',
       data: SDUDocument.exportJson(),
       headers: {
         'content-type': 'application/json',
