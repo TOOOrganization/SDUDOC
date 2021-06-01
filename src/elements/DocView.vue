@@ -250,6 +250,7 @@
 <script>
 import {EngineLoader} from "../engine/EngineLoader";
 import axios from 'axios'
+import {Base64} from 'js-base64'
 import crypto from "crypto"
 
 export default {
@@ -302,7 +303,6 @@ export default {
   },
   methods: {
     async loadEngine() {
-      let Base64 = require('js-base64').Base64;
       await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, Base64, this);
       this.tools = ToolManager.getAllToolList({
         'document': Tool.Type.DOCUMENT,
