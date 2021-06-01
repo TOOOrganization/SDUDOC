@@ -134,6 +134,13 @@ ToolManager.removeHandler = function(id){
   this._handlers.remove(id);
 };
 // --------------------------------------------------------------------------------
+ToolManager.getAllToolList = function(params){
+  let data = {};
+  for(let key in params){
+    data[key] = this.getToolList(params[key]);
+  }
+  return data;
+}
 ToolManager.getToolList = function(type){
   let data = [];
   for(let i in this._tools){

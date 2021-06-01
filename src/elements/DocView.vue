@@ -14,7 +14,7 @@
           <div class="mt-2 mb-4">
             <v-chip label outlined class="tool_label">文档工具</v-chip>
             <v-btn-toggle class="tool_group">
-              <v-tooltip bottom v-for="(tool, index) in tools_document" :key="index">
+              <v-tooltip bottom v-for="(tool, index) in tools['document']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
                     <v-icon>{{tool.icon}}</v-icon>
@@ -28,7 +28,7 @@
           <div class="mt-3 mb-4">
             <v-chip label outlined class="tool_label">历史记录</v-chip>
             <v-btn-toggle class="tool_group">
-              <v-tooltip bottom v-for="(tool, index) in tools_history" :key="index">
+              <v-tooltip bottom v-for="(tool, index) in tools['history']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
                     <v-icon>{{tool.icon}}</v-icon>
@@ -42,7 +42,7 @@
           <div class="my-4">
             <v-chip label outlined class="tool_label">插件工具</v-chip>
             <v-btn-toggle mandatory class="tool_group">
-              <v-tooltip bottom v-for="(tool, index) in tools_plugin" :key="index">
+              <v-tooltip bottom v-for="(tool, index) in tools['plugin']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile v-bind="attrs" v-on="on" @click=tool.callback(tool.id)>
                     <v-icon>{{tool.icon}}</v-icon>
@@ -132,9 +132,41 @@
         <v-card tile outlined class="right" style="border: none">
           <div class="right-page" v-if="tab === 0">
             <div class="mt-5 mb-4">
+              <v-chip label outlined class="tool_label">用户工具</v-chip>
+              <v-btn-toggle class="tool_group">
+                <v-tooltip bottom v-for="(tool, index) in tools['user']" :key="index">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
+                      <v-icon>{{tool.icon}}</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>{{tool.tooltip}}</span>
+                </v-tooltip>
+              </v-btn-toggle>
+            </div>
+          </div>
+
+          <div class="right-page" v-if="tab === 1">
+            <div class="mt-5 mb-4">
+              <v-chip label outlined class="tool_label">云功能工具</v-chip>
+              <v-btn-toggle class="tool_group">
+                <v-tooltip bottom v-for="(tool, index) in tools['cloud']" :key="index">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
+                      <v-icon>{{tool.icon}}</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>{{tool.tooltip}}</span>
+                </v-tooltip>
+              </v-btn-toggle>
+            </div>
+          </div>
+
+          <div class="right-page" v-if="tab === 2">
+            <div class="mt-5 mb-4">
               <v-chip label outlined class="tool_label">页面工具</v-chip>
               <v-btn-toggle class="tool_group">
-                <v-tooltip bottom v-for="(tool, index) in tools_page" :key="index">
+                <v-tooltip bottom v-for="(tool, index) in tools['page']" :key="index">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
                       <v-icon>{{tool.icon}}</v-icon>
@@ -158,11 +190,11 @@
             </div>
           </div>
 
-          <div class="right-page" v-if="tab === 1">
+          <div class="right-page" v-if="tab === 3">
             <div class="mt-5 mb-4">
               <v-chip label outlined class="tool_label">检查工具</v-chip>
               <v-btn-toggle class="tool_group">
-                <v-tooltip bottom v-for="(tool, index) in tools_check" :key="index">
+                <v-tooltip bottom v-for="(tool, index) in tools['check']" :key="index">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
                       <v-icon>{{tool.icon}}</v-icon>
@@ -178,11 +210,27 @@
             </div>
           </div>
 
-          <v-navigation-drawer :mini-variant.sync="check_mini" floating absolute permanent
+          <div class="right-page" v-if="tab === 4">
+            <div class="mt-5 mb-4">
+              <v-chip label outlined class="tool_label">设置工具</v-chip>
+              <v-btn-toggle class="tool_group">
+                <v-tooltip bottom v-for="(tool, index) in tools['option']" :key="index">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
+                      <v-icon>{{tool.icon}}</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>{{tool.tooltip}}</span>
+                </v-tooltip>
+              </v-btn-toggle>
+            </div>
+          </div>
+
+          <v-navigation-drawer :mini-variant.sync="tab_mini" floating absolute permanent
                                right class="navigator" style="background-color: antiquewhite">
             <v-list nav dense>
-              <v-list-item v-for="(item, i) in tabs" :key="i" link @click="tab = !check_mini ? i : tab"
-                           @click.stop="check_mini = !check_mini">
+              <v-list-item v-for="(item, i) in tabs" :key="i" link @click="tab = !tab_mini ? changeTab(i) : tab"
+                           @click.stop="tab_mini = !tab_mini">
                 <v-list-item-icon>
                   <v-icon>{{ item.icon }}</v-icon>
                 </v-list-item-icon>
@@ -202,16 +250,21 @@
 <script>
 import {EngineLoader} from "../engine/EngineLoader";
 import axios from 'axios'
+import crypto from "crypto"
 
 export default {
   name: "DocView",
   data () {
     return {
-      tab: 0,
+      tab: 2,
       tabs:[
-        {icon: 'mdi-book-open-page-variant', text: '页面选项卡'},
-        {icon: 'mdi-eye', text: '检查选项卡'}
+        {icon: 'mdi-account', text: '用户菜单', login: false},
+        {icon: 'mdi-cloud-outline', text: '云功能菜单', login: true},
+        {icon: 'mdi-book-open-page-variant', text: '页面菜单', login: false},
+        {icon: 'mdi-checkbox-marked-outline', text: '检查菜单', login: false},
+        {icon: 'mdi-cogs', text: '设置菜单', login: true},
       ],
+      tab_mini: true,
 
       alert_dialog: false,
       prompt_dialog: false,
@@ -221,16 +274,20 @@ export default {
       pop_callback: function(){ this.alert_dialog = false },
       course_dialog: false,
 
-      tools_document: [],
-      tools_history: [],
-      tools_plugin: [],
+      tools: {
+        'document': [],
+        'history': [],
+        'plugin': [],
+        'page': [],
+        'check': [],
+        'user': [],
+        'cloud': [],
+        'option': []
+      },
 
-      tools_page: [],
       page_list: [],
       current_page: 0,
 
-      tools_check: [],
-      check_mini: true,
       check_id: null,
       check_info: null,
 
@@ -245,12 +302,16 @@ export default {
   },
   methods: {
     async loadEngine() {
-      await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, this);
-      this.tools_document = ToolManager.getToolList(Tool.Type.DOCUMENT);
-      this.tools_history = ToolManager.getToolList(Tool.Type.HISTORY);
-      this.tools_plugin = ToolManager.getToolList(Tool.Type.PLUGIN);
-      this.tools_page = ToolManager.getToolList(Tool.Type.PAGE);
-      this.tools_check = ToolManager.getToolList(Tool.Type.CHECK);
+      let Base64 = require('js-base64').Base64;
+      await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, Base64, this);
+      this.tools = ToolManager.getAllToolList({
+        'document': Tool.Type.DOCUMENT,
+        'history': Tool.Type.HISTORY,
+        'plugin': Tool.Type.PLUGIN,
+        'page': Tool.Type.PAGE,
+        'check': Tool.Type.CHECK,
+        'user': Tool.Type.USER
+      });
     },
     listenResizeHandler() {
       window.addEventListener('resize', function() {
@@ -258,13 +319,18 @@ export default {
       }.bind(this));
     },
     resizePageView() {
-      let size_page = Math.ceil(this.tools_page.length / 5);
+      let size_page = Math.ceil(this.tools['page'].length / 5);
       if(this.$refs.page_view)
         this.$refs.page_view.style.height = (window.innerHeight - 25 - 140 - size_page * 32) + "px";
 
-      let size_check = Math.ceil(this.tools_check.length / 5);
+      let size_check = Math.ceil(this.tools['check'].length / 5);
       if(this.$refs.check_view)
         this.$refs.check_view.style.height = (window.innerHeight - 25 - 140 - size_check * 32) + "px";
+    },
+    changeTab(index){
+      if(this.tabs[index].login)
+        return 0;
+      return index;
     },
     changePage(index){
       DocumentManager.setCurrentPage(index);
@@ -273,6 +339,24 @@ export default {
       await DocumentManager.upLoadDoc();
       Engine.alert('上传成功', function(){
         Engine.owner.alert_dialog = false;
+      });
+    },
+    login(){
+      let md5 = crypto.createHash("md5");
+      md5.update("password");
+      axios({
+        method: 'post',
+        url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
+        data: {
+          username: null,
+          password: md5.digest('hex')
+        },
+        headers: {'content-type': "application/json"},
+        responseType: 'json'
+      }).then(response => {
+        console.log(response);
+      }).catch(error => {
+        console.log(error);
       });
     }
   }
@@ -363,6 +447,13 @@ export default {
   width: 200px;
   height: 100%;
   background: antiquewhite;
+}
+
+.user_list{
+  width: 80%;
+  margin: 0 10%;
+  background: white;
+  overflow-y: scroll;
 }
 
 .page_list{

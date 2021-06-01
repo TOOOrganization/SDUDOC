@@ -123,7 +123,10 @@ DocumentManager.newWebPage = function(src, filename){
     Engine._axios({
       method: 'post',
       url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
-      data: { base64 : src, filename: filename},
+      data: {
+        base64 : src,
+        filename: filename
+      },
       headers: {'content-type': "application/json"},
       responseType: 'json'
     }).then(response => {
@@ -511,6 +514,52 @@ DocumentManager.save = function(){
 }
 DocumentManager.export = function(){
   return [this.getExportFilename(), SDUDocument.exportJson()];
+}
+// --------------------------------------------------------------------------------
+DocumentManager.loadCloudDocument = async function(token, index){
+  let data = null;
+  await new Promise((resolve) => {
+    Engine._axios({
+      method: 'post',
+      url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
+      data: {
+        token: token,
+        index: index
+      },
+      headers: {'content-type': "application/json"},
+      responseType: 'json'
+    }).then(response => {
+      console.log(response);
+      data = response.data;
+      resolve();
+    }).catch(error => {
+      console.log(error);
+      resolve();
+    });
+  });
+  await DocumentManager.load(data.json, data.filename);
+}
+DocumentManager.saveCloudDocument = async function(token, index){
+  await new Promise((resolve) => {
+    Engine._axios({
+      method: 'post',
+      url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
+      data: {
+        token: token,
+        index: index,
+        json : JSON.stringify(SDUDocument.saveJson()),
+        filename: DocumentManager.getSaveFilename()
+      },
+      headers: {'content-type': "application/json"},
+      responseType: 'json'
+    }).then(response => {
+      console.log(response);
+      resolve();
+    }).catch(error => {
+      console.log(error);
+      resolve();
+    });
+  });
 }
 // --------------------------------------------------------------------------------
 DocumentManager.clearHistory = function(){

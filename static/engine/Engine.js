@@ -28,6 +28,7 @@ function Engine(){
 Engine._input = null;
 Engine._owner = null;
 Engine._axios = null;
+Engine._base64 = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
@@ -45,9 +46,10 @@ Engine.initialize = function(){
   RenderManager.initialize();
   ToolManager.initialize();
 };
-Engine.setElements = function(canvas, element, axios, owner){
+Engine.setElements = function(canvas, element, axios, base64, owner){
   this._owner = owner;
   this._axios = axios;
+  this._base64 = base64;
   Graphics.setCanvas(canvas, element);
   MouseInput.setupTargetHandlers(canvas);
 };

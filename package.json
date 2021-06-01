@@ -10,10 +10,12 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.21.1",
+    "js-base64": "^3.6.1",
+    "js-md5": "^0.7.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
-    "vuetify": "^2.4.6",
-    "axios": "^0.21.1"
+    "vuetify": "^2.4.6"
   },
   "devDependencies": {
     "@mdi/font": "^5.9.55",
