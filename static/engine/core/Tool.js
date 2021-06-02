@@ -20,7 +20,7 @@ function Tool(){
 // * Enum
 // --------------------------------------------------------------------------------
 Tool.Type = {
-  DOCUMENT: 0, HISTORY: 1, PLUGIN: 2, PAGE: 3, CHECK: 4, USER: 5
+  DOCUMENT: 0, HISTORY: 1, PLUGIN: 2, PAGE: 3, CHECK: 4, USER: 5, DEV: 10
 };
 // --------------------------------------------------------------------------------
 // * Property

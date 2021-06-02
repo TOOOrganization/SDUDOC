@@ -226,6 +226,25 @@
             </div>
           </div>
 
+          <div class="right-page" v-if="tab === 5">
+            <div class="mt-5 mb-4">
+              <v-chip label outlined class="tool_label">实验性工具</v-chip>
+              <v-btn-toggle class="tool_group">
+                <v-tooltip bottom v-for="(tool, index) in tools['dev']" :key="index">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click=tool.callback>
+                      <v-icon>{{tool.icon}}</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>{{tool.tooltip}}</span>
+                </v-tooltip>
+              </v-btn-toggle>
+              <div class="mt-5" style="width: 80%;margin-left: 10%">
+                实验性工具还在开发中，具有不稳定性，请谨慎使用。
+              </div>
+            </div>
+          </div>
+
           <v-navigation-drawer :mini-variant.sync="tab_mini" floating absolute permanent
                                right class="navigator" style="background-color: antiquewhite">
             <v-list nav dense>
@@ -264,6 +283,7 @@ export default {
         {icon: 'mdi-book-open-page-variant', text: '页面菜单', login: false},
         {icon: 'mdi-checkbox-marked-outline', text: '检查菜单', login: false},
         {icon: 'mdi-cogs', text: '设置菜单', login: true},
+        {icon: 'mdi-ladybug', text: '实验性功能菜单', login: false}
       ],
       tab_mini: true,
 
@@ -283,7 +303,8 @@ export default {
         'check': [],
         'user': [],
         'cloud': [],
-        'option': []
+        'option': [],
+        'dev': []
       },
 
       page_list: [],
@@ -310,7 +331,8 @@ export default {
         'plugin': Tool.Type.PLUGIN,
         'page': Tool.Type.PAGE,
         'check': Tool.Type.CHECK,
-        'user': Tool.Type.USER
+        'user': Tool.Type.USER,
+        'dev': Tool.Type.DEV
       });
     },
     listenResizeHandler() {

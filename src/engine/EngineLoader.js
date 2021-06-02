@@ -40,7 +40,7 @@ EngineLoader.MANAGER_LIST = [
   "ToolManager", "SelectManager"
 ];
 EngineLoader.TOOL_LIST = [
-  "Page", "History", "Document", "Check"
+  "Page", "History", "Document", "Check", "Dev"
 ];
 // --------------------------------------------------------------------------------
 EngineLoader.PLUGIN = EngineLoader.PATH + "plugin/";

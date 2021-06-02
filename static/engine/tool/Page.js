@@ -177,13 +177,4 @@ ToolManager.addTool(new Tool("module_page", "以模板切割页面", "mdi-view-c
       {'left': 0, 'right':0, 'top':0, 'bottom':0}, function(polygon){})
   });
 }));
-ToolManager.addTool(new Tool("auto_book", "自动生成文档", "mdi-book", Tool.Type.PAGE, "", function(){
-  Engine.prompt("输入书籍字符", ["请输入字符"], [null],async function(){
-    Engine.owner.prompt_dialog = false;
-    if(Engine.owner.prompt_text[0]){
-      await DocumentManager.generateDocumentByText(1750, 2479, 10, 16,
-        {'left': 150, 'right':150, 'top':130, 'bottom':130}, Engine.owner.prompt_text[0])
-    }
-  });
-}));
 // ================================================================================
