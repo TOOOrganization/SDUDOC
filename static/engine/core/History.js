@@ -1,77 +1,55 @@
 // ================================================================================
-// * Point <SDUDOC Engine>
+// * History <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2020/06/03 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
 // ================================================================================
-// * Point
+// * History
 // --------------------------------------------------------------------------------
-function Point(){
+function History(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point.prototype._x = 0;
-Point.prototype._y = 0;
+History.prototype._old_handle = null;
+History.prototype._new_handle = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point.prototype.initialize = function(x, y){
-  this._x = x;
-  this._y = y;
+History.prototype.initialize = function(old_handle, new_handle){
+  this._old_handle = old_handle;
+  this._new_handle = new_handle;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Point.prototype, 'x', {
+Object.defineProperty(History.prototype, 'old_handle', {
   get: function() {
-    return this._x;
-  },
-  set: function(value) {
-    this._x = value;
+    return this._old_handle;
   },
   configurable: true
 });
-Object.defineProperty(Point.prototype, 'y', {
+Object.defineProperty(History.prototype, 'new_handle', {
   get: function() {
-    return this._y;
-  },
-  set: function(value) {
-    this._y = value;
+    return this._new_handle;
   },
   configurable: true
 });
 // --------------------------------------------------------------------------------
-Point.prototype.setPlace = function(x, y){
-  this._x = x;
-  this._y = y;
-};
+// * Function
 // --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-Point.prototype.distance = function(point){
-  let distance2D = this.minus(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
+History.prototype.undo = function(){
+  this._old_handle.callback.call(this._old_handle.owner);
 };
-// --------------------------------------------------------------------------------
-Point.prototype.add = function(point){
-  return new Point(this.x + point.x, this.y + point.y);
-};
-Point.prototype.minus = function(point){
-  return new Point(this.x - point.x, this.y - point.y);
-};
-Point.prototype.multiply = function(num){
-  return new Point(this.x * num, this.y * num);
-};
-Point.prototype.division = function(num){
-  return new Point(this.x / num, this.y / num);
+History.prototype.redo = function(){
+  this._new_handle.callback.call(this._new_handle.owner);
 };
 // ================================================================================

@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import {EngineLoader} from "../engine/EngineLoader";
+import {EngineLoader_Old} from "../engine/EngineLoader_Old";
 import axios from 'axios'
 import {Base64} from 'js-base64'
 import crypto from "crypto"
@@ -324,7 +324,7 @@ export default {
   },
   methods: {
     async loadEngine() {
-      await EngineLoader.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, Base64, this);
+      await EngineLoader_Old.load(this.$refs.doc_canvas, this.$refs.doc_view, axios, Base64, this);
       this.tools = ToolManager.getAllToolList({
         'document': Tool.Type.DOCUMENT,
         'history': Tool.Type.HISTORY,

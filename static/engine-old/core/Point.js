@@ -74,4 +74,36 @@ Point.prototype.multiply = function(num){
 Point.prototype.division = function(num){
   return new Point(this.x / num, this.y / num);
 };
+// --------------------------------------------------------------------------------
+Point.prototype.fillCanvas = function(ctx, radius, color){
+  this.fill(ctx, radius, color, Graphics.getRenderPoint(this));
+};
+Point.prototype.strokeCanvas = function(ctx, radius, lineWidth, color) {
+  this.stroke(ctx, radius, lineWidth, color, Graphics.getRenderPoint(this));
+}
+Point.prototype.fillSelf = function(ctx, radius, color){
+  this.fill(ctx, radius, color, this);
+};
+Point.prototype.strokeSelf = function(ctx, radius, lineWidth, color) {
+  this.stroke(ctx, radius, lineWidth, color, this);
+}
+Point.prototype.fill = function(ctx, radius, color, point){
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius,0, Math.PI * 2, false);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+};
+Point.prototype.stroke = function(ctx, radius, lineWidth, color, point) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius, 0, Math.PI * 2, false);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+}
 // ================================================================================

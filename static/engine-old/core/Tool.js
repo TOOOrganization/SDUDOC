@@ -1,5 +1,5 @@
 // ================================================================================
-// * Point <SDUDOC Engine>
+// * Tool <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -11,67 +11,74 @@
 // ================================================================================
 
 // ================================================================================
-// * Point
+// * Tool
 // --------------------------------------------------------------------------------
-function Point(){
+function Tool(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
+// * Enum
+// --------------------------------------------------------------------------------
+Tool.Type = {
+  DOCUMENT: 0, HISTORY: 1, PLUGIN: 2, PAGE: 3, CHECK: 4, USER: 5, DEV: 10
+};
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point.prototype._x = 0;
-Point.prototype._y = 0;
+Tool.prototype._id = "";
+Tool.prototype._tooltip = "";
+Tool.prototype._icon = "";
+Tool.prototype._type = 0;
+Tool.prototype._description = "";
+Tool.prototype._callback = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point.prototype.initialize = function(x, y){
-  this._x = x;
-  this._y = y;
+Tool.prototype.initialize = function(id, tooltip, icon, type, description, callback){
+  this._id = id;
+  this._tooltip = tooltip;
+  this._icon = icon;
+  this._type = type;
+  this._description = description;
+  this._callback = callback;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Point.prototype, 'x', {
+Object.defineProperty(Tool.prototype, 'id', {
   get: function() {
-    return this._x;
-  },
-  set: function(value) {
-    this._x = value;
+    return this._id;
   },
   configurable: true
 });
-Object.defineProperty(Point.prototype, 'y', {
+Object.defineProperty(Tool.prototype, 'tooltip', {
   get: function() {
-    return this._y;
-  },
-  set: function(value) {
-    this._y = value;
+    return this._tooltip;
   },
   configurable: true
 });
-// --------------------------------------------------------------------------------
-Point.prototype.setPlace = function(x, y){
-  this._x = x;
-  this._y = y;
-};
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-Point.prototype.distance = function(point){
-  let distance2D = this.minus(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
-};
-// --------------------------------------------------------------------------------
-Point.prototype.add = function(point){
-  return new Point(this.x + point.x, this.y + point.y);
-};
-Point.prototype.minus = function(point){
-  return new Point(this.x - point.x, this.y - point.y);
-};
-Point.prototype.multiply = function(num){
-  return new Point(this.x * num, this.y * num);
-};
-Point.prototype.division = function(num){
-  return new Point(this.x / num, this.y / num);
-};
+Object.defineProperty(Tool.prototype, 'icon', {
+  get: function() {
+    return this._icon;
+  },
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'type', {
+  get: function() {
+    return this._type;
+  },
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'description', {
+  get: function() {
+    return this._description;
+  },
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'callback', {
+  get: function() {
+    return this._callback;
+  },
+  configurable: true
+});
 // ================================================================================

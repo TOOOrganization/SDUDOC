@@ -64,67 +64,67 @@ Object.defineProperty(SDUDocument, 'current_page', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-// SDUDocument.addElement = function(type, element, not_update){
-//   if(!this._data[type]) this._data[type] = {};
-//   this._data[type][element.id] = element;
-//   if(!not_update) this.updateCurrentPageData();
-// }
-// SDUDocument.deleteElement = function(type, id, not_update){
-//   if(!id || !this._data[type] || !this._data[type][id]) return;
-//   this._data[type][id].onDelete.call(this._data[type][id]);
-//   delete this._data[type][id];
-//   if(!not_update) this.updateCurrentPageData();
-// }
-// SDUDocument.updateElement = function(type, id, json, not_update){
-//   if(!id || !this._data[type] || !this._data[type][id]) return;
-//   for(let key in json){
-//     this._data[type][id][key] = json[key];
-//   }
-//   if(!not_update) this.updateCurrentPageData();
-// }
+SDUDocument.addElement = function(type, element, not_update){
+  if(!this._data[type]) this._data[type] = {};
+  this._data[type][element.id] = element;
+  if(!not_update) this.updateCurrentPageData();
+}
+SDUDocument.deleteElement = function(type, id, not_update){
+  if(!id || !this._data[type] || !this._data[type][id]) return;
+  this._data[type][id].onDelete.call(this._data[type][id]);
+  delete this._data[type][id];
+  if(!not_update) this.updateCurrentPageData();
+}
+SDUDocument.updateElement = function(type, id, json, not_update){
+  if(!id || !this._data[type] || !this._data[type][id]) return;
+  for(let key in json){
+    this._data[type][id][key] = json[key];
+  }
+  if(!not_update) this.updateCurrentPageData();
+}
 // --------------------------------------------------------------------------------
-// SDUDocument.getNextIndex = function(type){
-//   if(!this._next_index[type]) this._next_index[type] = 1;
-//   return type + SDUDocument.SAPARATOR + (this._next_index[type] ++);
-// }
+SDUDocument.getNextIndex = function(type){
+  if(!this._next_index[type]) this._next_index[type] = 1;
+  return type + SDUDocument.SAPARATOR + (this._next_index[type] ++);
+}
 // --------------------------------------------------------------------------------
-// SDUDocument.isObjectInCurrentPage = function(obj){
-//   if(obj.page){
-//     return obj.page === this.getCurrentPageId()
-//   }else if(obj.pages){
-//     return obj.pages.indexOf(this.getCurrentPageId()) !== -1
-//   }
-//   return false
-// }
-// SDUDocument.updateCurrentPageData = function(){
-//   this._current_page_data = {};
-//   CollideManager.clear();
-//   if(this._current_page <= 0 || this._data[Page.TAG].length === 0) return;
-//   for(let i in this._data){
-//     if(i !== Page.TAG){
-//       this._current_page_data[i] = {};
-//       for(let j in this._data[i]){
-//         if(this.isObjectInCurrentPage(this._data[i][j])){
-//           this._current_page_data[i][j] = this._data[i][j];
-//         }
-//       }
-//     }
-//   }
-// }
+SDUDocument.isObjectInCurrentPage = function(obj){
+  if(obj.page){
+    return obj.page === this.getCurrentPageId()
+  }else if(obj.pages){
+    return obj.pages.indexOf(this.getCurrentPageId()) !== -1
+  }
+  return false
+}
+SDUDocument.updateCurrentPageData = function(){
+  this._current_page_data = {};
+  CollideManager.clear();
+  if(this._current_page <= 0 || this._data[Page.TAG].length === 0) return;
+  for(let i in this._data){
+    if(i !== Page.TAG){
+      this._current_page_data[i] = {};
+      for(let j in this._data[i]){
+        if(this.isObjectInCurrentPage(this._data[i][j])){
+          this._current_page_data[i][j] = this._data[i][j];
+        }
+      }
+    }
+  }
+}
 SDUDocument.getElements = function(type){
   return this._data[type];
 }
-// SDUDocument.getElement = function(type, id){
-//   if(!this._data || !this._data[type]) return null;
-//   return this._data[type][id];
-// }
-// SDUDocument.getCurrentPageElements = function(type){
-//   return this._current_page_data[type];
-// }
-// SDUDocument.getCurrentPageElement = function(type, id){
-//   if(!this._current_page_data || !this._current_page_data[type]) return null;
-//   return this._current_page_data[type][id];
-// }
+SDUDocument.getElement = function(type, id){
+  if(!this._data || !this._data[type]) return null;
+  return this._data[type][id];
+}
+SDUDocument.getCurrentPageElements = function(type){
+  return this._current_page_data[type];
+}
+SDUDocument.getCurrentPageElement = function(type, id){
+  if(!this._current_page_data || !this._current_page_data[type]) return null;
+  return this._current_page_data[type][id];
+}
 // --------------------------------------------------------------------------------
 SDUDocument.getHeader = function(){
   if (this._header === null){
@@ -210,105 +210,105 @@ SDUDocument.setCurrentPage = async function(index){
   this.getCurrentPageObject().setSize(Graphics._image.width, Graphics._image.height)
 }
 // --------------------------------------------------------------------------------
-// SDUDocument.getExportDocument = function(){
-//   let top_tag = Character.TAG;
-//   if (this._data[Word.TAG]) {
-//     for (let key in this._data[Word.TAG]) {
-//       top_tag = Word.TAG;
-//       break;
-//     }
-//   }
-//   if (this._data[Sentence.TAG]) {
-//     for (let key in this._data[Sentence.TAG]) {
-//       top_tag = Sentence.TAG;
-//       break;
-//     }
-//   }
-//   if (this._data[Paragraph.TAG]) {
-//     for (let key in this._data[Paragraph.TAG]) {
-//       top_tag = Paragraph.TAG;
-//       break;
-//     }
-//   }
-//   if (this._data[Article.TAG]) {
-//     for (let key in this._data[Article.TAG]) {
-//       top_tag = Article.TAG;
-//       break;
-//     }
-//   }
-//   if (this._data[Book.TAG]) {
-//     for (let key in this._data[Book.TAG]) {
-//       top_tag = Book.TAG;
-//       break;
-//     }
-//   }
-//
-//   let output = []
-//   if (top_tag === Character.TAG)
-//     return output;
-//
-//   for (let key in this._data[top_tag]){
-//     output.push(this._data[top_tag][key].getExportString());
-//   }
-//   return output;
-// }
+SDUDocument.getExportDocument = function(){
+  let top_tag = Character.TAG;
+  if (this._data[Word.TAG]) {
+    for (let key in this._data[Word.TAG]) {
+      top_tag = Word.TAG;
+      break;
+    }
+  }
+  if (this._data[Sentence.TAG]) {
+    for (let key in this._data[Sentence.TAG]) {
+      top_tag = Sentence.TAG;
+      break;
+    }
+  }
+  if (this._data[Paragraph.TAG]) {
+    for (let key in this._data[Paragraph.TAG]) {
+      top_tag = Paragraph.TAG;
+      break;
+    }
+  }
+  if (this._data[Article.TAG]) {
+    for (let key in this._data[Article.TAG]) {
+      top_tag = Article.TAG;
+      break;
+    }
+  }
+  if (this._data[Book.TAG]) {
+    for (let key in this._data[Book.TAG]) {
+      top_tag = Book.TAG;
+      break;
+    }
+  }
+
+  let output = []
+  if (top_tag === Character.TAG)
+    return output;
+
+  for (let key in this._data[top_tag]){
+    output.push(this._data[top_tag][key].getExportString());
+  }
+  return output;
+}
 // --------------------------------------------------------------------------------
-// SDUDocument.loadJson = async function(json){
-//   this._data = {};
-//   let temp = JSON.parse(json);
-//   for(let i in temp){
-//     if(i === "Index"){
-//       this._next_index = temp[i];
-//     }else if(i === Header.TAG){
-//       let header = window[i].prototype.getObject();
-//       header.loadJson(temp[i]);
-//       this._header = header;
-//     }else if(i === Page.TAG){
-//       this._data[i] = [];
-//       for(let j in temp[i]){
-//         let page = window[i].prototype.getObject();
-//         page.loadJson(temp[i][j]);
-//         this._data[i].push(page);
-//       }
-//     }else{
-//       this._data[i] = {};
-//       for(let j in temp[i]){
-//         let element = window[i].prototype.getObject();
-//         element.loadJson(temp[i][j]);
-//         this._data[i][temp[i][j]._id] = element;
-//       }
-//     }
-//   }
-//   await this.setCurrentPage(0);
-// }
-// SDUDocument.saveJson = function(){
-//   let temp = {
-//     Index: this._next_index,
-//     Header: this._header.saveJson()
-//   };
-//   for(let i in this._data){
-//     temp[i] = [];
-//     for(let j in this._data[i]){
-//       if(this._data[i][j].saveJson){
-//         temp[i].push(this._data[i][j].saveJson());
-//       }
-//     }
-//   }
-//   return JSON.stringify(temp);
-// }
-// SDUDocument.exportJson = function(){
-//   let temp = {
-//     Header: this._header.exportJson(),
-//     Document: this.getExportDocument()
-//   };
-//   for(let i in this._data){
-//     temp[i] = [];
-//     for(let j in this._data[i]){
-//       if(this._data[i][j].exportJson){
-//         temp[i].push(this._data[i][j].exportJson());
-//       }
-//     }
-//   }
-//   return JSON.stringify(temp);
-// }
+SDUDocument.loadJson = async function(json){
+  this._data = {};
+  let temp = JSON.parse(json);
+  for(let i in temp){
+    if(i === "Index"){
+      this._next_index = temp[i];
+    }else if(i === Header.TAG){
+      let header = window[i].prototype.getObject();
+      header.loadJson(temp[i]);
+      this._header = header;
+    }else if(i === Page.TAG){
+      this._data[i] = [];
+      for(let j in temp[i]){
+        let page = window[i].prototype.getObject();
+        page.loadJson(temp[i][j]);
+        this._data[i].push(page);
+      }
+    }else{
+      this._data[i] = {};
+      for(let j in temp[i]){
+        let element = window[i].prototype.getObject();
+        element.loadJson(temp[i][j]);
+        this._data[i][temp[i][j]._id] = element;
+      }
+    }
+  }
+  await this.setCurrentPage(0);
+}
+SDUDocument.saveJson = function(){
+  let temp = {
+    Index: this._next_index,
+    Header: this._header.saveJson()
+  };
+  for(let i in this._data){
+    temp[i] = [];
+    for(let j in this._data[i]){
+      if(this._data[i][j].saveJson){
+        temp[i].push(this._data[i][j].saveJson());
+      }
+    }
+  }
+  return JSON.stringify(temp);
+}
+SDUDocument.exportJson = function(){
+  let temp = {
+    Header: this._header.exportJson(),
+    Document: this.getExportDocument()
+  };
+  for(let i in this._data){
+    temp[i] = [];
+    for(let j in this._data[i]){
+      if(this._data[i][j].exportJson){
+        temp[i].push(this._data[i][j].exportJson());
+      }
+    }
+  }
+  return JSON.stringify(temp);
+}
 // ================================================================================

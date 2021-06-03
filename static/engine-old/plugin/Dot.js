@@ -18,12 +18,12 @@
 function Dot2D() {
   this.initialize.apply(this, arguments);
 }
-Dot2D.prototype = Object.create(Element.prototype);
+Dot2D.prototype = Object.create(Point.prototype);
 Dot2D.prototype.constructor = Dot2D;
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-Dot2D.TAG = 'Dot2D';
+Dot2D.TAG = "Dot2D";
 // --------------------------------------------------------------------------------
 // * Enum
 // --------------------------------------------------------------------------------
@@ -33,10 +33,15 @@ Dot2D.Type = {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+Dot2D.prototype._id = '';
+Dot2D.prototype._page = '';
 Dot2D.prototype._type = Dot2D.Type.FREE;
 // --------------------------------------------------------------------------------
-Dot2D.prototype._x = 0;
-Dot2D.prototype._y = 0;
+Dot2D.prototype._radius = 0;
+Dot2D.prototype._stroke_width = 0;
+Dot2D.prototype._color = '';
+Dot2D.prototype._collide_color = '';
+Dot2D.prototype._stroke_color = '';
 // --------------------------------------------------------------------------------
 Dot2D.prototype._father = '';
 Dot2D.prototype._position = 0;
@@ -46,9 +51,17 @@ Dot2D.prototype._father2 = '';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Dot2D.prototype.initialize = function(id, pages, type, arg1, arg2){
-  Element.prototype.initialize.call(this, id, pages);
+Dot2D.prototype.initialize = function(id, page, type, arg1, arg2){
+  Point.prototype.initialize.call(this, 0, 0);
 
+  this._radius = 5;
+  this._stroke_width = 2;
+  this._color = 'rgba(255, 255, 255, 1)';
+  this._collide_color = 'rgba(255, 0, 0, 1)';
+  this._stroke_color = 'rgba(0, 0, 255, 1)';
+
+  this._id = id;
+  this._page = page;
   this._type = type;
   switch (this._type) {
     case Dot2D.Type.FREE: default:
@@ -68,12 +81,6 @@ Dot2D.prototype.initialize = function(id, pages, type, arg1, arg2){
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Dot2D.prototype, 'type', {
-  get: function() {
-    return this._type;
-  },
-  configurable: true
-});
 Object.defineProperty(Dot2D.prototype, 'x', {
   get: function() {
     return this.getRealPoint()._x;
@@ -83,6 +90,24 @@ Object.defineProperty(Dot2D.prototype, 'x', {
 Object.defineProperty(Dot2D.prototype, 'y', {
   get: function() {
     return this.getRealPoint()._y;
+  },
+  configurable: true
+});
+Object.defineProperty(Dot2D.prototype, 'id', {
+  get: function() {
+    return this._id;
+  },
+  configurable: true
+});
+Object.defineProperty(Dot2D.prototype, 'page', {
+  get: function() {
+    return this._page;
+  },
+  configurable: true
+});
+Object.defineProperty(Dot2D.prototype, 'type', {
+  get: function() {
+    return this._type;
   },
   configurable: true
 });
@@ -111,6 +136,16 @@ Object.defineProperty(Dot2D.prototype, 'father2', {
   configurable: true
 });
 // --------------------------------------------------------------------------------
+Dot2D.prototype.setColor = function(color, collide_color, stroke_color){
+  this._color = color;
+  this._collide_color = collide_color;
+  this._stroke_color = stroke_color;
+};
+Dot2D.prototype.setSize = function(radius, stroke_width){
+  this._radius = radius;
+  this._stroke_width = stroke_width;
+};
+// --------------------------------------------------------------------------------
 Dot2D.prototype.move = function(point){
   switch (this._type){
     case Dot2D.Type.FREE:
@@ -122,6 +157,10 @@ Dot2D.prototype.move = function(point){
       this._position = Math.max(0, Math.min(1, dependent))
       break;
   }
+};
+// --------------------------------------------------------------------------------
+Dot2D.prototype.getObject = function(){
+  return new Dot2D("", Dot2D.Type.FREE, "", 0, 0);
 };
 // --------------------------------------------------------------------------------
 Dot2D.prototype.getRealPoint = function(){
@@ -136,13 +175,7 @@ Dot2D.prototype.getRealPoint = function(){
   }
 };
 // --------------------------------------------------------------------------------
-// * New Element
-// --------------------------------------------------------------------------------
-Dot2D.prototype.newElement = function(){
-  return new Dot2D('', [], Dot2D.Type.FREE, 0, 0);
-};
-// --------------------------------------------------------------------------------
-// * Collide
+// * Functions
 // --------------------------------------------------------------------------------
 Dot2D.prototype.checkCollide = function(point){
   let distance = Graphics.getRenderPoint(this).distance(point);
@@ -183,30 +216,47 @@ Dot2D.prototype.onDelete = function(){
 // --------------------------------------------------------------------------------
 // * Save & Export
 // --------------------------------------------------------------------------------
-Dot2D.prototype.loadJson = function(json_object){
-  Element.prototype.loadJson.call(this, json_object);
-  this._type = json_object._type || this._type;
-  this._x = json_object._x || this._x;
-  this._y = json_object._y || this._y;
-  this._father = json_object._father || this._father;
-  this._position = json_object._position || this._position;
-  this._father1 = json_object._father1 || this._father1;
-  this._father2 = json_object._father2 || this._father2;
+Dot2D.prototype.loadJson = function(json){
+  this._id = json._id;
+  this._page = json._page;
+  this._type = json._type;
+  this._x = json._x;
+  this._y = json._y;
+  this._father = json._father;
+  this._position = json._position;
+  this._father1 = json._father1;
+  this._father2 = json._father2;
 }
 Dot2D.prototype.saveJson = function(){
-  let output = Element.prototype.saveJson.call(this);
-  output._type = this._type;
-  output._x = this._x;
-  output._y = this._y;
-  output._father = this._father;
-  output._position = this._position;
-  output._father1 = this._father1;
-  output._father2 = this._father2;
-  return output;
+  return {
+    _id: this._id,
+    _page: this._page,
+    _type: this._type,
+    _x: this._x,
+    _y: this._y,
+    _father: this._father,
+    _position: this._position,
+    _father1: this._father1,
+    _father2: this._father2,
+  }
 }
-Dot2D.prototype.exportJson = function(){
-  return null;
+// ================================================================================
+
+// ================================================================================
+// * DotFactory
+// ================================================================================
+function DotFactory(){
+  throw new Error('This is a static class');
 }
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
+DotFactory.makeObject = function(page, type, arg1, arg2){
+  return new Dot2D(this.getNextIndex(), page, type, arg1, arg2);
+};
+DotFactory.getNextIndex = function(){
+  return DocumentManager.getNextIndex(Dot2D.TAG);
+};
 // ================================================================================
 
 // ================================================================================

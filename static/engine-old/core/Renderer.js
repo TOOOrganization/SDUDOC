@@ -1,77 +1,62 @@
 // ================================================================================
-// * Point <SDUDOC Engine>
+// * Renderer <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2020/03/17 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
 // ================================================================================
-// * Point
+// * Renderer
 // --------------------------------------------------------------------------------
-function Point(){
+function Renderer(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point.prototype._x = 0;
-Point.prototype._y = 0;
+Renderer.prototype._id = "";
+Renderer.prototype._z = 0;
+Renderer.prototype._owner = null;
+Renderer.prototype._render = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point.prototype.initialize = function(x, y){
-  this._x = x;
-  this._y = y;
+Renderer.prototype.initialize = function(id, z, owner, render){
+  this._id = id;
+  this._z = z;
+  this._owner = owner;
+  this._render = render;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Point.prototype, 'x', {
+Object.defineProperty(Renderer.prototype, 'id', {
   get: function() {
-    return this._x;
-  },
-  set: function(value) {
-    this._x = value;
+    return this._id;
   },
   configurable: true
 });
-Object.defineProperty(Point.prototype, 'y', {
+Object.defineProperty(Renderer.prototype, 'z', {
   get: function() {
-    return this._y;
-  },
-  set: function(value) {
-    this._y = value;
+    return this._z;
   },
   configurable: true
 });
-// --------------------------------------------------------------------------------
-Point.prototype.setPlace = function(x, y){
-  this._x = x;
-  this._y = y;
-};
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-Point.prototype.distance = function(point){
-  let distance2D = this.minus(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
-};
-// --------------------------------------------------------------------------------
-Point.prototype.add = function(point){
-  return new Point(this.x + point.x, this.y + point.y);
-};
-Point.prototype.minus = function(point){
-  return new Point(this.x - point.x, this.y - point.y);
-};
-Point.prototype.multiply = function(num){
-  return new Point(this.x * num, this.y * num);
-};
-Point.prototype.division = function(num){
-  return new Point(this.x / num, this.y / num);
-};
+Object.defineProperty(Renderer.prototype, 'owner', {
+  get: function() {
+    return this._owner;
+  },
+  configurable: true
+});
+Object.defineProperty(Renderer.prototype, 'render', {
+  get: function() {
+    return this._render;
+  },
+  configurable: true
+});
 // ================================================================================

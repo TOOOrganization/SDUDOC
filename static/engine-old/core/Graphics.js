@@ -19,63 +19,6 @@ function Graphics(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Graphics._canvas = null;
-Graphics._context = null;
-// --------------------------------------------------------------------------------
-// * Initialize
-// --------------------------------------------------------------------------------
-Graphics.updatePixiInfo = function(){
-  let editor = Engine._app_element.getRouterComponent();
-  this._canvas = editor.app.view;
-  this._context = editor.context;
-}
-// --------------------------------------------------------------------------------
-// * Graphics Function
-// --------------------------------------------------------------------------------
-Graphics.clear = function(){
-  this._context.clear();
-}
-Graphics.fillRect = function(x, y, width, height, color){
-  this._context.fillStyle = color;
-  this._context.fillRect(x, y, width, height);
-}
-Graphics.strokeRect = function(x, y, width, height, line_width, color){
-  this._context.strokeStyle = color;
-  this._context.lineWidth = line_width;
-  this._context.strokeRect(x, y, width, height);
-}
-Graphics.drawImage = function(x, y, width, height, image){
-  this._context.drawImage(image, x, y, width, height);
-}
-Graphics.update = function(){
-  if (!Engine.checkRouter('Editor')) return;
-}
-
-/*
-      rectangle.lineStyle(4, 0xFF3300, 1);
-      rectangle.beginFill(0x66CCFF);
-      rectangle.drawRect(0, 0, 64, 64);
-      rectangle.endFill();
-      rectangle.x = 170;
-      rectangle.y = 170;
- */
-
-/*
-
-  this._context.lineStyle(4, 0xFF3300, 1);
-  this._context.beginFill(0x66CCFF);
-  this._context.drawRect(0, 0, 64, 64);
-  this._context.endFill();
- */
-
-
-
-
-
-
-// --------------------------------------------------------------------------------
-// * Property
-// --------------------------------------------------------------------------------
 Graphics.PER_UNIT_LENGTH = 12.5;
 Graphics.GRID_LIMIT = 100;
 // --------------------------------------------------------------------------------

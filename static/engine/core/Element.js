@@ -1,77 +1,77 @@
 // ================================================================================
-// * Point <SDUDOC Engine>
+// * Element <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2020/06/03 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
 // ================================================================================
-// * Point
+// * Element
 // --------------------------------------------------------------------------------
-function Point(){
+function Element(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point.prototype._x = 0;
-Point.prototype._y = 0;
+Element.prototype._id = '';
+Element.prototype._pages = [];
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point.prototype.initialize = function(x, y){
-  this._x = x;
-  this._y = y;
+Element.prototype.initialize = function(id, pages){
+  this._id = id;
+  this._pages = pages;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Point.prototype, 'x', {
+Object.defineProperty(Element.prototype, 'id', {
   get: function() {
-    return this._x;
-  },
-  set: function(value) {
-    this._x = value;
+    return this._id;
   },
   configurable: true
 });
-Object.defineProperty(Point.prototype, 'y', {
+Object.defineProperty(Element.prototype, 'pages', {
   get: function() {
-    return this._y;
-  },
-  set: function(value) {
-    this._y = value;
+    return this._pages;
   },
   configurable: true
 });
 // --------------------------------------------------------------------------------
-Point.prototype.setPlace = function(x, y){
-  this._x = x;
-  this._y = y;
+// * New Element
+// --------------------------------------------------------------------------------
+Element.prototype.newElement = function(){
+  return new Element('', []);
 };
 // --------------------------------------------------------------------------------
-// * Functions
+// * Collide
 // --------------------------------------------------------------------------------
-Point.prototype.distance = function(point){
-  let distance2D = this.minus(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
+Element.prototype.checkCollide = function(point){
+  return false;
 };
 // --------------------------------------------------------------------------------
-Point.prototype.add = function(point){
-  return new Point(this.x + point.x, this.y + point.y);
-};
-Point.prototype.minus = function(point){
-  return new Point(this.x - point.x, this.y - point.y);
-};
-Point.prototype.multiply = function(num){
-  return new Point(this.x * num, this.y * num);
-};
-Point.prototype.division = function(num){
-  return new Point(this.x / num, this.y / num);
-};
+// * Save & Export
+// --------------------------------------------------------------------------------
+Element.prototype.loadJson = function(json_object){
+  this._id = json_object._id || this._id;
+  this._pages = json_object._pages || this._pages;
+}
+Element.prototype.saveJson = function(){
+  let output = {};
+  output._id = this._id;
+  output._pages = this._pages;
+  return output;
+}
+Element.prototype.exportJson = function(){
+  let output = {};
+  output._id = this._id;
+  output._pages = this._pages;
+  return output;
+}
 // ================================================================================

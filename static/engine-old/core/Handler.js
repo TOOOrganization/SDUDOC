@@ -1,5 +1,5 @@
 // ================================================================================
-// * Point <SDUDOC Engine>
+// * Handler <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -11,67 +11,66 @@
 // ================================================================================
 
 // ================================================================================
-// * Point
+// * Handler
 // --------------------------------------------------------------------------------
-function Point(){
+function Handler(){
   this.initialize.apply(this, arguments);
 }
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Point.prototype._x = 0;
-Point.prototype._y = 0;
+Handler.prototype._id = 0;
+Handler.prototype._type = 0;
+Handler.prototype._overall = false;
+Handler.prototype._owner = null;
+Handler.prototype._callback = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Point.prototype.initialize = function(x, y){
-  this._x = x;
-  this._y = y;
+Handler.prototype.initialize = function(id, type, overall, owner, callback){
+  this._id = id;
+  this._type = type;
+  this._overall = overall;
+  this._owner = owner;
+  this._callback = callback;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Point.prototype, 'x', {
+Object.defineProperty(Handler.prototype, 'id', {
   get: function() {
-    return this._x;
-  },
-  set: function(value) {
-    this._x = value;
+    return this._id;
   },
   configurable: true
 });
-Object.defineProperty(Point.prototype, 'y', {
+Object.defineProperty(Handler.prototype, 'type', {
   get: function() {
-    return this._y;
-  },
-  set: function(value) {
-    this._y = value;
+    return this._type;
   },
   configurable: true
 });
-// --------------------------------------------------------------------------------
-Point.prototype.setPlace = function(x, y){
-  this._x = x;
-  this._y = y;
-};
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-Point.prototype.distance = function(point){
-  let distance2D = this.minus(point);
-  return Math.sqrt(Math.pow(distance2D.x, 2) + Math.pow(distance2D.y, 2));
-};
-// --------------------------------------------------------------------------------
-Point.prototype.add = function(point){
-  return new Point(this.x + point.x, this.y + point.y);
-};
-Point.prototype.minus = function(point){
-  return new Point(this.x - point.x, this.y - point.y);
-};
-Point.prototype.multiply = function(num){
-  return new Point(this.x * num, this.y * num);
-};
-Point.prototype.division = function(num){
-  return new Point(this.x / num, this.y / num);
-};
+Object.defineProperty(Handler.prototype, 'overall', {
+  get: function() {
+    return this._overall;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'key_code', {
+  get: function() {
+    return this._overall;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'owner', {
+  get: function() {
+    return this._owner;
+  },
+  configurable: true
+});
+Object.defineProperty(Handler.prototype, 'callback', {
+  get: function() {
+    return this._callback;
+  },
+  configurable: true
+});
 // ================================================================================
