@@ -33,7 +33,7 @@ RenderManager.clear = function() {
 };
 RenderManager._setupZList = function() {
   let temp = [];
-  for(let i in this._renderers){
+  for(let i = 0; i < this._renderers.length; i++){
     temp.push({id: this._renderers[i].id, z: this._renderers[i].z});
   }
   let min_id = 0;
@@ -56,18 +56,15 @@ RenderManager.addRenderer = function(renderer){
 RenderManager.removeRenderer = function(id){
   this._renderers.remove(id);
 };
+// --------------------------------------------------------------------------------
+RenderManager.canToolManagerCurrentPluginCall = function(id){
+  return id.startsWith('_') || id.startsWith(ToolManager.getCurrentPlugin().id)
+    || (id.startsWith('!') && !id.startsWith('!' + ToolManager.getCurrentPlugin().id))
+}
 RenderManager.callRenderer = function(ctx){
   for(let i = 0; i < this._z_list.length; i++){
-    if(this._renderers[this._z_list[i]].id.startsWith("!" + ToolManager.getCurrentPlugin().id)) {
-      continue;
-    }else if(this._renderers[this._z_list[i]].id.startsWith("!")){
-      this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]].owner, ctx);
-      continue;
-    }
-    if(this._renderers[this._z_list[i]].id.startsWith("_") ||
-      this._renderers[this._z_list[i]].id.startsWith(ToolManager.getCurrentPlugin().id)){
-      this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]].owner, ctx);
-      continue;
+    if(this.canToolManagerCurrentPluginCall(this._renderers[this._z_list[i]].id)){
+      this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]], ctx);
     }
   }
 }

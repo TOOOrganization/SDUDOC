@@ -39,6 +39,9 @@ MouseInput.initialize = function() {
   this.clear();
   this._setupEventHandlers();
 };
+MouseInput.initializeEditor = function(editor) {
+  this._setupTargetHandlers(editor.pixi_app.view);
+};
 MouseInput.clear = function() {
   this._over_target = false;
   this._over_overall = false;
@@ -57,7 +60,7 @@ MouseInput._setupEventHandlers = function(){
   document.addEventListener('mouseout', (event) => {this._onMouseOut.call(this, event, true)});
   document.addEventListener('wheel', (event) => {this._onWheel.call(this, event, true)});
 };
-MouseInput.setupTargetHandlers = function(target){
+MouseInput._setupTargetHandlers = function(target){
   target.addEventListener('click', (event) => {this._onClick.call(this, event, false)});
   target.addEventListener('dblclick', (event) => {this._onDoubleClick.call(this, event, false)});
   target.addEventListener('mousedown', (event) => {this._onMouseDown.call(this, event, false)});
@@ -191,9 +194,9 @@ MouseInput.removeHandler = function(id){
   this._handlers.remove(id);
 };
 MouseInput.callHandler = function(event, type, overall){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === type && overall === this._handlers[i].overall){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
+  for(let key in this._handlers){
+    if(this._handlers[key].type === type && overall === this._handlers[key].overall){
+      this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
 }

@@ -1,5 +1,5 @@
 // ================================================================================
-// * LanguageModule <SDUDOC Engine>
+// * Language <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -11,96 +11,101 @@
 // ================================================================================
 
 // ================================================================================
-// * LanguageModule
+// * Language
 // --------------------------------------------------------------------------------
-function LanguageModule() {
+function Language() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
 // * Enum
 // --------------------------------------------------------------------------------
-LanguageModule.Type = {
+Language.Type = {
   ToolTip: 'tooltip',
   Todo: 'todo',
-  System: 'system'
+  System: 'system',
+  Text: 'text'
 };
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-LanguageModule.DEFAULT_LANGUAGES = [
+Language.DEFAULT_LANGUAGES = [
   { id: 'zh-cn', name: '简体中文(中国)' },
   { id: 'zh-tw', name: '繁體中文(中國-臺灣)'},
   { id: 'en-us', name: 'English(United States)'}
 ];
-LanguageModule.DEFAULT_LANGUAGE = 'zh-cn';
-LanguageModule.DEFAULT_DICTIONARY = [
+Language.DEFAULT_LANGUAGE = 'zh-cn';
+Language.DEFAULT_DICTIONARY = [
   {
-    type: LanguageModule.Type.System, id: 'app-language-selector', dictionary:[
+    type: Language.Type.System, id: 'app-language-selector', dictionary:[
       { id: 'zh-cn', text: ['选择语言'] },
       { id: 'zh-tw', text: ['選擇語言'] },
       { id: 'en-us', text: ['Language'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'app-alert-title', dictionary:[
+    type: Language.Type.System, id: 'app-alert-title', dictionary:[
       { id: 'zh-cn', text: ['提示'] },
       { id: 'zh-tw', text: ['提示'] },
       { id: 'en-us', text: ['Alert'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'app-pop-confirm', dictionary:[
+    type: Language.Type.System, id: 'app-pop-confirm', dictionary:[
       { id: 'zh-cn', text: ['确认'] },
       { id: 'zh-tw', text: ['確定'] },
       { id: 'en-us', text: ['Confirm'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'app-pop-cancel', dictionary:[
+    type: Language.Type.System, id: 'app-pop-cancel', dictionary:[
       { id: 'zh-cn', text: ['取消'] },
       { id: 'zh-tw', text: ['取消'] },
       { id: 'en-us', text: ['Cancel'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-label', dictionary:[
+    type: Language.Type.System, id: 'loading-label', dictionary:[
       { id: 'zh-cn', text: ['正在加载引擎 休息一下吧'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-engine', dictionary:[
+    type: Language.Type.System, id: 'loading-engine', dictionary:[
       { id: 'zh-cn', text: ['正在加载引擎'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-core', dictionary:[
-      { id: 'zh-cn', text: ['正在加载核心模组'] }
+    type: Language.Type.System, id: 'loading-core', dictionary:[
+      { id: 'zh-cn', text: ['正在加载核心组件'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-manager', dictionary:[
-      { id: 'zh-cn', text: ['正在加载文档模组'] }
+    type: Language.Type.System, id: 'loading-object', dictionary:[
+      { id: 'zh-cn', text: ['正在加载数据对象'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-tool', dictionary:[
+    type: Language.Type.System, id: 'loading-manager', dictionary:[
+      { id: 'zh-cn', text: ['正在加载管理器'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'loading-tool', dictionary:[
       { id: 'zh-cn', text: ['正在加载系统工具'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-plugin', dictionary:[
+    type: Language.Type.System, id: 'loading-plugin', dictionary:[
       { id: 'zh-cn', text: ['正在加载插件'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'loading-complete', dictionary:[
+    type: Language.Type.System, id: 'loading-complete', dictionary:[
       { id: 'zh-cn', text: ['加载完成'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'index-main', dictionary:[
+    type: Language.Type.System, id: 'index-main', dictionary:[
       { id: 'zh-cn', text: ['欢迎使用，您要做些什么？'] },
       { id: 'en-us', text: ['Welcome! Just Enjoy.'] }
     ]
   }, {
-    type: LanguageModule.Type.System, id: 'index-sub', dictionary:[
+    type: Language.Type.System, id: 'index-sub', dictionary:[
       { id: 'zh-cn', text: ['我们列出了一些常用功能，希望对您有所帮助：'] }
     ]
   }, {
-    type: LanguageModule.Type.Todo, id: 'default', dictionary:[
+    type: Language.Type.Todo, id: 'default', dictionary:[
       { id: 'zh-cn', text: ['请等待'] },
     ]
   }, {
-    type: LanguageModule.Type.Todo, id: 'loading', dictionary:[
+    type: Language.Type.Todo, id: 'loading', dictionary:[
       { id: 'zh-cn', text: ['请等待引擎加载完成...'] },
       { id: 'zh-tw', text: ['請等待引擎加載完成...'] },
       { id: 'en-us', text: ['Loading for Engine...'] }
@@ -110,40 +115,43 @@ LanguageModule.DEFAULT_DICTIONARY = [
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-LanguageModule._add_languages = [];
-LanguageModule._add_dictionary = [];
+Language._add_languages = [];
+Language._add_dictionary = [];
 // --------------------------------------------------------------------------------
-LanguageModule._languages = [];
-LanguageModule._dictionary = {};
-LanguageModule._current_language = 'zh-cn';
-LanguageModule._current_todo = null;
+Language._languages = [];
+Language._dictionary = {};
+Language._current_language = 'zh-cn';
+Language._current_todo = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-LanguageModule.initialize = function (){
+Language.initializeOnLoad = function (){
   this.clear();
   this.loadDefault();
 };
-LanguageModule.clear = function (){
+Language.initialize = function (){
+  this.loadAdded();
+};
+Language.clear = function (){
   this._languages = [];
   this._dictionary = {};
   this._current_language = this.DEFAULT_LANGUAGE;
 };
 // --------------------------------------------------------------------------------
-LanguageModule.loadDefault = function (){
+Language.loadDefault = function (){
   this.loadDefaultLanguages();
   this.loadDefaultDictionary();
 };
-LanguageModule.loadAdded = function (){
+Language.loadAdded = function (){
   this.loadAddedLanguages();
   this.loadAddedDictionary();
 };
 // --------------------------------------------------------------------------------
-LanguageModule.loadDefaultLanguages = function (){
+Language.loadDefaultLanguages = function (){
   for(let i = 0; i < this.DEFAULT_LANGUAGES.length; i++)
     this._languages.push(this.DEFAULT_LANGUAGES[i]);
 };
-LanguageModule.loadDefaultDictionary = function (){
+Language.loadDefaultDictionary = function (){
   for (let key in this.Type)
     if (this.Type.hasOwnProperty(key))
       this._dictionary[this.Type[key]] = {};
@@ -151,16 +159,16 @@ LanguageModule.loadDefaultDictionary = function (){
     this.appendDictionary(this.DEFAULT_DICTIONARY[i]);
 };
 // --------------------------------------------------------------------------------
-LanguageModule.loadAddedLanguages = function (){
+Language.loadAddedLanguages = function (){
   for(let i = 0; i < this._add_languages.length; i++)
     this._languages.push(this._add_languages[i]);
 };
-LanguageModule.loadAddedDictionary = function (){
+Language.loadAddedDictionary = function (){
   for(let i = 0; i < this._add_dictionary.length; i++)
     this.appendDictionary(this._add_dictionary[i]);
 };
 // --------------------------------------------------------------------------------
-LanguageModule.appendDictionary = function (json){
+Language.appendDictionary = function (json){
   if(this._dictionary.hasOwnProperty(json.type)){
     if(!this._dictionary[json.type].hasOwnProperty(json.id)){
       this._dictionary[json.type][json.id] = {}
@@ -175,45 +183,45 @@ LanguageModule.appendDictionary = function (json){
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(LanguageModule, 'current_language', {
+Object.defineProperty(Language, 'current_language', {
   get: function() {
     return this.getCurrentLanguage();
   },
   configurable: true
 });
-Object.defineProperty(LanguageModule, 'current_todo', {
+Object.defineProperty(Language, 'current_todo', {
   get: function() {
     return this.getCurrentTodo();
   },
   configurable: true
 });
-Object.defineProperty(LanguageModule, 'language_list', {
+Object.defineProperty(Language, 'language_list', {
   get: function() {
     return this.getLanguageList();
   },
   configurable: true
 });
 // --------------------------------------------------------------------------------
-LanguageModule.getCurrentLanguage = function (){
+Language.getCurrentLanguage = function (){
   return this._current_language;
 };
-LanguageModule.getCurrentTodo = function (){
+Language.getCurrentTodo = function (){
   return this._current_todo;
 };
 // --------------------------------------------------------------------------------
-LanguageModule.setCurrentLanguage = function (id){
+Language.setCurrentLanguage = function (id){
   let list = this.getLanguageList().id;
   if (list.indexOf(id) >= 0)
     this._current_language = id;
 };
 // --------------------------------------------------------------------------------
-LanguageModule.setCurrentTodo = function (id){
+Language.setCurrentTodo = function (id){
   this._current_todo = this.get(this.Type.Todo, id);
 };
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-LanguageModule.addLanguage = function (id, name){
+Language.addLanguage = function (id, name){
   if (name){
     this._add_languages.push({
       id: id, name: name
@@ -222,11 +230,11 @@ LanguageModule.addLanguage = function (id, name){
     this._add_languages.push(id);
   }
 };
-LanguageModule.addDictionary = function (json){
+Language.addDictionary = function (json){
   this._add_dictionary.push(json);
 };
 // --------------------------------------------------------------------------------
-LanguageModule.getLanguageList = function (){
+Language.getLanguageList = function (){
   let output = {
     id: [],
     name: []
@@ -238,7 +246,7 @@ LanguageModule.getLanguageList = function (){
   return output;
 };
 // --------------------------------------------------------------------------------
-LanguageModule.get = function (type, id){
+Language.get = function (type, id){
   if(this._dictionary.hasOwnProperty(type)) {
     if (this._dictionary[type].hasOwnProperty(id)) {
       if (this._dictionary[type][id].hasOwnProperty(this._current_language)) {

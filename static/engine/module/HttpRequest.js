@@ -1,5 +1,5 @@
 // ================================================================================
-// * HttpRequestModule <SDUDOC Engine>
+// * HttpRequest <SDUDOC Engine>
 // --------------------------------------------------------------------------------
 //   Designer: Lagomoro <Yongrui Wang>
 //   From: SDU <Shandong University>
@@ -11,23 +11,26 @@
 // ================================================================================
 
 // ================================================================================
-// * HttpRequestModule
+// * HttpRequest
 // --------------------------------------------------------------------------------
-function HttpRequestModule() {
+function HttpRequest() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-HttpRequestModule.BASE_URL = 'http://211.87.232.197:8081/sdudoc/';
+HttpRequest.BASE_URL = 'http://211.87.232.197:8081/sdudoc/';
+// --------------------------------------------------------------------------------
+HttpRequest.OFFLINE_TEST = true;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-HttpRequestModule.uploadWebPage = function(src, filename){
+HttpRequest.uploadWebPage = function(src, filename){
   return new Promise((resolve) => {
+    if(HttpRequest.OFFLINE_TEST) resolve(src);
     Engine.getPackages().axios({
       method: 'post',
-      url: HttpRequestModule.BASE_URL + 'img/save_by_base64',
+      url: HttpRequest.BASE_URL + 'img/save_by_base64',
       data: {
         base64 : src,
         filename: filename
@@ -35,7 +38,7 @@ HttpRequestModule.uploadWebPage = function(src, filename){
       headers: {'content-type': "application/json"},
       responseType: 'json'
     }).then(response => {
-      let src_link = HttpRequestModule.BASE_URL + 'img/get_by_id?id=' + response.data;
+      let src_link = HttpRequest.BASE_URL + 'img/get_by_id?id=' + response.data;
       resolve(src_link);
     }).catch(error => {
       console.log(error);
@@ -44,11 +47,11 @@ HttpRequestModule.uploadWebPage = function(src, filename){
   });
 };
 // --------------------------------------------------------------------------------
-HttpRequestModule.upLoadDocument = function(json){
+HttpRequest.upLoadDocument = function(json){
   return new Promise((resolve) => {
     Engine.getPackages().axios({
       method: 'post',
-      url: HttpRequestModule.BASE_URL + 'doc/insert_sdudoc',
+      url: HttpRequest.BASE_URL + 'doc/insert_sdudoc',
       data: json,
       headers: {
         'content-type': 'application/json',
@@ -64,11 +67,11 @@ HttpRequestModule.upLoadDocument = function(json){
   });
 };
 // --------------------------------------------------------------------------------
-HttpRequestModule.loadCloudDocument = async function(token, index){
+HttpRequest.loadCloudDocument = async function(token, index){
   await new Promise((resolve) => {
     Engine.getPackages().axios({
       method: 'post',
-      url: HttpRequestModule.BASE_URL + 'img/save_by_base64',
+      url: HttpRequest.BASE_URL + 'img/save_by_base64',
       data: {
         token: token,
         index: index
@@ -83,11 +86,11 @@ HttpRequestModule.loadCloudDocument = async function(token, index){
     });
   });
 };
-HttpRequestModule.saveCloudDocument = async function(token, index, filename, src){
+HttpRequest.saveCloudDocument = async function(token, index, filename, src){
   await new Promise((resolve) => {
     Engine.getPackages().axios({
       method: 'post',
-      url: HttpRequestModule.BASE_URL + 'img/save_by_base64',
+      url: HttpRequest.BASE_URL + 'img/save_by_base64',
       data: {
         token: token,
         index: index,

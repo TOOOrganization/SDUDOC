@@ -177,7 +177,7 @@ SentenceFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("sentence", "句子工具", "mdi-text", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("sentence", "句子工具", "mdi-text", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_SENTENCE);
 }));

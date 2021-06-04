@@ -17,6 +17,10 @@ function HistoryManager() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+HistoryManager.MAX_HISTORY_SIZE = 100;
+// --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
 HistoryManager._left_queue = [];
@@ -29,6 +33,9 @@ HistoryManager.clear = function(){
 // --------------------------------------------------------------------------------
 HistoryManager.push = function(history){
   this._left_queue.push(history);
+  if(this._left_queue.length >= this.MAX_HISTORY_SIZE){
+    this._left_queue.shift();
+  }
   this._right_queue = [];
 }
 // --------------------------------------------------------------------------------

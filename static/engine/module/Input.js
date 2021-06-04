@@ -258,10 +258,10 @@ Input.removeHandler = function(id){
   this._handlers.remove(id);
 };
 Input.callHandler = function(event, type, buttonName){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === type &&
-      (this._handlers[i].key_code === 'all' || this._handlers[i].key_code === buttonName)){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
+  for(let key in this._handlers){
+    if(this._handlers[key].type === type &&
+      (this._handlers[key].key_code === 'all' || this._handlers[key].key_code === buttonName)){
+      this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
 }

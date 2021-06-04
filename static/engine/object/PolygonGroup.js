@@ -18,40 +18,25 @@
 function PolygonGroup() {
   this.initialize.apply(this, arguments);
 }
+PolygonGroup.prototype = Object.create(Element.prototype);
+PolygonGroup.prototype.constructor = PolygonGroup;
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype._id = '';
-PolygonGroup.prototype._pages = '';
-// --------------------------------------------------------------------------------
-PolygonGroup.prototype._children = [];
 PolygonGroup.prototype._father = '';
+PolygonGroup.prototype._children = [];
 PolygonGroup.prototype._points = {};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype.initialize = function(){
-  this._id = '';
-  this._pages = []
+PolygonGroup.prototype.initialize = function(id, pages){
+  Element.prototype.initialize.call(this, id, pages);
   this._children = [];
   this._father = '';
   this._points = {};
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
-// --------------------------------------------------------------------------------
-Object.defineProperty(PolygonGroup.prototype, 'id', {
-  get: function() {
-    return this._id;
-  },
-  configurable: true
-});
-Object.defineProperty(PolygonGroup.prototype, 'pages', {
-  get: function() {
-    return this._pages;
-  },
-  configurable: true
-});
 // --------------------------------------------------------------------------------
 Object.defineProperty(PolygonGroup.prototype, 'children', {
   get: function() {
@@ -118,9 +103,8 @@ PolygonGroup.prototype.calcPages = function(){
 PolygonGroup.prototype.callFatherCalcPages = function(){
 
 };
-
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype.isLine = function(dot1, dot2, points){
+PolygonGroup.prototype.isLineInPolygon = function(dot1, dot2, points){
   let a = points.indexOf(dot1);
   let b = points.indexOf(dot2);
   if(a < 0 || b < 0) return false;
@@ -135,7 +119,7 @@ PolygonGroup.prototype.hasCommonLine = function(points_1, points_2){
     }else{
       a = i; b = i + 1;
     }
-    if(this.isLine(points_1[a], points_1[b], points_2)){
+    if(this.isLineInPolygon(points_1[a], points_1[b], points_2)){
       return true;
     }
   }
@@ -248,7 +232,7 @@ PolygonGroup.prototype.mergePoints = function(points){
   return points_group;
 };
 PolygonGroup.prototype.getMergePoints = function(){
-
+  return [];
 };
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.mergePages = function(pages){
@@ -263,8 +247,10 @@ PolygonGroup.prototype.mergePages = function(pages){
   return page_list;
 };
 PolygonGroup.prototype.getMergePages = function(){
-
+  return [];
 };
+// --------------------------------------------------------------------------------
+// * Save & Export
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.getExportPoints = function(){
   let temp = {}
@@ -294,86 +280,32 @@ PolygonGroup.prototype.getExportPoints = function(){
   return output;
 };
 PolygonGroup.prototype.getExportString = function(){
-
+  return '';
 };
 PolygonGroup.prototype.getExportStringArray = function(){
-
+  return [];
 };
 // --------------------------------------------------------------------------------
-PolygonGroup.prototype.fillCanvas = function(ctx, color){
-  PolygonGroup.prototype.fill.call(this, ctx, color, new Polygon(this._points));
-};
-PolygonGroup.prototype.strokeCanvas = function(ctx, lineWidth, color) {
-  PolygonGroup.prototype.stroke.call(this, ctx, lineWidth, color, new Polygon(this._points));
+PolygonGroup.prototype.loadJson = function(json_object){
+  Element.prototype.loadJson.call(this, json_object);
+  this._children = json_object._children === undefined ? this._children : json_object._children;
+  this._father   = json_object._father   === undefined ? this._father   : json_object._father;
+  this._points   = json_object._points   === undefined ? this._points   : json_object._points;
 }
-PolygonGroup.prototype.fillSelf = function(ctx, color){
-  for(let i = 0; i < this._points.length; i++){
-    this.fill(ctx, color, new Polygon(this._points[i]));
-  }
-};
-PolygonGroup.prototype.strokeSelf = function(ctx, lineWidth, color) {
-  for(let i = 0; i < this._points.length; i++){
-    this.stroke(ctx, lineWidth, color, new Polygon(this._points[i]));
-  }
-};
-PolygonGroup.prototype.fill = function(ctx, color, polygon){
-  let points = polygon.points;
-
-  ctx.save();
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for(let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-};
-PolygonGroup.prototype.stroke = function(ctx, lineWidth, color, polygon){
-  let points = polygon.points;
-  let temp_ctx = Graphics.temp_ctx;
-
-  Graphics.clearTempCanvas();
-
-  temp_ctx.save();
-  temp_ctx.strokeStyle = color;
-  temp_ctx.lineWidth = lineWidth;
-  temp_ctx.beginPath();
-  temp_ctx.moveTo(points[0].x, points[0].y);
-  for(let i = 1; i < points.length; i++) {
-    temp_ctx.lineTo(points[i].x, points[i].y);
-  }
-  temp_ctx.closePath();
-  temp_ctx.stroke();
-
-  temp_ctx.globalCompositeOperation="destination-in";
-
-  temp_ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-  temp_ctx.fill();
-
-  temp_ctx.globalCompositeOperation="source-over";
-  temp_ctx.restore();
-
-  ctx.save();
-  ctx.drawImage(Graphics.temp_canvas, 0, 0);
-  ctx.restore();
-
-  Graphics.clearTempCanvas();
-};
-PolygonGroup.prototype.stroke = function(ctx, lineWidth, color, polygon){
-  let points = polygon.points;
-
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for(let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  ctx.closePath();
-  ctx.stroke();
-  ctx.restore();
-};
+PolygonGroup.prototype.saveJson = function(){
+  let output = Element.prototype.saveJson.call(this);
+  output._children = this._children;
+  output._father   = this._father;
+  output._points   = this._points;
+  return output;
+}
+PolygonGroup.prototype.exportJson = function(){
+  let output = Element.prototype.exportJson.call(this);
+  output.children     = this._children;
+  output.father       = this._father;
+  output.points       = this.getExportPoints();
+  output.string       = this.getExportString();
+  output.string_array = this.getExportStringArray();
+  return output;
+}
 // ================================================================================

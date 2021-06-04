@@ -21,6 +21,7 @@ function ToolManager() {
 // --------------------------------------------------------------------------------
 ToolManager._tools = [];
 ToolManager._handlers = {};
+ToolManager._options = {};
 ToolManager._current_plugin = null;
 // --------------------------------------------------------------------------------
 // * Initialize
@@ -107,19 +108,23 @@ ToolManager._processHandler = function(event, type){
     case 'key_up':this.callKeyHandler(event, type);break;
   }
 }
+// --------------------------------------------------------------------------------
+ToolManager.canCurrentPluginCall = function(id){
+  return id.startsWith('_') || id.startsWith(this.getCurrentPlugin().id)
+    || (id.startsWith('!') && !id.startsWith('!' + this.getCurrentPlugin().id))
+}
 ToolManager.callMouseHandler = function(event, type){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === type &&
-      (this._handlers[i].id.startsWith('_') || this._handlers[i].id.startsWith(this.getCurrentPlugin().id))){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
+  for(let key in this._handlers){
+    if(this._handlers[key].type === type && this.canCurrentPluginCall(this._handlers[key].id)){
+      this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
 }
 ToolManager.callKeyHandler = function(event, type){
-  for(let i in this._handlers){
-    if(this._handlers[i].type === type && this._handlers[i].key_code === Input.getKeyCode(event.keyCode)
-      && (this._handlers[i].id.startsWith('_') || this._handlers[i].id.startsWith(this.getCurrentPlugin().id))){
-      this._handlers[i].callback.call(this._handlers[i].owner, event);
+  for(let key in this._handlers){
+    if(this._handlers[key].type === type && this._handlers[key].key_code === Input.getKeyCode(event.keyCode)
+      && this.canCurrentPluginCall(this._handlers[key].id)){
+      this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
 }
@@ -134,53 +139,97 @@ ToolManager.removeHandler = function(id){
   this._handlers.remove(id);
 };
 // --------------------------------------------------------------------------------
-ToolManager.getAllToolList = function(params){
-  let data = {};
-  for(let key in params){
-    data[key] = this.getToolList(params[key]);
+ToolManager.getAllToolList = function(){
+  let output = {};
+  for(let i = 0; i < this._tools.length; i++){
+    let slot = this._tools[i].slot;
+    output[slot] = output[slot] || [];
+    output[slot].push({
+      id: this._tools[i].id,
+      tooltip: this._tools[i].tooltip,
+      icon: this._tools[i].icon,
+      on_click: this._tools[i].on_click,
+      on_hover: this._tools[i].on_hover,
+      on_leave: this._tools[i].on_leave
+    });
   }
-  return data;
+  return output;
 }
-ToolManager.getToolList = function(type){
-  let data = [];
-  for(let i in this._tools){
-    if(this._tools[i].type === type){
-      let callback_function = this._tools[i].callback;
-      data.push({
+ToolManager.getToolList = function(slot){
+  let output = [];
+  for(let i = 0; i < this._tools.length; i++){
+    if(this._tools[i].slot === slot){
+      output.push({
         id: this._tools[i].id,
         tooltip: this._tools[i].tooltip,
         icon: this._tools[i].icon,
-        description: this._tools[i].description,
-        callback: function(id){
-          callback_function(id);
-          Engine.clearFactory();
-        }
-      })
+        on_click: this._tools[i].on_click,
+        on_hover: this._tools[i].on_hover,
+        on_leave: this._tools[i].on_leave
+      });
     }
   }
-  return data;
+  return output;
 }
+// --------------------------------------------------------------------------------
+// * Plugin
+// --------------------------------------------------------------------------------
 ToolManager.getInitialPlugin = function(){
-  let list = this.getToolList(Tool.Type.PLUGIN);
+  let list = this.getToolList(Tool.Slot.PLUGIN);
   if(list.length === 0) return {id: null};
   return list[0];
 }
 ToolManager.getCurrentPlugin = function(){
-  let list = this.getToolList(Tool.Type.PLUGIN);
-  for(let i in list){
+  let list = this.getToolList(Tool.Slot.PLUGIN);
+  for(let i = 0; i < list.length; i++){
     if(list[i].id === this._current_plugin){
       return list[i];
     }
   }
+  return {id: null};
 }
 ToolManager.setCurrentPlugin = function(id){
-  let list = this.getToolList(Tool.Type.PLUGIN);
-  for(let i in list){
+  let list = this.getToolList(Tool.Slot.PLUGIN);
+  for(let i = 0; i < list.length; i++){
     if(list[i].id === id){
       this._current_plugin = list[i].id;
-      Engine.owner.current_plugin = i;
     }
   }
-  Graphics.refresh();
 }
+// --------------------------------------------------------------------------------
+// * Plugin Option
+// --------------------------------------------------------------------------------
+ToolManager.addOption = function(tool_id, id, type, default_value, min, max){
+  this._options[tool_id] = this._options[tool_id] || {};
+  this._options[tool_id][id] = {
+    type: type,
+    default_value: default_value,
+    value: default_value,
+    min: min || null,
+    max: max || null
+  };
+};
+ToolManager.haveOption = function(tool_id, id){
+  return id && this._options[tool_id] && this._options[tool_id] && this._options[tool_id][id];
+};
+ToolManager.setValue = function(tool_id, id, value){
+  if (!this.haveOption()) return;
+  this._options[tool_id][id].value = value;
+};
+ToolManager.getValue = function(tool_id, id){
+  if (!this.haveOption()) return null;
+  return this._options[tool_id][id].value;
+};
+// --------------------------------------------------------------------------------
+ToolManager.resetValue = function(tool_id, id){
+  if (!this.haveOption()) return;
+  this._options[tool_id][id].value = this._options[tool_id][id].default_value;
+};
+ToolManager.resetAllOption = function(){
+  for(let tool_id in this._options){
+    for(let id in this._options[tool_id]){
+      this._options[tool_id][id].value = this._options[tool_id][id].default_value;
+    }
+  }
+};
 // ================================================================================

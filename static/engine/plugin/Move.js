@@ -36,7 +36,7 @@ MoveFactory.clearTarget = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("move", "移动工具", "mdi-arrow-all", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("move", "移动工具", "mdi-arrow-all", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_MOVE);
 }));

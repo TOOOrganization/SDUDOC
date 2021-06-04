@@ -185,23 +185,23 @@ Dot2D.prototype.onDelete = function(){
 // --------------------------------------------------------------------------------
 Dot2D.prototype.loadJson = function(json_object){
   Element.prototype.loadJson.call(this, json_object);
-  this._type = json_object._type || this._type;
-  this._x = json_object._x || this._x;
-  this._y = json_object._y || this._y;
-  this._father = json_object._father || this._father;
-  this._position = json_object._position || this._position;
-  this._father1 = json_object._father1 || this._father1;
-  this._father2 = json_object._father2 || this._father2;
+  this._type     = json_object._type     === undefined ? this._type     : json_object._type;
+  this._x        = json_object._x        === undefined ? this._x        : json_object._x;
+  this._y        = json_object._y        === undefined ? this._y        : json_object._y;
+  this._father   = json_object._father   === undefined ? this._father   : json_object._father;
+  this._position = json_object._position === undefined ? this._position : json_object._position;
+  this._father1  = json_object._father1  === undefined ? this._father1  : json_object._father1;
+  this._father2  = json_object._father2  === undefined ? this._father2  : json_object._father2;
 }
 Dot2D.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
-  output._type = this._type;
-  output._x = this._x;
-  output._y = this._y;
-  output._father = this._father;
+  output._type     = this._type;
+  output._x        = this._x;
+  output._y        = this._y;
+  output._father   = this._father;
   output._position = this._position;
-  output._father1 = this._father1;
-  output._father2 = this._father2;
+  output._father1  = this._father1;
+  output._father2  = this._father2;
   return output;
 }
 Dot2D.prototype.exportJson = function(){
@@ -210,11 +210,23 @@ Dot2D.prototype.exportJson = function(){
 // ================================================================================
 
 // ================================================================================
-// * Register Plugin Tool
+// * Language
+// --------------------------------------------------------------------------------
+Language.addDictionary({
+  type: Language.Type.Todo, id: 'plugin-dot', dictionary:[
+    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增点】左键单击，【删除点】右键单击一个点。'] }
+  ]
+})
 // ================================================================================
-ToolManager.addTool(new Tool("dot", "点工具", "mdi-circle-medium", Tool.Type.PLUGIN, "", function(id){
-  ToolManager.setCurrentPlugin(id);
-  Engine.setTodo(LanguageManager.TOOL_DOT);
+
+// ================================================================================
+// * Register Plugin Tool
+// --------------------------------------------------------------------------------
+ToolManager.addTool(new Tool("dot", "点工具", "mdi-circle-medium", Tool.Slot.PLUGIN, {
+  on_click: function(id){
+    ToolManager.setCurrentPlugin(id);
+    Engine.setCurrentTodo('plugin-dot');
+  }
 }));
 // --------------------------------------------------------------------------------
 ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, DotFactory, function(event){

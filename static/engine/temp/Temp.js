@@ -5,7 +5,6 @@ function LanguageManager() {
   throw new Error('This is a static class');
 }
 LanguageManager.TOOL_MOVE = '【移动】按下鼠标任意键+拖动。【缩放】滚动鼠标中键。';
-LanguageManager.TOOL_DOT = '【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增点】左键单击，【删除点】右键单击一个点。';
 LanguageManager.TOOL_LINE = '【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增线】依次点击两个点。【取消新增线】点击第二个点前，右键单击。【删除线】右键单击一条线。';
 LanguageManager.TOOL_POLYGON = '【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【删除多边形】右键单击一个多边形。';
 LanguageManager.TOOL_AUTO_POLYGON = '【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】将鼠标放在四个点中间，并按下鼠标左键。【删除多边形】右键单击一个多边形。';

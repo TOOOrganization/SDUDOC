@@ -46,7 +46,7 @@ AutoPolygonFactory.getTempDots = function(point){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("auto_polygon", "自动多边形工具", "mdi-shape-polygon-plus", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("auto_polygon", "自动多边形工具", "mdi-shape-polygon-plus", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_AUTO_POLYGON);
 }));

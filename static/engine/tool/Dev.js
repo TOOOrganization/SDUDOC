@@ -15,7 +15,7 @@
 // ================================================================================
 // * Register Tool
 // ================================================================================
-ToolManager.addTool(new Tool("auto_book", "自动生成文档", "mdi-book", Tool.Type.DEV, "", function(){
+ToolManager.addTool(new Tool("auto_book", "自动生成文档", "mdi-book", Tool.Slot.DEV, function(){
   Engine.prompt("输入书籍字符", ["请输入字符"], [null],async function(){
     Engine.owner.prompt_dialog = false;
     if(Engine.owner.prompt_text[0]){

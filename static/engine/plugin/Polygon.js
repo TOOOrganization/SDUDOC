@@ -176,7 +176,7 @@ PolygonFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pentagon-outline", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pentagon-outline", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_POLYGON);
 }));

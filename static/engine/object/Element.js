@@ -50,6 +50,12 @@ Element.prototype.newElement = function(){
   return new Element('', []);
 };
 // --------------------------------------------------------------------------------
+// * Remove
+// --------------------------------------------------------------------------------
+Element.prototype.onRemove = function(){
+
+};
+// --------------------------------------------------------------------------------
 // * Collide
 // --------------------------------------------------------------------------------
 Element.prototype.checkCollide = function(point){
@@ -59,19 +65,19 @@ Element.prototype.checkCollide = function(point){
 // * Save & Export
 // --------------------------------------------------------------------------------
 Element.prototype.loadJson = function(json_object){
-  this._id = json_object._id || this._id;
-  this._pages = json_object._pages || this._pages;
+  this._id    = json_object._id    === undefined ? this._id    : json_object._id;
+  this._pages = json_object._pages === undefined ? this._pages : json_object._pages;
 }
 Element.prototype.saveJson = function(){
   let output = {};
-  output._id = this._id;
+  output._id    = this._id;
   output._pages = this._pages;
   return output;
 }
 Element.prototype.exportJson = function(){
   let output = {};
-  output._id = this._id;
-  output._pages = this._pages;
+  output.id    = this._id;
+  output.pages = this._pages;
   return output;
 }
 // ================================================================================

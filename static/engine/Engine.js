@@ -33,7 +33,6 @@ Engine._current_loading_id = '';
 Engine._current_loading_text = '';
 // --------------------------------------------------------------------------------
 Engine._app_element = null;
-Engine._editor_element = null;
 Engine._packages = {};
 // --------------------------------------------------------------------------------
 Engine._todo = null;
@@ -47,9 +46,27 @@ Engine.setPackages = function(packages){
   this._packages = packages;
 };
 // --------------------------------------------------------------------------------
+Engine.getApp = function(){
+  return this._packages;
+};
 Engine.getPackages = function(){
   return this._packages;
 };
+// --------------------------------------------------------------------------------
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(Engine, 'app', {
+  get: function() {
+    return this.getApp();
+  },
+  configurable: true
+});
+Object.defineProperty(Engine, 'packages', {
+  get: function() {
+    return this.getPackages();
+  },
+  configurable: true
+});
 // --------------------------------------------------------------------------------
 // * App - Functions
 // --------------------------------------------------------------------------------
@@ -59,11 +76,11 @@ Engine.checkRouter = function(name){
 };
 // --------------------------------------------------------------------------------
 Engine.setCurrentLanguage = function(id){
-  LanguageModule.setCurrentLanguage(id);
+  Language.setCurrentLanguage(id);
   this.updateAllData();
 };
 Engine.setCurrentTodo = function(id){
-  LanguageModule.setCurrentTodo(id);
+  Language.setCurrentTodo(id);
   this._app_element.setTodo(LanguageManager.getCurrentTodo());
 };
 Engine.setCurrentLoadingProcess = function(id, text){
@@ -87,19 +104,19 @@ Engine.getAppInitializeData = function(){
 };
 Engine.getAppLanguageData = function(){
   return {
-    language_selector :LanguageModule.get(LanguageModule.Type.System, 'app-language-selector'),
-    language_list: LanguageModule.getLanguageList(),
-    current_language: LanguageModule.getCurrentLanguage()
+    language_selector :Language.get(Language.Type.System, 'app-language-selector'),
+    language_list: Language.getLanguageList(),
+    current_language: Language.getCurrentLanguage()
   }
 };
 Engine.getAppElementData = function(){
   return {
-    todo_default : LanguageModule.get(LanguageModule.Type.Todo, 'default'),
-    todo_text : LanguageModule.getCurrentTodo(),
+    todo_default : Language.get(Language.Type.Todo, 'default'),
+    todo_text : Language.getCurrentTodo(),
 
-    alert_title: LanguageModule.get(LanguageModule.Type.System, 'app-alert-title'),
-    confirm_text: LanguageModule.get(LanguageModule.Type.System, 'app-pop-confirm'),
-    cancel_text: LanguageModule.get(LanguageModule.Type.System, 'app-pop-cancel'),
+    alert_title: Language.get(Language.Type.System, 'app-alert-title'),
+    confirm_text: Language.get(Language.Type.System, 'app-pop-confirm'),
+    cancel_text: Language.get(Language.Type.System, 'app-pop-cancel'),
   }
 };
 // --------------------------------------------------------------------------------
@@ -123,11 +140,11 @@ Engine.updateAppElementData = function(){
 // --------------------------------------------------------------------------------
 Engine.getLoadingLabelData = function(){
   return {
-    label_text: LanguageModule.get(LanguageModule.Type.System, 'loading-label'),
+    label_text: Language.get(Language.Type.System, 'loading-label'),
   };
 };
 Engine.getLoadingProcessData = function(){
-  let loading = LanguageModule.get(LanguageModule.Type.System, this._current_loading_id);
+  let loading = Language.get(Language.Type.System, this._current_loading_id);
   return {
     process_text: (loading ? loading : '') + this._current_loading_text
   };
@@ -153,8 +170,8 @@ Engine.updateLoadingProcessData = function(){
 // --------------------------------------------------------------------------------
 Engine.getIndexTextData = function(){
   return {
-    main_text: LanguageModule.get(LanguageModule.Type.System, 'index-main'),
-    sub_text: LanguageModule.get(LanguageModule.Type.System, 'index-sub')
+    main_text: Language.get(Language.Type.System, 'index-main'),
+    sub_text: Language.get(Language.Type.System, 'index-sub')
   };
 };
 // --------------------------------------------------------------------------------
@@ -172,25 +189,29 @@ Engine.updateIndexTextData = function(){
 // --------------------------------------------------------------------------------
 Engine.getEditorToolData = function(){
   return {
-    tools: ToolManager.getAllToolList({
-      'document': Tool.Type.DOCUMENT,
-      'history': Tool.Type.HISTORY,
-      'plugin': Tool.Type.PLUGIN,
-      'page': Tool.Type.PAGE,
-      'check': Tool.Type.CHECK,
-      'user': Tool.Type.USER,
-      'dev': Tool.Type.DEV
-    })
+    tools: ToolManager.getAllToolList()
+  };
+};
+Engine.getEditorPageData = function(){
+  return {
+    page_list: DocumentManager.getPageList(),
+    current_page: DocumentManager.getCurrentPage() - 1
   };
 };
 // --------------------------------------------------------------------------------
 Engine.updateEditorData = function(){
   this.updateEditorToolData();
+  this.updateEditorPageData();
 };
 // --------------------------------------------------------------------------------
 Engine.updateEditorToolData = function(){
   if(this.checkRouter('Editor')){
     this._app_element.getRouterComponent().updateToolData();
+  }
+};
+Engine.updateEditorPageData = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().updatePageData();
   }
 };
 // --------------------------------------------------------------------------------
@@ -206,11 +227,21 @@ Engine.initialize = function(){
   this.createHandler();
   this.createInputBox();
 
-  MouseInput.initialize();
   Input.initialize();
+  MouseInput.initialize();
+  Language.initialize();
+  Graphics.initialize();
 
   RenderManager.initialize();
   ToolManager.initialize();
+  DocumentManager.initialize();
+};
+Engine.initializeEditor = function(){
+  if(!this.checkRouter('Editor')) return;
+
+  let editor = this._app_element.getRouterComponent();
+  MouseInput.initializeEditor(editor);
+  Graphics.initializeEditor(editor);
 };
 // --------------------------------------------------------------------------------
 Engine.createHandler = function(){
@@ -324,15 +355,6 @@ Engine.prompt = function(owner, title, tooltip, default_text, callback){
   });
 }
 // --------------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------------
-// * GraphicsData - Functions
-// --------------------------------------------------------------------------------
-Engine.updateGraphicsData = function(){
-  Graphics.updatePixiInfo();
-}
-// ================================================================================
-
 
 /*
 Engine._owner = null;

@@ -17,9 +17,9 @@ Input.addHandler(new Handler("Input.onMouseDown5", "key_click", "M", Engine, fun
 }.bind(Engine)));
 */
 
-// ToolManager.addTool(new Tool("cut", "剪切工具", "mdi-scissors-cutting", Tool.Type.PLUGIN, "", function(){
+// ToolManager.addTool(new Tool("cut", "剪切工具", "mdi-scissors-cutting", Tool.Slot.PLUGIN, function(){
 //
 // }));
-// ToolManager.addTool(new Tool("comment", "注释工具", "mdi-tooltip-plus-outline", Tool.Type.PLUGIN, "", function(){
+// ToolManager.addTool(new Tool("comment", "注释工具", "mdi-tooltip-plus-outline", Tool.Slot.PLUGIN, function(){
 //
 // }));

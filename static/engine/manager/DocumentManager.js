@@ -19,33 +19,188 @@ function DocumentManager() {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-DocumentManager.MAX_HISTORY = 100;
-// --------------------------------------------------------------------------------
 DocumentManager._filename = null;
-DocumentManager._history = [];
-DocumentManager._now_history = 0;
+DocumentManager._page_array = null;
+DocumentManager._header = null;
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 DocumentManager.initialize = function(){
-  SDUDocument.clear();
-  this.push();
+  this._filename = null;
+  this._page_array = new PageArray();
+  this._header = new Header();
 };
 DocumentManager.clear = function(){
-  SDUDocument.clear();
-  Engine.owner.page_list = [];
-  Engine.owner.current_page = 0;
   this._filename = null;
-  this._history = [];
-  this._now_history = 0;
+  this._page_array = new PageArray();
+  this._header = new Header();
+  Graphics.clearImage();
+};
+// --------------------------------------------------------------------------------
+// * Document
+// --------------------------------------------------------------------------------
+DocumentManager.new = function(){
+  this.newDocument();
+};
+DocumentManager.newDocument = function(){
+  this.clear();
+  this.updatePageData();
 }
+// --------------------------------------------------------------------------------
+// * Page
+// --------------------------------------------------------------------------------
+DocumentManager.updatePageData = function(){
+  Engine.updateEditorPageData();
+}
+DocumentManager.updateFilteredData = function(){
+  ElementManager.updateFilteredDict(this.getCurrentPageId());
+}
+// --------------------------------------------------------------------------------
+DocumentManager.getPageList = function(){
+  let pages = ElementManager.getElements(Page.TAG);
+  let order = this._page_array.page_list;
+  let data = [];
+  for(let i = 0;i < order.length; i++){
+    data.push({
+      id: i + 1,
+      src: pages[order[i]].src
+    });
+  }
+  return data;
+}
+// --------------------------------------------------------------------------------
+DocumentManager.addAfterCurrentPage = async function(src){
+  let page = ElementManager.makeElement(Page.TAG, src);
+  ElementManager.addElement(Page.TAG, page);
+  this._page_array.addAfterCurrentPage(page.id);
+  await this.afterChangePage();
+}
+DocumentManager.removeCurrentPage = async function(){
+  ElementManager.removeElement(Page.TAG, this.getCurrentPageId());
+  this._page_array.removeCurrentPage();
+  await this.afterChangePage();
+}
+// --------------------------------------------------------------------------------
+DocumentManager.getCurrentPage = function(){
+  return this._page_array.getCurrentPage();
+}
+DocumentManager.getCurrentPageId = function(){
+  return this._page_array.getCurrentPageId();
+}
+DocumentManager.getCurrentPageObject = function(){
+  return ElementManager.getElement(Page.TAG, this.getCurrentPageId());
+}
+// --------------------------------------------------------------------------------
+DocumentManager.setCurrentPage = async function(index){
+  this._page_array.setCurrentPage(index + 1);
+  await this.afterChangePage();
+}
+// --------------------------------------------------------------------------------
+DocumentManager.moveCurrentPageMinus = async function(){
+  this._page_array.moveCurrentPageMinus();
+  await this.afterChangePage();
+}
+DocumentManager.moveCurrentPagePlus = async function(){
+  this._page_array.moveCurrentPagePlus();
+  await this.afterChangePage();
+}
+DocumentManager.moveCurrentPageTo = async function(target){
+  this._page_array.moveCurrentPageTo(target);
+  await this.afterChangePage();
+}
+// --------------------------------------------------------------------------------
+DocumentManager.afterChangePage = async function(){
+  this.updateFilteredData();
+  let page_object = this.getCurrentPageObject();
+  if(page_object){
+    await Graphics.setImage(page_object.src);
+    this.getCurrentPageObject().setSize(Graphics.image.width, Graphics.image.height)
+  }else{
+    Graphics.clearImage();
+  }
+  this.updatePageData();
+}
+// --------------------------------------------------------------------------------
+// * Save & Export
+// --------------------------------------------------------------------------------
+DocumentManager.getSaveFilename = function(){
+  return (this._filename ? this._filename : "Untitled") + ".sjs";
+};
+DocumentManager.getExportFilename = function(){
+  return (this._filename ? this._filename : "Untitled") + ".sdudoc";
+};
+// --------------------------------------------------------------------------------
+DocumentManager.getElementManagerTopElementTag = function(){
+  let top_tag = Character.TAG;
+  let tags = [Word.TAG, Sentence.TAG, Paragraph.TAG, Article.TAG, Book.TAG];
+  for(let i = 0; i < tags.length; i++){
+    let elements = ElementManager.getElements(tags[i]);
+    if (elements && Object.getOwnPropertyNames(elements).length > 0){
+      top_tag = Word.TAG;
+    }
+  }
+  return top_tag;
+};
+DocumentManager.getExportDocument = function(){
+  let output = []
+
+  let top_tag = this.getElementManagerTopElementTag();
+  if (top_tag === Character.TAG) {
+    return output;
+  }
+
+  let elements = ElementManager.getElements(top_tag);
+  for (let key in elements){
+    output.push(elements[key].getExportString());
+  }
+  return output;
+};
+// --------------------------------------------------------------------------------
+DocumentManager.loadJson = function(filename, json){
+  this.clear();
+  this._filename = filename.split('.');
+  this._filename.pop();
+  this._filename = this._filename.join('.');
+
+  let json_object = JSON.parse(json);
+
+  this._header.loadJson(json_object.Header);
+  this._page_array.loadJson(json_object.PageList);
+  ElementManager.loadJson(json_object.Element);
+};
+DocumentManager.saveJson = function(){
+  let output = {};
+  output.Header = this._header.saveJson();
+  output.PageList = this._page_array.saveJson();
+  output.Element = ElementManager.saveJson();
+  return output;
+};
+DocumentManager.export = function(){
+  let output = {};
+  output.Header = this._header.exportJson();
+  output.Document = this.getExportDocument();
+  output.PageList = this._page_array.exportJson();
+  output.Element = ElementManager.exportJson();
+  return output;
+};
+// ================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-DocumentManager.updateList = function(){
-  Engine.owner.page_list = this.getPageList();
-  Engine.owner.current_page = SDUDocument.current_page - 1;
-}
+
 // --------------------------------------------------------------------------------
 DocumentManager.addElement = function(type, element){
   SDUDocument.addElement(type, element);
@@ -113,11 +268,7 @@ DocumentManager.upLoadDoc = function(){
   // });
 }
 // --------------------------------------------------------------------------------
-DocumentManager.newDocument = function(){
-  this.clear();
-  this.updateList();
-  this.push();
-}
+
 DocumentManager.newWebPage = function(src, filename){
   // return new Promise((resolve) => {
   //   Engine._axios({
@@ -141,16 +292,7 @@ DocumentManager.newWebPage = function(src, filename){
   //   });
   // });
 }
-DocumentManager.newPage = async function(src){
-  await SDUDocument.addPage(PageFactory.makeObject(src));
-  this.updateList();
-  this.push();
-}
-DocumentManager.deletePage = async function(){
-  await SDUDocument.deletePage();
-  this.updateList();
-  this.push();
-}
+
 // --------------------------------------------------------------------------------
 DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
   SDUDocument.clearPage(SDUDocument.getCurrentPage());
@@ -390,47 +532,12 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
 
   this.push();
 }
-// --------------------------------------------------------------------------------
-DocumentManager.movePagePlus = async function(){
-  await SDUDocument.movePagePlus();
-  this.updateList();
-  this.push();
-}
-DocumentManager.movePageMinus = async function(){
-  await SDUDocument.movePageMinus();
-  this.updateList();
-  this.push();
-}
-DocumentManager.movePage = async function(target){
-  await SDUDocument.movePageTo(target);
-  this.updateList();
-  this.push();
-}
+
 // --------------------------------------------------------------------------------
 DocumentManager.getNextIndex = function(key){
   return SDUDocument.getNextIndex(key);
 }
-// --------------------------------------------------------------------------------
-DocumentManager.getPageList = function(){
-  let pages = SDUDocument.getElements(Page.TAG);
-  let data = [];
-  for(let i = 0;i < pages.length; i++){
-    data.push({
-      id: i + 1,
-      src: pages[i].src
-    });
-  }
-  return data;
-}
-DocumentManager.getCurrentPage = function(){
-  return SDUDocument.getCurrentPage();
-}
-DocumentManager.getCurrentPageId = function(){
-  return SDUDocument.getCurrentPageId();
-}
-DocumentManager.setCurrentPage = async function(index){
-  await SDUDocument.setCurrentPage(index + 1);
-}
+
 // --------------------------------------------------------------------------------
 DocumentManager.cloneObject = function (obj) {
   if(obj === null) return null
@@ -488,33 +595,7 @@ DocumentManager.objectToXml = function(obj){
   return string_builder;
 }
 // --------------------------------------------------------------------------------
-DocumentManager.getSaveFilename = function(){
-  return (this._filename ? this._filename : "Untitled") + ".sjs";
-}
-DocumentManager.getExportFilename = function(){
-  return (this._filename ? this._filename : "Untitled") + ".sdudoc";
-}
-DocumentManager.new = function(){
-  this._filename = null;
-  this.newDocument();
-  this.clearHistory();
-  this.push();
-}
-DocumentManager.load = async function(json, filename){
-  let name = filename.split('.')
-  await name.pop()
-  this._filename = name.join('.');
-  await SDUDocument.loadJson(json);
-  this.updateList();
-  this.clearHistory();
-  this.push();
-}
-DocumentManager.save = function(){
-  return [this.getSaveFilename(), SDUDocument.saveJson()];
-}
-DocumentManager.export = function(){
-  return [this.getExportFilename(), SDUDocument.exportJson()];
-}
+
 // --------------------------------------------------------------------------------
 DocumentManager.clearHistory = function(){
   this._history = []
@@ -546,3 +627,4 @@ DocumentManager.redo = async function(){
   }
 }
 // ================================================================================
+*/

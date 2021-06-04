@@ -19,28 +19,46 @@ function Tool(){
 // --------------------------------------------------------------------------------
 // * Enum
 // --------------------------------------------------------------------------------
-Tool.Type = {
-  DOCUMENT: 0, HISTORY: 1, PLUGIN: 2, PAGE: 3, CHECK: 4, USER: 5, DEV: 10
+Tool.Slot = {
+  DOCUMENT: 'document',
+  HISTORY: 'history',
+  PLUGIN: 'plugin',
+  PAGE: 'page',
+  CHECK: 'check',
+  USER: 'user',
+  DEV: 'dev'
 };
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Tool.prototype._id = "";
-Tool.prototype._tooltip = "";
-Tool.prototype._icon = "";
-Tool.prototype._type = 0;
-Tool.prototype._description = "";
+Tool.prototype._id = '';
+Tool.prototype._tooltip = '';
+Tool.prototype._icon = '';
+Tool.prototype._slot = '';
 Tool.prototype._callback = function(){};
+// --------------------------------------------------------------------------------
+Tool.prototype._on_click = function(){};
+Tool.prototype._on_hover = function(){};
+Tool.prototype._on_leave = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Tool.prototype.initialize = function(id, tooltip, icon, type, description, callback){
+Tool.prototype.initialize = function(id, tooltip, icon, slot, callback){
   this._id = id;
   this._tooltip = tooltip;
   this._icon = icon;
-  this._type = type;
-  this._description = description;
+  this._slot = slot;
   this._callback = callback;
+  let that = this;
+  this._on_click = function(){
+    that.onClick.call(that);
+  };
+  this._on_hover = function(){
+    that.onHover.call(that);
+  };
+  this._on_leave = function(){
+    that.onLeave.call(that);
+  };
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -63,15 +81,9 @@ Object.defineProperty(Tool.prototype, 'icon', {
   },
   configurable: true
 });
-Object.defineProperty(Tool.prototype, 'type', {
+Object.defineProperty(Tool.prototype, 'slot', {
   get: function() {
-    return this._type;
-  },
-  configurable: true
-});
-Object.defineProperty(Tool.prototype, 'description', {
-  get: function() {
-    return this._description;
+    return this._slot;
   },
   configurable: true
 });
@@ -81,4 +93,40 @@ Object.defineProperty(Tool.prototype, 'callback', {
   },
   configurable: true
 });
+Object.defineProperty(Tool.prototype, 'on_click', {
+  get: function() {
+    return this._on_click;
+  },
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'on_hover', {
+  get: function() {
+    return this._on_hover;
+  },
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'on_leave', {
+  get: function() {
+    return this._on_leave;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
+// * Functions
+// --------------------------------------------------------------------------------
+Tool.prototype.onClick = function(){
+  if(this._callback.on_click) {
+    this._callback.on_click.call(this);
+  }
+};
+Tool.prototype.onHover = function(){
+  if(this._callback.on_hover) {
+    this._callback.on_hover.call(this);
+  }
+};
+Tool.prototype.onLeave = function(){
+  if(this._callback.on_leave) {
+    this._callback.on_leave.call(this);
+  }
+};
 // ================================================================================

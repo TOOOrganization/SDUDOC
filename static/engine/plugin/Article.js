@@ -177,7 +177,7 @@ ArticleFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("article", "文章工具", "mdi-file-document-outline", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("article", "文章工具", "mdi-file-document-outline", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_ARTICLE);
 }));

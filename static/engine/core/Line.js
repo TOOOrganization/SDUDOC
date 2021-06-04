@@ -52,48 +52,25 @@ Object.defineProperty(Line.prototype, 'end', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-Line.prototype.getDot = function(x, y, k, r){
+Line.prototype.getEndpointDots = function(point, k, radius){
   let b = Math.sqrt(k * k + 1);
-  let x1 = (x * b - r)/b;
-  let x2 = (x * b + r)/b;
-  let y1 = k * (x1 - x) + y;
-  let y2 = k * (x2 - x) + y;
+  let x1 = (point.x * b - radius)/b;
+  let x2 = (point.x * b + radius)/b;
+  let y1 = k * (x1 - point.x) + point.y;
+  let y2 = k * (x2 - point.x) + point.y;
   return [new Point(x1, y1), new Point(x2, y2)];
 }
-Line.prototype.getDrawPolygon = function(radius, start, end){
-  if(Math.abs(start.y - end.y) < 0.01){
-    return new Polygon([new Point(start.x, start.y + radius), new Point(start.x, start.y - radius), radius,
-      new Point(end.x, end.y - radius), new Point(end.x, end.y + radius)]);
-  }else if(Math.abs(start.x - end.x) < 0.01){
-    return new Polygon([new Point(start.x + radius, start.y), new Point(start.x - radius, start.y), radius,
-      new Point(end.x - radius, end.y), new Point(end.x + radius, end.y)]);
+Line.prototype.getDrawPolygon = function(radius){
+  if(Math.abs(this._start.y - this._end.y) < 0.01){
+    return new Polygon([new Point(this._start.x, this._start.y + radius), new Point(this._start.x, this._start.y - radius),
+      new Point(this._end.x, this._end.y - radius), new Point(this._end.x, this._end.y + radius)]);
+  }else if(Math.abs(this._start.x - this._end.x) < 0.01){
+    return new Polygon([new Point(this._start.x + radius, this._start.y), new Point(this._start.x - radius, this._start.y), radius,
+      new Point(this._end.x - radius, this._end.y), new Point(this._end.x + radius, this._end.y)]);
   }
-  let k = -1 / ((end.y - start.y)/(end.x - start.x));
-  let dot1 = this.getDot(start.x, start.y, k, radius);
-  let dot2 = this.getDot(end.x, end.y, k, radius);
+  let k = -1 / ((this._end.y - this._start.y)/(this._end.x - this._start.x));
+  let dot1 = this.getEndpointDots(this._start, k, radius);
+  let dot2 = this.getEndpointDots(this._end, k, radius);
   return new Polygon([dot1[0], dot1[1], dot2[1], dot2[0]]);
 };
-// --------------------------------------------------------------------------------
-Line.prototype.fillCanvas = function(ctx, radius, color){
-  let start = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._start);
-  let end = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._end);
-  this.fill(ctx, radius, color, Graphics.getRenderPoint(start), Graphics.getRenderPoint(end));
-};
-Line.prototype.strokeCanvas = function(ctx, radius, lineWidth, color) {
-  let start = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._start);
-  let end = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._end);
-  this.stroke(ctx, radius, lineWidth, color, Graphics.getRenderPoint(start), Graphics.getRenderPoint(end));
-}
-Line.prototype.fillSelf = function(ctx, radius, color){
-  this.fill(ctx, radius, color, this._start, this._end);
-};
-Line.prototype.strokeSelf = function(ctx, radius, lineWidth, color) {
-  this.stroke(ctx, radius, color, this._start, this._end);
-}
-Line.prototype.fill = function(ctx, radius, color, start, end){
-  this.getDrawPolygon(radius, start, end).fillSelf(ctx, color);
-};
-Line.prototype.stroke = function(ctx, radius, lineWidth, color, start, end) {
-  this.getDrawPolygon(radius, start, end).strokeSelf(ctx, lineWidth, color);
-}
 // ================================================================================

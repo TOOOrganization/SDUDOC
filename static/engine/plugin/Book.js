@@ -173,7 +173,7 @@ BookFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("book", "书籍工具", "mdi-book-open-outline", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("book", "书籍工具", "mdi-book-open-outline", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_BOOK);
 }));

@@ -125,28 +125,28 @@ export default {
   },
   methods: {
     async loadEngine() {
-      let packages = { axios: axios, base64: Base64 }
+      let packages = { axios: axios, base64: Base64}
       await EngineLoader.load(this, packages);
     },
     getRouterComponent(){
       return this.$refs.router_view;
     },
     setInitializeData(json) {
-      this.engine_version = json.engine_version || this.engine_version;
+      this.engine_version    = json.engine_version    === undefined ? this.engine_version    : json.engine_version;
     },
     setLanguageData(json){
-      this.language_selector = json.language_selector || this.language_selector;
-      this.language_list = json.language_list || this.language_list;
-      this.current_language = json.current_language ?
-        this.language_list.name[this.language_list.id.indexOf(json.current_language)] : this.current_language;
+      this.language_selector = json.language_selector === undefined ? this.language_selector : json.language_selector;
+      this.language_list     = json.language_list     === undefined ? this.language_list     : json.language_list;
+      this.current_language  = json.current_language  === undefined ? this.current_language  :
+        this.language_list.name[this.language_list.id.indexOf(json.current_language)];
     },
     setElementData(json){
-      this.todo_default = json.todo_default || this.todo_default;
-      this.todo_text = json.todo_text || this.todo_text;
+      this.todo_default      = json.todo_default      === undefined ? this.todo_default      : json.todo_default;
+      this.todo_text         = json.todo_text         === undefined ? this.todo_text         : json.todo_text;
 
-      this.alert_title = json.alert_title || this.alert_title;
-      this.pop_confirm_text = json.confirm_text || this.pop_confirm_text;
-      this.pop_cancel_text = json.cancel_text || this.pop_cancel_text;
+      this.alert_title       = json.alert_title       === undefined ? this.alert_title       : json.alert_title;
+      this.pop_confirm_text  = json.confirm_text      === undefined ? this.pop_confirm_text  : json.confirm_text;
+      this.pop_cancel_text   = json.cancel_text       === undefined ? this.pop_cancel_text   : json.cancel_text;
     },
     updateInitializeData(){
       this.setInitializeData(Engine.getAppInitializeData());

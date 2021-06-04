@@ -23,9 +23,9 @@ ElementManager.SAPARATOR = '_';
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+ElementManager._next_index = {};
 ElementManager._element_pool_dict = {};
 ElementManager._filtered_pool_dict = {};
-ElementManager._next_index = {};
 // --------------------------------------------------------------------------------
 ElementManager.initializePool = function(type){
   this._element_pool_dict[type] = this._element_pool_dict[type] || {};
@@ -46,9 +46,9 @@ ElementManager.addElement = function(type, element){
   if (this.isElementExist(type, element.id)) return;
   this._element_pool_dict[type][element.id] = element;
 };
-ElementManager.deleteElement = function(type, id){
+ElementManager.removeElement = function(type, id){
   if (!this.isElementExist(type, id)) return;
-  this._element_pool_dict[type][id].onDelete.call(this._data[type][id]);
+  this._element_pool_dict[type][id].onRemove.call(this._data[type][id]);
   delete this._element_pool_dict[type][id];
 };
 ElementManager.updateElement = function(type, id, json){
@@ -73,9 +73,15 @@ ElementManager.makeElement = function(type, pages){
 // --------------------------------------------------------------------------------
 // * Get Element
 // --------------------------------------------------------------------------------
+ElementManager.getElements = function(type){
+  return this._element_pool_dict[type];
+}
 ElementManager.getElement = function(type, id){
   if(!this.isElementExist(type, id)) return null;
   return this._element_pool_dict[type][id];
+}
+ElementManager.getFilteredElements = function(type){
+  return this._filtered_pool_dict[type];
 }
 ElementManager.getFilteredElement = function(type, id){
   if(!this.isFilteredElementExist(type, id)) return null;
@@ -107,9 +113,9 @@ ElementManager.loadJson = function(json_object){
   this._element_pool_dict = {};
   for(let type in json_object.Data){
     this._element_pool_dict[type] = {};
-    for(let i in json_object.Data[type]){
+    for(let key in json_object.Data[type]){
       let element = window[type].prototype.newElement();
-      element.loadJson(json_object.Data[type][i]);
+      element.loadJson(json_object.Data[type][key]);
       this._element_pool_dict[type][element.id] = element;
     }
   }

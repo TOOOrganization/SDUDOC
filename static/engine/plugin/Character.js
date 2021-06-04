@@ -222,7 +222,7 @@ CharacterFactory.getNextIndex = function(){
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("character", "文字工具", "mdi-format-text-variant", Tool.Type.PLUGIN, "", function(id){
+ToolManager.addTool(new Tool("character", "文字工具", "mdi-format-text-variant", Tool.Slot.PLUGIN, function(id){
   ToolManager.setCurrentPlugin(id);
   Engine.setTodo(LanguageManager.TOOL_CHARACTER);
 }));
