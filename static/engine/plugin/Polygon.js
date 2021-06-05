@@ -8,7 +8,7 @@
 //   [Warning] You need SDUDOC Engine to apply this plugin.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/19 - Version 1.0.0
+//   2021/03/19 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -18,7 +18,7 @@
 function Polygon2D(){
   this.initialize.apply(this, arguments);
 }
-Polygon2D.prototype = Object.create(Polygon.prototype);
+Polygon2D.prototype = Object.create(Element.prototype);
 Polygon2D.prototype.constructor = Polygon2D;
 // --------------------------------------------------------------------------------
 // * Constant
@@ -27,39 +27,27 @@ Polygon2D.TAG = "Polygon2D";
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Polygon2D.prototype._id = "";
-Polygon2D.prototype._page = "";
-// --------------------------------------------------------------------------------
-Polygon2D.prototype._color = '';
-Polygon2D.prototype._collide_color = '';
+Polygon2D.prototype._points = [];
 // --------------------------------------------------------------------------------
 Polygon2D.prototype._character = '';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.initialize = function(id, page, points){
-  Polygon.prototype.initialize.call(this, points);
+  Element.prototype.initialize.call(this, id, page);
 
-  this._color = 'rgba(0, 0, 255, 0.3)';
-  this._collide_color = 'rgba(255, 0, 0, 0.3)';
-
-  this._id = id;
-  this._page = page;
-
+  this._points = points;
   this._character = '';
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Polygon2D.prototype, 'id', {
+Object.defineProperty(Polygon2D.prototype, 'points', {
   get: function() {
-    return this._id;
+    return this._points;
   },
-  configurable: true
-});
-Object.defineProperty(Polygon2D.prototype, 'page', {
-  get: function() {
-    return this._page;
+  set: function(value) {
+    this._points = value;
   },
   configurable: true
 });
@@ -73,21 +61,64 @@ Object.defineProperty(Polygon2D.prototype, 'character', {
   configurable: true
 });
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.setColor = function(color, collide_color){
-  this._color = color;
-  this._collide_color = collide_color;
+// * Get Base Object
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.getPolygon = function(){
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points.push(ElementManager.getElement(Dot2D.TAG, this._points[i]).getPoint());
+  }
+  return new Polygon(points);
 }
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.getObject = function(){
-  return new Polygon2D("", "");
-}
+// * New Element
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.newElement = function(){
+  return new Polygon2D('', [], []);
+};
+// --------------------------------------------------------------------------------
+// * Add
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.onAwake = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Update
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.onUpdate = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Remove
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.onRemove = function(){
+  ElementManager.removeElement(Character.TAG, this._character);
+  this._character = '';
+};
+// --------------------------------------------------------------------------------
+// * Collide
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.checkCollide = function(point){
+  let points = [];
+  for(let i = 0; i < this._points.length; i++){
+    points[i] = Graphics.getRenderPoint(ElementManager.getElement(Dot2D.TAG, this._points[i]).getPoint());
+  }
+  return new Polygon(points).isPointInSelf(point);
+};
 // --------------------------------------------------------------------------------
 // * Functions
+// --------------------------------------------------------------------------------
+Polygon2D.prototype.append = function(point){
+  this._points.push(point);
+};
+Polygon2D.prototype.isClose = function(point){
+  return this._points[0] === point;
+};
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.getCorePoint = function(){
   let points = [];
   for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i]);
+    points[i] = ElementManager.getCurrentPageElement(Dot2D.TAG, this._points[i]);
   }
   let point = new Point(0, 0);
   for(let i = 0; i < points.length; i++){
@@ -96,237 +127,248 @@ Polygon2D.prototype.getCorePoint = function(){
   return point.division(points.length);
 };
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.checkCollide = function(point){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i]));
-  }
-  return new Polygon(points).isPointInSelf(point);
-};
-// --------------------------------------------------------------------------------
-Polygon2D.prototype.render = function(ctx){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i]);
-  }
-  Polygon.prototype.fillCanvas.call(new Polygon(points), ctx, this._color);
-};
-Polygon2D.prototype.renderCollide = function(ctx){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, this._points[i]);
-  }
-  Polygon.prototype.fillCanvas.call(new Polygon(points), ctx, this._collide_color);
-};
-// --------------------------------------------------------------------------------
-Polygon2D.prototype.onDelete = function(){
-  SDUDocument.deleteElement(Character.TAG, this._character);
-  this._character = '';
-};
-// --------------------------------------------------------------------------------
 // * Save & Export
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.loadJson = function(json){
-  this._id = json._id;
-  this._page = json._page;
-  this._points = json._points;
-  this._character = json._character;
+Polygon2D.prototype.loadJson = function(json_object){
+  Element.prototype.loadJson.call(this, json_object);
+  this._points    = json_object._points    === undefined ? this._points    : json_object._points;
+  this._character = json_object._character === undefined ? this._character : json_object._character;
 }
 Polygon2D.prototype.saveJson = function(){
-  return {
-    _id: this._id,
-    _page: this._page,
-    _points: this._points,
-    _character: this._character
-  }
+  let output = Element.prototype.saveJson.call(this);
+  output._points    = this._points;
+  output._character = this._character;
+  return output;
+}
+Polygon2D.prototype.exportJson = function(){
+  return null;
 }
 // ================================================================================
 
 // ================================================================================
-// * PolygonFactory
+// * Language
 // --------------------------------------------------------------------------------
-function PolygonFactory(){
-  throw new Error('This is a static class');
-}
-PolygonFactory._points = [];
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-PolygonFactory.getPoints = function(){
-  return this._points;
-};
-PolygonFactory.addPoint = function(id){
-  this._points.push(id);
-};
-PolygonFactory.clearPoints = function(){
-  this._points = [];
-};
-PolygonFactory.isClose = function(id){
-  return this._points[0] === id;
-};
-// --------------------------------------------------------------------------------
-PolygonFactory.makeObject = function(page, points){
-  return new Polygon2D(this.getNextIndex(), page, points);
-};
-PolygonFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex(Polygon2D.TAG);
-};
+Language.addDictionary({
+  type: Language.Type.Todo, id: 'plugin-polygon', dictionary:[
+    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【删除多边形】右键单击一个多边形。'] }
+  ]
+})
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("polygon", "多边形工具", "mdi-pentagon-outline", Tool.Slot.PLUGIN, function(id){
-  ToolManager.setCurrentPlugin(id);
-  Engine.setTodo(LanguageManager.TOOL_POLYGON);
+ToolManager.addTool(new Tool('polygon', '多边形工具', 'mdi-pentagon-outline', Tool.Slot.PLUGIN, {
+  on_click: function(){
+    ToolManager.setCurrentPlugin(this._id);
+    Engine.setCurrentTodo('plugin-polygon');
+  }
 }));
 // --------------------------------------------------------------------------------
-ToolManager.addHandler(new Handler("polygon.onLeftClick", "left_click", false, PolygonFactory, function(event){
+ToolManager.addHandler(new Handler('polygon.onMouseLeftClick', 'left_click', false, Engine,
+  function(event){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length === 0){
     collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
-    let dot;
+    let dot_object = null;
     if(collide_list.length === 2){
-      dot = DotFactory.makeObject(DocumentManager.getCurrentPageId(), Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]);
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]);
     }else if(collide_list.length === 1){
-      let dependent = LineFactory.getDependent(collide_list[0], new Point(event.layerX, event.layerY));
-      dot = DotFactory.makeObject(DocumentManager.getCurrentPageId(), Dot2D.Type.DEPENDENT, collide_list[0], dependent);
+      let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
+      let dependent = line.getDependent(mouse_point);
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.DEPENDENT, collide_list[0], dependent);
     }else{
-      let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
-      dot = DotFactory.makeObject(DocumentManager.getCurrentPageId(), Dot2D.Type.FREE, point.x, point.y);
+      let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.FREE, mouse_point.x, mouse_point.y);
     }
-    DocumentManager.addElement(Dot2D.TAG, dot);
-    PolygonFactory.addPoint(dot.id);
-  }else{
-    if(PolygonFactory.isClose(collide_list[0])){
-      DocumentManager.addElement(Polygon2D.TAG, PolygonFactory.makeObject(
-        DocumentManager.getCurrentPageId(), PolygonFactory.getPoints()));
-      PolygonFactory.clearPoints();
+    DocumentManager.addElement(Dot2D.TAG, dot_object);
+    if(SelectManager.isSelectedType(Polygon2D.TAG)) {
+      let polygon_object = SelectManager.getSelectedObject();
+      if(polygon_object.isClose(dot_object.id)){
+        DocumentManager.addElement(Polygon2D.TAG, polygon_object);
+        SelectManager.unSelect();
+      }else{
+        polygon_object.append(dot_object.id);
+        Graphics.refresh();
+      }
     }else{
-      PolygonFactory.addPoint(collide_list[0]);
+      let polygon_object = ElementManager.makeElement(Polygon2D.TAG,
+        [DocumentManager.getCurrentPageId()], [dot_object.id]);
+      SelectManager.selectObject(polygon_object);
+      Graphics.refresh();
+    }
+    DocumentManager.afterChangeElement();
+  }else{
+    if(SelectManager.isSelectedType(Polygon2D.TAG)) {
+      let polygon_object = SelectManager.getSelectedObject();
+      if(polygon_object.isClose(collide_list[0])){
+        DocumentManager.addElementWithUpdate(Polygon2D.TAG, polygon_object);
+        SelectManager.unSelect();
+      }else{
+        polygon_object.append(collide_list[0]);
+        Graphics.refresh();
+      }
+    }else{
+      let polygon_object = ElementManager.makeElement(Polygon2D.TAG,
+        [DocumentManager.getCurrentPageId()], [collide_list[0]]);
+      SelectManager.selectObject(polygon_object);
+      Graphics.refresh();
     }
   }
 }));
-ToolManager.addHandler(new Handler("polygon.onRightClick", "right_click", false, PolygonFactory, function(event){
+ToolManager.addHandler(new Handler('polygon.onMouseRightClick', 'right_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    if(SelectManager.isSelectedType(Polygon2D.TAG)){
+      SelectManager.unSelect();
+      Graphics.refresh();
+      return;
+    }
+    let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+    if(collide_list.length === 0) {
+      Graphics.refresh();
+      return;
+    }
+    DocumentManager.removeElementWithUpdate(Polygon2D.TAG, collide_list[0]);
+  })
+);
+ToolManager.addHandler(new Handler('polygon.onMouseMove', 'mousemove', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('polygon.onMouseOut', 'mouseout', false, Engine,
+  function(event){
+    SelectManager.unSelect();
+    Graphics.refresh();
+  })
+);
+// ================================================================================
+
+// ================================================================================
+// * Register Renderer
+// --------------------------------------------------------------------------------
+Graphics.renderPolygonNormal = function(polygon){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  this.fillPolygon(polygon, fill_color, 0.4);
+};
+Graphics.renderPolygonCollide = function(polygon){
+  let fill_color = ColorManager.RGBToHex(255, 0, 0);
+  this.fillPolygon(polygon, fill_color, 0.4);
+};
+Graphics.renderPolygonVirtual = function(polygon){
+  let fill_color = ColorManager.RGBToHex(0, 0, 0);
+  this.fillPolygon(polygon, fill_color, 0.3);
+};
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer('polygon.polygon.all', '', 30, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  PolygonFactory.clearPoints();
 
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length === 0) {
-    Graphics.refresh();
-    return;
-  }
-  DocumentManager.deleteElement(Polygon2D.TAG, collide_list[0]);
-}));
-ToolManager.addHandler(new Handler("polygon.onMouseMove", "mousemove", false, PolygonFactory, function(event){
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("polygon.onMouseOut", "mouseout", false, PolygonFactory, function(event){
-  PolygonFactory.clearPoints();
-  Graphics.refresh();
-}));
-// --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("_polygon.normal", 5, PolygonFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  let polygons = SDUDocument.getCurrentPageElements(Polygon2D.TAG);
-  for(let i in polygons){
-    if(collide_list.indexOf(i) === -1){
-      polygons[i].render(ctx);
+  let polygons = ElementManager.getFilteredElements(Polygon2D.TAG);
+  for(let id in polygons){
+    if(collide_list.indexOf(id) === -1){
+      Graphics.renderPolygonNormal(Graphics.getRenderPolygon(polygons[id].getPolygon()));
     }
   }
-}));
-RenderManager.addRenderer(new Renderer("!polygon.collide", 6, PolygonFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).render(ctx);
+    Graphics.renderPolygonCollide(Graphics.getRenderPolygon(polygons[collide_list[0]].getPolygon()));
   }
 }));
-RenderManager.addRenderer(new Renderer("polygon.collide", 6, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('!polygon.polygon.all', '', 30, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
+
+  let polygons = ElementManager.getFilteredElements(Polygon2D.TAG);
+  for(let id in polygons){
+    Graphics.renderPolygonNormal(Graphics.getRenderPolygon(polygons[id].getPolygon()));
   }
 }));
-RenderManager.addRenderer(new Renderer("polygon.line.collide", 9, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('polygon.dot.collide', '', 51, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+
+  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
+  if(collide_list.length > 0){
+    let dot_object = ElementManager.getElement(Dot2D.TAG, collide_list[0]);
+    Graphics.renderPointCollide(Graphics.getRenderPoint(dot_object.getPoint()));
+  }
+}));
+RenderManager.addRenderer(new Renderer('polygon.line.collide', '', 41, function(ctx){
+  if(DocumentManager.getCurrentPage() <= 0) return;
+
   let collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   if(collide_list.length > 0){
     for(let i = 0; i < collide_list.length; i++){
-      SDUDocument.getCurrentPageElement(Line2D.TAG, collide_list[i]).renderCollide(ctx);
+      let line_object = ElementManager.getElement(Line2D.TAG, collide_list[i]);
+      Graphics.renderLineCollide(Graphics.getRenderLine(line_object.getLine()));
     }
-  }
-}));
-RenderManager.addRenderer(new Renderer("polygon.dot.collide", 11, PolygonFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
-  if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).renderCollide(ctx);
   }
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("polygon.mouseBottom", 9, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('polygon.polygon.mouse', '', 39, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0) {
-    if(PolygonFactory.getPoints().length >= 2){
-      let points = PolygonFactory.getPoints().concat(collide_list[0]);
-      for(let i = 0; i < points.length; i++){
-        points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, points[i]);
-      }
-      let polygon = new Polygon(points);
-      polygon.fillCanvas(ctx, 'rgba(0, 0, 0, 0.3)');
+    let polygon_object = SelectManager.getSelectedObject();
+    if(!polygon_object) return;
+    if(polygon_object.points.length >= 2){
+      let dot_object = ElementManager.getElement(Dot2D.TAG, collide_list[0]);
+      let polygon = polygon_object.getPolygon();
+      polygon.append(dot_object.getPoint());
+      Graphics.renderPolygonVirtual(Graphics.getRenderPolygon(polygon));
     }
   }else{
-    let polygon = null;
-    let mouse_point = MouseInput.getMousePoint();
+    let mouse_point = Graphics.getMouseSourcePoint();
     if(!mouse_point) return;
-    if(PolygonFactory.getPoints().length < 2) return;
-    let points = PolygonFactory.getPoints().concat();
-    for(let i = 0; i < points.length; i++){
-      points[i] = SDUDocument.getCurrentPageElement(Dot2D.TAG, points[i]);
-    }
+    let polygon_object = SelectManager.getSelectedObject();
+    if(!polygon_object) return;
+    if(polygon_object.points.length < 2) return;
+    let polygon = polygon_object.getPolygon();
 
     collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
     if(collide_list.length === 2){
-      let point = LineFactory.getIntersection(collide_list[0], collide_list[1]);
-      polygon = new Polygon(points.concat(Graphics.getGridPoint(point)));
+      let line1 = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let line2 = ElementManager.getElement(Line2D.TAG, collide_list[1]).getLine();
+      let intersection_point = line1.getIntersectionPoint(line2);
+      polygon.append(intersection_point);
     }else if(collide_list.length === 1){
-      let point = LineFactory.getProjection(collide_list[0], mouse_point);
-      polygon = new Polygon(points.concat(Graphics.getGridPoint(point)));
+      let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let projection_point = line.getProjectionPoint(mouse_point);
+      polygon.append(projection_point);
     }else{
-      polygon = new Polygon(points.concat(Graphics.getGridPoint(mouse_point)));
+      polygon.append(mouse_point);
     }
     if(polygon !== null){
-      polygon.fillCanvas(ctx, 'rgba(0, 0, 0, 0.3)');
+      Graphics.renderPolygonVirtual(Graphics.getRenderPolygon(polygon));
     }
   }
 }));
-RenderManager.addRenderer(new Renderer("polygon.mouse", 100, PolygonFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('polygon.dot.mouse', '', 100, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0) return;
 
   collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   if(collide_list.length === 2){
-    let point = LineFactory.getIntersection(collide_list[0], collide_list[1]);
-    point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-    point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+    let line1 = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+    let line2 = ElementManager.getElement(Line2D.TAG, collide_list[1]).getLine();
+    let intersection_point = line1.getIntersectionPoint(line2);
+    Graphics.renderPointVirtual(Graphics.getRenderPoint(intersection_point));
   }else if(collide_list.length === 1){
-    let mouse_point = MouseInput.getMousePoint();
+    let mouse_point = Graphics.getMouseSourcePoint();
     if(mouse_point !== null){
-      let point = LineFactory.getProjection(collide_list[0], mouse_point);
-      point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-      point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+      let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let projection_point = line.getProjectionPoint(mouse_point);
+      Graphics.renderPointVirtual(Graphics.getRenderPoint(projection_point));
     }
   }else{
     let mouse_point = MouseInput.getMousePoint();
     if(mouse_point !== null){
-      mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-      mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+      Graphics.renderPointVirtual(mouse_point);
     }
   }
 }));

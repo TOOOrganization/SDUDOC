@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/14 - Version 1.0.0
+//   2021/03/14 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -30,8 +30,11 @@ ToolManager.initialize = function() {
   this.clear();
   this._setupEventHandlers();
 };
+ToolManager.initializeEditor = function(editor){
+  this.getCurrentPlugin().on_click();
+}
 ToolManager.clear = function() {
-  this._current_plugin = this.getInitialPlugin().id;
+  this._current_plugin = this.getInitialPluginId();
 };
 ToolManager._setupEventHandlers = function(){
   MouseInput.addHandler(new Handler("ToolManager.leftClick", "left_click", false, this, (event) => {
@@ -110,8 +113,8 @@ ToolManager._processHandler = function(event, type){
 }
 // --------------------------------------------------------------------------------
 ToolManager.canCurrentPluginCall = function(id){
-  return id.startsWith('_') || id.startsWith(this.getCurrentPlugin().id)
-    || (id.startsWith('!') && !id.startsWith('!' + this.getCurrentPlugin().id))
+  return id.startsWith('_') || id.startsWith(this.getCurrentPluginId())
+    || (id.startsWith('!') && !id.startsWith('!' + this.getCurrentPluginId()))
 }
 ToolManager.callMouseHandler = function(event, type){
   for(let key in this._handlers){
@@ -179,6 +182,9 @@ ToolManager.getInitialPlugin = function(){
   if(list.length === 0) return {id: null};
   return list[0];
 }
+ToolManager.getInitialPluginId = function(){
+  return this.getInitialPlugin().id;
+}
 ToolManager.getCurrentPlugin = function(){
   let list = this.getToolList(Tool.Slot.PLUGIN);
   for(let i = 0; i < list.length; i++){
@@ -188,6 +194,9 @@ ToolManager.getCurrentPlugin = function(){
   }
   return {id: null};
 }
+ToolManager.getCurrentPluginId = function(){
+  return this.getCurrentPlugin().id;
+}
 ToolManager.setCurrentPlugin = function(id){
   let list = this.getToolList(Tool.Slot.PLUGIN);
   for(let i = 0; i < list.length; i++){
@@ -195,6 +204,7 @@ ToolManager.setCurrentPlugin = function(id){
       this._current_plugin = list[i].id;
     }
   }
+  Engine.clearToolTemp();
 }
 // --------------------------------------------------------------------------------
 // * Plugin Option

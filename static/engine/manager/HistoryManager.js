@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/06/03 - Version 1.0.0
+//   2021/06/03 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -26,10 +26,17 @@ HistoryManager.MAX_HISTORY_SIZE = 100;
 HistoryManager._left_queue = [];
 HistoryManager._right_queue = [];
 // --------------------------------------------------------------------------------
+// * Initialize
+// --------------------------------------------------------------------------------
+HistoryManager.initialize = function(){
+  this.clear();
+}
 HistoryManager.clear = function(){
   this._left_queue = [];
   this._right_queue = [];
 };
+// --------------------------------------------------------------------------------
+// * Functions
 // --------------------------------------------------------------------------------
 HistoryManager.push = function(history){
   this._left_queue.push(history);

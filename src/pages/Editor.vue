@@ -43,6 +43,17 @@
               <span>{{tool.tooltip}}</span>
             </v-tooltip>
           </v-btn-toggle>
+          <v-btn-toggle v-if="tools['history']" dense class="top-tool-group">
+            <v-tooltip bottom v-for="(tool, index) in tools['document']" :key="index">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
+                       color="white" class="top-tool-button">
+                  <v-icon>{{tool.icon}}</v-icon>
+                </v-btn>
+              </template>
+              <span>{{tool.tooltip}}</span>
+            </v-tooltip>
+          </v-btn-toggle>
         </div>
       </div>
       <div id="editor_view" ref="editor_view" class="editor-view">
@@ -176,7 +187,7 @@
             </v-tooltip>
           </v-btn-toggle>
           <div class="mt-5" style="width: 80%;margin-left: 10%">
-            实验性工具还在开发中，具有不稳定性，请谨慎使用。
+            实验性工具还在开发中，具有不稳定性，可能对文档造成不可逆的损坏。请在使用时先保存备份，谨慎处理。
           </div>
         </div>
       </div>
@@ -198,10 +209,12 @@
            @click="left_box = !left_box">
       <v-icon>{{ left_box ? 'mdi-chevron-left' : 'mdi-chevron-right'}}</v-icon>
     </v-btn>
+    <!--
     <v-btn class="expansion-button-tab mb-2" outlined fab bottom small color="grey"
            @click="tab_mini = !tab_mini">
       <v-icon>{{ tab_mini ? 'mdi-chevron-up' : 'mdi-chevron-down'}}</v-icon>
     </v-btn>
+    -->
     <v-btn class="expansion-button-right mb-2" outlined fab bottom small color="grey"
            @click="right_box = !right_box">
       <v-icon>{{ right_box ? 'mdi-chevron-right' : 'mdi-chevron-left'}}</v-icon>
@@ -238,7 +251,10 @@ export default {
       pixi_context: null,
 
       page_list: null,
-      current_page: 0
+      current_page: 0,
+
+      check_id: null,
+      check_info: null
     }
   },
   mounted () {
@@ -253,7 +269,8 @@ export default {
     initializePixiApplication(){
       this.pixi_app = new PIXI.Application({
         antialias: true,
-        backgroundColor: 0xffffff
+        backgroundColor: 0xffffff,
+        powerPreference: 'high-performance'
       });
       this.$refs.editor_pixi.appendChild(this.pixi_app.view);
       this.pixi_app.resizeTo = this.pixi_app.view;
@@ -285,11 +302,18 @@ export default {
       this.page_list    = json.page_list    === undefined ? this.page_list   : json.page_list;
       this.current_page = json.current_page === undefined ? this.current_page: json.current_page;
     },
+    setCheckData(json) {
+      this.check_id     = json.check_id     === undefined ? this.check_id    : json.check_id;
+      this.check_info   = json.check_info   === undefined ? this.check_info  : json.check_info;
+    },
     updateToolData() {
       this.setToolData(Engine.getEditorToolData());
     },
     updatePageData() {
       this.setPageData(Engine.getEditorPageData());
+    },
+    updateCheckData() {
+      this.setCheckData(Engine.getEditorCheckData());
     },
     setupResizeEvent: function (){
       let box = this.$refs.main_box;

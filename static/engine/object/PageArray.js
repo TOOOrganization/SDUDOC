@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/06/04 - Version 1.0.0
+//   2021/06/04 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -126,8 +126,6 @@ PageArray.prototype.saveJson = function(){
   return output;
 }
 PageArray.prototype.exportJson = function(){
-  let output = {};
-  output.page_list = this._page_list;
-  return output;
+  return this._page_list;
 }
 // ================================================================================

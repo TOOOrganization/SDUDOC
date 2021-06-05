@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/14 - Version 1.0.0
+//   2021/03/14 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -107,10 +107,10 @@ Graphics.clearImage = function(){
 Graphics.loadImage = function(src){
   return new Promise((resolve) => {
     Graphics._image = new Image();
-    Graphics._image.src = src;
-    Graphics._image.onload = () => {
+    Graphics._image.onload = function(){
       resolve();
     }
+    Graphics._image.src = src;
   });
 };
 Graphics.calcImageRectangle = function(){
@@ -215,16 +215,15 @@ Graphics.refresh = function(){
 
   if(this._draw_grid)
     this.drawGrid();
+
+  CollideManager.update();
+  RenderManager.callRenderer(this._context);
+
   if(this._draw_scale_plate)
     this.drawScalePlate();
-
-  // if(this._canvas) {
-  //   CollideManager.update();
-  //   RenderManager.callRenderer(this._ctx);
-  // }
 };
 // --------------------------------------------------------------------------------
-// * Functions
+// * Draw Parts
 // --------------------------------------------------------------------------------
 Graphics.drawGrid = function(){
   let scaled_unit = this.GRID_UNIT_LENGTH * this._scale;
@@ -275,30 +274,135 @@ Graphics.drawScalePlate = function(){
     0xd3d3d3, 1);
 };
 // --------------------------------------------------------------------------------
+
+// --------------------------------------------------------------------------------
+// * Point Transition
+// --------------------------------------------------------------------------------
+Graphics.getSourcePoint = function(point){
+  return point.minus(this._origin).division(this._scale);
+}
+Graphics.getRenderPoint = function(point){
+  return point.multiply(this._scale).add(this._origin);
+}
+// --------------------------------------------------------------------------------
+Graphics.getScaledPoint = function(point){
+  return point.division(this._scale);
+}
+// --------------------------------------------------------------------------------
+Graphics.getMouseSourcePoint = function(){
+  let mouse_point = MouseInput.getMousePoint();
+  return mouse_point ? this.getSourcePoint(mouse_point) : null;
+}
+// --------------------------------------------------------------------------------
+// * Line Transition
+// --------------------------------------------------------------------------------
+Graphics.getSourceLine = function(line){
+  return new Line(this.getSourcePoint(line.start), this.getSourcePoint(line.end));
+}
+Graphics.getRenderLine = function(line){
+  return new Line(this.getRenderPoint(line.start), this.getRenderPoint(line.end));
+}
+// --------------------------------------------------------------------------------
+// * Polygon Transition
+// --------------------------------------------------------------------------------
+Graphics.getSourcePolygon = function(polygon){
+  let points = [];
+  for(let i = 0; i < polygon.points.length; i++){
+    points.push(this.getSourcePoint(polygon.points[i]));
+  }
+  return new Polygon(points);
+}
+Graphics.getRenderPolygon = function(polygon){
+  let points = [];
+  for(let i = 0; i < polygon.points.length; i++){
+    points.push(this.getRenderPoint(polygon.points[i]));
+  }
+  return new Polygon(points);
+}
+// --------------------------------------------------------------------------------
 // * Paint
 // --------------------------------------------------------------------------------
 Graphics.clear = function(){
   this._context.clear();
 }
 // --------------------------------------------------------------------------------
-Graphics.fillRect = function(x, y, width, height, color, alpha){
-  this._context.beginFill(color, alpha);
+// * Paint Rectangle
+// --------------------------------------------------------------------------------
+Graphics.drawRect = function(x, y, width, height, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this._context.lineStyle(line_width, line_color, line_alpha, 1);
+  this._context.beginFill(fill_color, fill_alpha);
   this._context.drawRect(x, y, width, height);
   this._context.endFill();
+  this._context.lineStyle(0);
+}
+Graphics.fillRect = function(x, y, width, height, color, alpha){
+  this.drawRect(x, y, width, height, color, alpha, 0, 0, 0);
+}
+Graphics.strokeRect = function(x, y, width, height, line_width, color, alpha){
+  this.drawRect(x, y, width, height, 0, 0, line_width, color, alpha);
+}
+// --------------------------------------------------------------------------------
+Graphics.drawRectangle = function(rect, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this.drawRect(rect.x, rect.y, rect.width, rect.height, fill_color, fill_alpha, line_width, line_color, line_alpha);
 }
 Graphics.fillRectangle = function(rect, color, alpha){
-  this.fillRect(rect.x, rect.y, rect.width, rect.height, color, alpha)
+  this.fillRect(rect.x, rect.y, rect.width, rect.height, color, alpha);
 }
-// Graphics.strokeRect = function(x, y, width, height, line_width, color){
-//   this._context.strokeStyle = color;
-//   this._context.lineWidth = line_width;
-//   this._context.strokeRect(x, y, width, height);
-// }
-// Graphics.strokeRectangle = function(rect, line_width, color){
-//   this._context.strokeStyle = color;
-//   this._context.lineWidth = line_width;
-//   this._context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-// }
+Graphics.strokeRectangle = function(rect, line_width, color, alpha){
+  this.strokeRect(rect.x, rect.y, rect.width, rect.height, line_width, color, alpha);
+}
+// --------------------------------------------------------------------------------
+// * Paint Circle
+// --------------------------------------------------------------------------------
+Graphics.drawCircle = function(x, y, radius, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this._context.lineStyle(line_width, line_color, line_alpha, 1);
+  this._context.beginFill(fill_color, fill_alpha);
+  this._context.drawCircle(x, y, radius);
+  this._context.endFill();
+  this._context.lineStyle(0);
+}
+Graphics.fillCircle = function(x, y, radius, color, alpha){
+  this.drawCircle(x, y, radius, color, alpha, 0, 0, 0);
+}
+Graphics.strokeCircle = function(x, y, radius, line_width, color, alpha){
+  this.drawCircle(x, y, radius, 0, 0, line_width, color, alpha);
+}
+// --------------------------------------------------------------------------------
+Graphics.drawPoint = function(point, radius, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this.drawCircle(point.x, point.y, radius, fill_color, fill_alpha, line_width, line_color, line_alpha);
+}
+Graphics.fillPoint = function(point, radius, color, alpha){
+  this.fillCircle(point.x, point.y, radius, color, alpha);
+}
+Graphics.strokePoint = function(point, radius, line_width, color, alpha){
+  this.strokeCircle(point.x, point.y, radius, line_width, color, alpha);
+}
+// --------------------------------------------------------------------------------
+// * Paint Polygon
+// --------------------------------------------------------------------------------
+Graphics.drawPolygonArray = function(polygon_array, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this._context.lineStyle(line_width, line_color, line_alpha, 1);
+  this._context.beginFill(fill_color, fill_alpha);
+  this._context.drawPolygon(polygon_array);
+  this._context.endFill();
+  this._context.lineStyle(0);
+}
+Graphics.fillPolygonArray = function(polygon_array, color, alpha){
+  this.drawPolygonArray(polygon_array, color, alpha, 0, 0, 0);
+}
+Graphics.strokePolygonArray = function(polygon_array, line_width, color, alpha){
+  this.drawPolygonArray(polygon_array, 0, 0, line_width, color, alpha);
+}
+// --------------------------------------------------------------------------------
+Graphics.drawPolygon = function(polygon, fill_color, fill_alpha, line_width, line_color, line_alpha){
+  this.drawPolygonArray(polygon.getRenderArray(), fill_color, fill_alpha, line_width, line_color, line_alpha);
+}
+Graphics.fillPolygon = function(polygon, color, alpha){
+  this.fillPolygonArray(polygon.getRenderArray(), color, alpha);
+}
+Graphics.strokePolygon = function(polygon, line_width, color, alpha){
+  this.strokePolygonArray(polygon.getRenderArray(), line_width, color, alpha);
+}
 // --------------------------------------------------------------------------------
 // Graphics.drawText = function(){
 //   this._context.drawImage(arguments);

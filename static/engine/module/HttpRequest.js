@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/06/03 - Version 2.0.0
+//   2021/06/03 - Version 2.0.0
 //     - Engine core
 // ================================================================================
 
@@ -27,7 +27,10 @@ HttpRequest.OFFLINE_TEST = true;
 // --------------------------------------------------------------------------------
 HttpRequest.uploadWebPage = function(src, filename){
   return new Promise((resolve) => {
-    if(HttpRequest.OFFLINE_TEST) resolve(src);
+    if(HttpRequest.OFFLINE_TEST) {
+      resolve(src);
+      return;
+    }
     Engine.getPackages().axios({
       method: 'post',
       url: HttpRequest.BASE_URL + 'img/save_by_base64',

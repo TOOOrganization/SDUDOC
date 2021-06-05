@@ -1,13 +1,17 @@
-[
-  "Move.js",
-  "Dot.js",
-  "Line.js",
-  "Polygon.js",
-  "AutoPolygon.js",
-  "Character.js",
-  "Word.js",
-  "Sentence.js",
-  "Paragraph.js",
-  "Article.js",
-  "Book.js"
-]
+{
+  "PLUGIN_LIST" : [
+    "Move.js",
+    "Dot.js",
+    "Line.js",
+    "Polygon.js"
+  ],
+  "Temp": [
+    "AutoPolygon.js",
+    "Character.js",
+    "Word.js",
+    "Sentence.js",
+    "Paragraph.js",
+    "Article.js",
+    "Book.js"
+  ]
+}

@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2021/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -49,16 +49,9 @@ Tool.prototype.initialize = function(id, tooltip, icon, slot, callback){
   this._icon = icon;
   this._slot = slot;
   this._callback = callback;
-  let that = this;
-  this._on_click = function(){
-    that.onClick.call(that);
-  };
-  this._on_hover = function(){
-    that.onHover.call(that);
-  };
-  this._on_leave = function(){
-    that.onLeave.call(that);
-  };
+  this._on_click = this.onClick.bind(this);
+  this._on_hover = this.onHover.bind(this);
+  this._on_leave = this.onLeave.bind(this);
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter

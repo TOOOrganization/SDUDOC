@@ -8,7 +8,7 @@
 //   SDUDOC Engine Loader.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/11 - Version 1.0.0
+//   2021/03/11 - Version 1.0.0
 //     - Engine Loader core
 // ================================================================================
 
@@ -47,7 +47,7 @@ EngineLoader.OBJECT_LIST = [
 ];
 EngineLoader.MANAGER_LIST = [
   'ElementManager', 'HistoryManager', 'ColorManager',
-
+ // DocumentManager Engine Graphice
   "DocumentManager", "RenderManager", "CollideManager",
   "ToolManager", "SelectManager"
 ];
@@ -68,6 +68,7 @@ EngineLoader.load = async function(app_element, packages){
   await this.wait(500);
   Engine.updateLoadingData();
   await this.loading(1000, 'loading-engine', '');
+  Engine.setCurrentTodo('engine-loading');
   Engine.updateAppData();
 
   Engine.setCurrentLoadingProcess('loading-core', '...');
@@ -92,6 +93,8 @@ EngineLoader.load = async function(app_element, packages){
 
   Engine.setCurrentLoadingProcess('loading-complete', '');
   Engine.initialize();
+
+  Engine.setCurrentTodo('engine-ready');
 };
 // --------------------------------------------------------------------------------
 EngineLoader.loadEngine = async function(){
@@ -127,7 +130,7 @@ EngineLoader.loadTool = async function(){
   }
 };
 EngineLoader.loadPlugin = async function(){
-  let plugin_list = require('../../static/engine/plugins.json');
+  let plugin_list = require('../../static/engine/plugins.json').PLUGIN_LIST;
   for(let i = 0; i < plugin_list.length; i++){
     await this.loading(100, 'loading-plugin', '：' + plugin_list[i]);
     await this.loadScript(EngineLoader.PLUGIN, plugin_list[i]);

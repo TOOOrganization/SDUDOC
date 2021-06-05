@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/13 - Version 1.0.0
+//   2021/03/13 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -47,8 +47,8 @@ MouseInput.clear = function() {
   this._over_overall = false;
   this._pressed_target = [false, false, false];
   this._pressed_overall = [false, false, false];
-  this._point_target = new Point(0, 0);
-  this._point_overall = new Point(0, 0);
+  this._point_target = null;
+  this._point_overall = null;
 };
 MouseInput._setupEventHandlers = function(){
   document.addEventListener('click', (event) => {this._onClick.call(this, event, true)});
@@ -180,7 +180,7 @@ MouseInput._onMouseOut = function(event, overall){
   if (overall) this._over_overall = false;
   if (!overall) this._over_target = false;
   if (!overall) this._pressed_target = [false, false, false];
-  if (!overall) this._point_target = new Point(0, 0);
+  if (!overall) this._point_target = null;
   this.callHandler(event, 'mouseout', overall);
 };
 MouseInput._onWheel = function(event, overall){

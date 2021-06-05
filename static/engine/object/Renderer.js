@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/17 - Version 1.0.0
+//   2021/03/17 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -19,18 +19,22 @@ function Renderer(){
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-Renderer.prototype._id = "";
-Renderer.prototype._z = 0;
+Renderer.prototype._id = '';
+Renderer.prototype._name = '';
+Renderer.prototype._z_index = 0;
 Renderer.prototype._owner = null;
 Renderer.prototype._render = function(){};
 // --------------------------------------------------------------------------------
+Renderer.prototype._visible = true;
+// --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Renderer.prototype.initialize = function(id, z, owner, render){
+Renderer.prototype.initialize = function(id, name, z_index, render){
   this._id = id;
-  this._z = z;
-  this._owner = owner;
+  this._name = name;
+  this._z_index = z_index;
   this._render = render;
+  this._visible = true;
 };
 // --------------------------------------------------------------------------------
 // * Getter & Setter
@@ -41,15 +45,15 @@ Object.defineProperty(Renderer.prototype, 'id', {
   },
   configurable: true
 });
-Object.defineProperty(Renderer.prototype, 'z', {
+Object.defineProperty(Renderer.prototype, 'name', {
   get: function() {
-    return this._z;
+    return this._name;
   },
   configurable: true
 });
-Object.defineProperty(Renderer.prototype, 'owner', {
+Object.defineProperty(Renderer.prototype, 'z_index', {
   get: function() {
-    return this._owner;
+    return this._z_index;
   },
   configurable: true
 });
@@ -59,4 +63,17 @@ Object.defineProperty(Renderer.prototype, 'render', {
   },
   configurable: true
 });
+Object.defineProperty(Renderer.prototype, 'visible', {
+  get: function() {
+    return this._visible;
+  },
+  set: function(value) {
+    this._visible = value;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
+Renderer.prototype.setVisible = function(value){
+  this._visible = value;
+};
 // ================================================================================

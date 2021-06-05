@@ -158,17 +158,17 @@ export default {
       this.setElementData(Engine.getAppElementData());
     },
     alert(json){
-      this.pop_title = json.title || this.pop_title;
-      this.pop_callback_ok = json.callback_ok || this.pop_callback_ok;
-      this.pop_callback_cancel = json.callback_cancel || this.pop_callback_cancel;
+      this.pop_title           = json.title           === undefined ? this.pop_title           : json.title;
+      this.pop_callback_ok     = json.callback_ok     === undefined ? this.pop_callback_ok     : json.callback_ok;
+      this.pop_callback_cancel = json.callback_cancel === undefined ? this.pop_callback_cancel : json.callback_cancel;
       this.alert_dialog = true;
     },
     prompt(json){
-      this.pop_title = json.title || this.pop_title;
-      this.pop_callback_ok = json.callback_ok || this.pop_callback_ok;
-      this.pop_callback_cancel = json.callback_cancel || this.pop_callback_cancel;
-      this.prompt_tooltip = json.tooltip || this.prompt_tooltip;
-      this.prompt_text = json.default_text || this.prompt_text;
+      this.pop_title           = json.title           === undefined ? this.pop_title           : json.title;
+      this.pop_callback_ok     = json.callback_ok     === undefined ? this.pop_callback_ok     : json.callback_ok;
+      this.pop_callback_cancel = json.callback_cancel === undefined ? this.pop_callback_cancel : json.callback_cancel;
+      this.prompt_tooltip      = json.tooltip         === undefined ? this.prompt_tooltip      : json.tooltip;
+      this.prompt_text         = json.default_text    === undefined ? this.prompt_text         : json.default_text;
       this.prompt_dialog = true;
     },
     setTodo(text){

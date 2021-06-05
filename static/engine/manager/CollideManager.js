@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/17 - Version 1.0.0
+//   2021/03/17 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -19,50 +19,65 @@ function CollideManager() {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
-CollideManager._collide_list = [];
+CollideManager._collide_list = {};
+CollideManager._collide_list_cache = {};
+// --------------------------------------------------------------------------------
+CollideManager.initialize = function(){
+  this.clear();
+};
+CollideManager.clear = function(){
+  this._collide_list = {};
+  this._collide_list_cache = {};
+};
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-CollideManager.clear = function(){
-  this._collide_list = [];
-};
 CollideManager.update = function(){
   if(!MouseInput.isOver() || !MouseInput.getMousePoint()) return;
   this.clear();
-  for(let i in SDUDocument.current_page_data){
-     for(let j in SDUDocument.current_page_data[i]){
-       if(SDUDocument.current_page_data[i][j].checkCollide){
-        let distance = SDUDocument.current_page_data[i][j].checkCollide(MouseInput.getMousePoint());
-        if(distance >= 0){
-          this._collide_list.push({id: j, page:SDUDocument.current_page_data[i][j].page, type:i, distance:distance});
-        }
+  let filtered_elements = ElementManager.getAllFilteredElement();
+  for(let type in filtered_elements){
+    for(let id in filtered_elements[type]){
+      let distance = filtered_elements[type][id].checkCollide(MouseInput.getMousePoint());
+      if(distance >= 0){
+        this._collide_list[type] = this._collide_list[type] || [];
+        this._collide_list[type].push({
+          id: id,
+          distance:distance
+        });
       }
     }
   }
 };
-CollideManager.getCollideListInfo = function(type, limit){
-  let list = [];
-  for(let i in this._collide_list){
-    if(this._collide_list[i].type === type){
-      let index = 0;
-      for(index = 0; index < list.length; index++){
-        if(this._collide_list[i].distance < list[index].distance){
-          break;
-        }
-      }
-      list.splice(index, 0, this._collide_list[i]);
-      if(list.length > limit){
-        list.splice(limit, list.length - limit);
+CollideManager.getCollideInfoList = function(type, limit){
+  let output = [];
+  if (!type || limit <= 0) return output;
+  if (!this._collide_list[type]) return output;
+  if (this._collide_list_cache[type] && this._collide_list_cache[type][limit]){
+    return this._collide_list_cache[type][limit];
+  }
+  for(let i = 0; i < this._collide_list[type].length; i++){
+    let index = 0;
+    for(index = 0; index < output.length; index++){
+      if(this._collide_list[type][i].distance < output[index].distance){
+        break;
       }
     }
+    output.splice(index, 0, this._collide_list[type][i]);
+    if(output.length > limit){
+      output.splice(limit, output.length - limit);
+    }
   }
-  return list;
+  this._collide_list_cache[type] = this._collide_list_cache[type] || {}
+  this._collide_list_cache[type][limit] = output;
+  return output;
 };
 CollideManager.getCollideList = function(type, limit){
-  let info = this.getCollideListInfo(type, limit);
-  let list = [];
-  for(let i in info){
-    list.push(info[i].id);
+  let output = [];
+  let info = this.getCollideInfoList(type, limit);
+  for(let i = 0; i < info.length; i++){
+    output.push(info[i].id);
   }
-  return list;
+  return output;
 };
+// ================================================================================

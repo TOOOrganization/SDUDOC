@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/12 - Version 1.0.0
+//   2021/03/12 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -40,6 +40,10 @@ Object.defineProperty(Polygon.prototype, 'points', {
 });
 // --------------------------------------------------------------------------------
 // * Functions
+// --------------------------------------------------------------------------------
+Polygon.prototype.append = function(point){
+  this._points.push(point);
+};
 // --------------------------------------------------------------------------------
 Polygon.prototype.isPointInSelf = function(point){
   let check = function(start, end, point){
@@ -101,5 +105,14 @@ Polygon.prototype.getScaledPolygon = function(scale){
     }
   }
   return new Polygon(new_points)
-}
+};
+// --------------------------------------------------------------------------------
+Polygon.prototype.getRenderArray = function(){
+  let output = [];
+  for(let i = 0; i < this._points.length; i++){
+    output.push(this._points[i].x);
+    output.push(this._points[i].y);
+  }
+  return output;
+};
 // ================================================================================

@@ -8,11 +8,11 @@
 //   Core of SDUDOC Engine.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/11 - Version 1.0.1
+//   2021/03/11 - Version 1.0.1
 //     - Decoupling functions to plugins.
 // --------------------------------------------------------------------------------
 //   Update history:
-//   2020/03/10 - Version 1.0.0
+//   2021/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -47,7 +47,7 @@ Engine.setPackages = function(packages){
 };
 // --------------------------------------------------------------------------------
 Engine.getApp = function(){
-  return this._packages;
+  return this._app_element;
 };
 Engine.getPackages = function(){
   return this._packages;
@@ -81,7 +81,7 @@ Engine.setCurrentLanguage = function(id){
 };
 Engine.setCurrentTodo = function(id){
   Language.setCurrentTodo(id);
-  this._app_element.setTodo(LanguageManager.getCurrentTodo());
+  this._app_element.setTodo(Language.getCurrentTodo());
 };
 Engine.setCurrentLoadingProcess = function(id, text){
   this._current_loading_id = id;
@@ -198,10 +198,17 @@ Engine.getEditorPageData = function(){
     current_page: DocumentManager.getCurrentPage() - 1
   };
 };
+Engine.getEditorCheckData = function(){
+  return {
+    check_id: SelectManager.getSelectedId(),
+    check_info: SelectManager.extractElementObject(SelectManager.getSelectedObject())
+  };
+};
 // --------------------------------------------------------------------------------
 Engine.updateEditorData = function(){
   this.updateEditorToolData();
   this.updateEditorPageData();
+  this.updateEditorCheckData();
 };
 // --------------------------------------------------------------------------------
 Engine.updateEditorToolData = function(){
@@ -212,6 +219,11 @@ Engine.updateEditorToolData = function(){
 Engine.updateEditorPageData = function(){
   if(this.checkRouter('Editor')){
     this._app_element.getRouterComponent().updatePageData();
+  }
+};
+Engine.updateEditorCheckData = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().updateCheckData();
   }
 };
 // --------------------------------------------------------------------------------
@@ -232,9 +244,14 @@ Engine.initialize = function(){
   Language.initialize();
   Graphics.initialize();
 
-  RenderManager.initialize();
   ToolManager.initialize();
+  RenderManager.initialize();
+  CollideManager.initialize();
+  ElementManager.initialize();
   DocumentManager.initialize();
+
+  SelectManager.initialize();
+  HistoryManager.initialize();
 };
 Engine.initializeEditor = function(){
   if(!this.checkRouter('Editor')) return;
@@ -242,23 +259,29 @@ Engine.initializeEditor = function(){
   let editor = this._app_element.getRouterComponent();
   MouseInput.initializeEditor(editor);
   Graphics.initializeEditor(editor);
+
+  ToolManager.initializeEditor(editor);
 };
 // --------------------------------------------------------------------------------
 Engine.createHandler = function(){
-  MouseInput.addHandler(new Handler("engine.onMouseMove", "mousemove", false, Engine, function(event){
-    if(MouseInput.isPressed(MouseInput.Mouse.MIDDLE)) {
-      let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
-      Graphics.moveOrigin(distance.x, distance.y);
-    }
-  }));
-  MouseInput.addHandler(new Handler("engine.onMouseWheel", "wheel", false, Engine, function(event){
-    let scale = 1 - event.deltaY / 1200;
-    let oldScale = Graphics.scale;
-    Graphics.multiScale(scale);
-    let real_scale = Graphics.scale / oldScale;
-    let distance = new Point(event.layerX, event.layerY).minus(Graphics.origin).multiply(1 - real_scale);
-    Graphics.moveOrigin(distance.x, distance.y)
-  }));
+  MouseInput.addHandler(new Handler("engine.onMouseMove", "mousemove", false, Engine,
+    function(event){
+      if(MouseInput.isPressed(MouseInput.Mouse.MIDDLE)) {
+        let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
+        Graphics.moveOrigin(distance.x, distance.y);
+      }
+    })
+  );
+  MouseInput.addHandler(new Handler("engine.onMouseWheel", "wheel", false, Engine,
+    function(event){
+      let scale = 1 - event.deltaY / 1200;
+      let oldScale = Graphics.scale;
+      Graphics.multiScale(scale);
+      let real_scale = Graphics.scale / oldScale;
+      let distance = new Point(event.layerX, event.layerY).minus(Graphics.origin).multiply(1 - real_scale);
+      Graphics.moveOrigin(distance.x, distance.y)
+    })
+  );
 };
 Engine.createInputBox = function(){
   this._input = document.createElement('input');
@@ -285,6 +308,10 @@ Engine.createInputBox = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
+Engine.clearToolTemp = function(){
+  SelectManager.unSelect();
+}
+// --------------------------------------------------------------------------------
 Engine.readImage = function(from, callback){
   return new Promise((resolve) => {
     this._input.setAttribute('accept', 'image/*');
@@ -301,7 +328,7 @@ Engine.readJson = function(from, callback){
     this._input.setAttribute('accept', '.sjs');
     this._input._readAsText = true;
     this._input._reader.onload = function(event){
-      callback.call(from, event.target.result, Engine._input._file.name);
+      callback.call(from, Engine._input._file.name, event.target.result);
       resolve();
     }
     this._input.click();
@@ -326,11 +353,11 @@ Engine.alert = function(owner, title, callback){
       title: title,
       callback_ok: function(){
         callback.call(owner);
-        Engine._app_element.alert_dialog = false;
+        Engine.getApp().alert_dialog = false;
         resolve();
       },
       callback_cancel: function(){
-        Engine._app_element.alert_dialog = false;
+        Engine.getApp().alert_dialog = false;
         resolve();
       }
     });
@@ -341,12 +368,12 @@ Engine.prompt = function(owner, title, tooltip, default_text, callback){
     this._app_element.prompt({
       title: title,
       callback_ok: function(){
-        callback.call(owner, Engine._app_element.prompt_text);
-        Engine._app_element.alert_dialog = false;
+        callback.call(owner, Engine.getApp().prompt_text);
+        Engine.getApp().prompt_dialog = false;
         resolve();
       },
       callback_cancel: function(){
-        Engine._app_element.alert_dialog = false;
+        Engine.getApp().prompt_dialog = false;
         resolve();
       },
       tooltip: tooltip,

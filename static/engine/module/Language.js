@@ -94,6 +94,7 @@ Language.DEFAULT_DICTIONARY = [
   }, {
     type: Language.Type.System, id: 'index-main', dictionary:[
       { id: 'zh-cn', text: ['欢迎使用，您要做些什么？'] },
+      { id: 'zh-tw', text: ['歡迎使用，您要做些什麽？'] },
       { id: 'en-us', text: ['Welcome! Just Enjoy.'] }
     ]
   }, {
@@ -102,13 +103,19 @@ Language.DEFAULT_DICTIONARY = [
     ]
   }, {
     type: Language.Type.Todo, id: 'default', dictionary:[
-      { id: 'zh-cn', text: ['请等待'] },
+      { id: 'zh-cn', text: ['Loading...'] },
     ]
   }, {
-    type: Language.Type.Todo, id: 'loading', dictionary:[
+    type: Language.Type.Todo, id: 'engine-loading', dictionary:[
       { id: 'zh-cn', text: ['请等待引擎加载完成...'] },
       { id: 'zh-tw', text: ['請等待引擎加載完成...'] },
       { id: 'en-us', text: ['Loading for Engine...'] }
+    ]
+  }, {
+    type: Language.Type.Todo, id: 'engine-ready', dictionary:[
+      { id: 'zh-cn', text: ['欢迎使用！'] },
+      { id: 'zh-tw', text: ['歡迎使用！'] },
+      { id: 'en-us', text: ['Just Enjoy!'] }
     ]
   },
 ];
@@ -206,7 +213,7 @@ Language.getCurrentLanguage = function (){
   return this._current_language;
 };
 Language.getCurrentTodo = function (){
-  return this._current_todo;
+  return this.get(this.Type.Todo, this._current_todo);
 };
 // --------------------------------------------------------------------------------
 Language.setCurrentLanguage = function (id){
@@ -216,7 +223,7 @@ Language.setCurrentLanguage = function (id){
 };
 // --------------------------------------------------------------------------------
 Language.setCurrentTodo = function (id){
-  this._current_todo = this.get(this.Type.Todo, id);
+  this._current_todo = id;
 };
 // --------------------------------------------------------------------------------
 // * Functions

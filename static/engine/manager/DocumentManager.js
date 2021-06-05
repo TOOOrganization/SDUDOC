@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2021/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -27,14 +27,17 @@ DocumentManager._header = null;
 // --------------------------------------------------------------------------------
 DocumentManager.initialize = function(){
   this._filename = null;
-  this._page_array = new PageArray();
-  this._header = new Header();
+  this.clearData();
 };
 DocumentManager.clear = function(){
   this._filename = null;
+  this.clearData();
+  Graphics.clearImage();
+};
+DocumentManager.clearData = function(){
   this._page_array = new PageArray();
   this._header = new Header();
-  Graphics.clearImage();
+  ElementManager.clear();
 };
 // --------------------------------------------------------------------------------
 // * Document
@@ -46,6 +49,48 @@ DocumentManager.newDocument = function(){
   this.clear();
   this.updatePageData();
 }
+// --------------------------------------------------------------------------------
+// * Header
+// --------------------------------------------------------------------------------
+DocumentManager.getHeaderTooltip = function(){
+  return this._header.getTextArray()
+}
+DocumentManager.getHeaderData = function(){
+  return this._header.getDataArray()
+}
+DocumentManager.setHeaderData = function(data){
+  this._header.setDataArray(data)
+}
+// --------------------------------------------------------------------------------
+// * Element
+// --------------------------------------------------------------------------------
+DocumentManager.addElement = function(type, element){
+  ElementManager.addElement(type, element);
+};
+DocumentManager.removeElement = function(type, id){
+  ElementManager.removeElement(type, id);
+};
+DocumentManager.updateElement = function(type, id, data){
+  SelectManager.updateElement(type, id, data);
+};
+// --------------------------------------------------------------------------------
+DocumentManager.addElementWithUpdate = function(type, element){
+  this.addElement(type, element);
+  this.afterChangeElement();
+};
+DocumentManager.removeElementWithUpdate = function(type, id){
+  this.removeElement(type, id);
+  this.afterChangeElement();
+};
+DocumentManager.updateElementWithUpdate = function(type, id, data){
+  this.updateElement(type, id, data);
+  this.afterChangeElement();
+};
+// --------------------------------------------------------------------------------
+DocumentManager.afterChangeElement = function(){
+  this.updateFilteredData();
+  Graphics.refresh();
+};
 // --------------------------------------------------------------------------------
 // * Page
 // --------------------------------------------------------------------------------
@@ -69,14 +114,15 @@ DocumentManager.getPageList = function(){
   return data;
 }
 // --------------------------------------------------------------------------------
-DocumentManager.addAfterCurrentPage = async function(src){
-  let page = ElementManager.makeElement(Page.TAG, src);
-  ElementManager.addElement(Page.TAG, page);
+DocumentManager.addAfterCurrentPage = async function(src, filename){
+  let request_src = await HttpRequest.uploadWebPage(src, filename);
+  let page = ElementManager.makeElement(Page.TAG, request_src);
+  this.addElement(Page.TAG, page);
   this._page_array.addAfterCurrentPage(page.id);
   await this.afterChangePage();
 }
 DocumentManager.removeCurrentPage = async function(){
-  ElementManager.removeElement(Page.TAG, this.getCurrentPageId());
+  this.removeElement(Page.TAG, this.getCurrentPageId());
   this._page_array.removeCurrentPage();
   await this.afterChangePage();
 }
@@ -156,31 +202,42 @@ DocumentManager.getExportDocument = function(){
   return output;
 };
 // --------------------------------------------------------------------------------
-DocumentManager.loadJson = function(filename, json){
+DocumentManager.load = async function(filename, json){
   this.clear();
   this._filename = filename.split('.');
   this._filename.pop();
   this._filename = this._filename.join('.');
 
   let json_object = JSON.parse(json);
-
+  this.loadJson(json_object);
+  await this.afterChangePage();
+};
+DocumentManager.save = function(){
+  return JSON.stringify(this.saveJson());
+};
+DocumentManager.export = function(){
+  return JSON.stringify(this.exportJson());
+};
+// --------------------------------------------------------------------------------
+DocumentManager.loadJson = function(json_object){
+  this.clearData();
   this._header.loadJson(json_object.Header);
   this._page_array.loadJson(json_object.PageList);
-  ElementManager.loadJson(json_object.Element);
+  ElementManager.loadJson(json_object.Elements);
 };
 DocumentManager.saveJson = function(){
   let output = {};
   output.Header = this._header.saveJson();
   output.PageList = this._page_array.saveJson();
-  output.Element = ElementManager.saveJson();
+  output.Elements = ElementManager.saveJson();
   return output;
 };
-DocumentManager.export = function(){
+DocumentManager.exportJson = function(){
   let output = {};
   output.Header = this._header.exportJson();
   output.Document = this.getExportDocument();
   output.PageList = this._page_array.exportJson();
-  output.Element = ElementManager.exportJson();
+  output.Elements = ElementManager.exportJson();
   return output;
 };
 // ================================================================================
@@ -202,51 +259,6 @@ DocumentManager.export = function(){
 // --------------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------------
-DocumentManager.addElement = function(type, element){
-  SDUDocument.addElement(type, element);
-  Graphics.refresh();
-  this.push();
-}
-DocumentManager.deleteElement = function(type, id){
-  SDUDocument.deleteElement(type, id);
-  Graphics.refresh();
-  this.push();
-}
-// --------------------------------------------------------------------------------
-DocumentManager.extractGetElementById = function(id){
-  this.extractGetElement(id.split(SDUDocument.SAPARATOR)[0], id);
-}
-DocumentManager.extractGetElement = function(type, id){
-  let element = SDUDocument.getElement(type, id);
-  this.extractElement(element);
-}
-DocumentManager.extractElement = function(element){
-  let json = element.saveJson();
-  let str = JSON.stringify(json);
-  let id = json._id + '';
-  str = str.substring(1, str.length - 1);
-  str = str.split(',');
-  str.shift();
-  str = str.join(',');
-  str = str.replaceAll(',\"_', '\n\"_');
-  Engine.owner.check_id = id;
-  Engine.owner.check_info = str;
-}
-DocumentManager.clearElement = function(){
-  Engine.owner.check_id = null;
-  Engine.owner.check_info = null;
-}
-DocumentManager.updateElement = function(){
-  let id = Engine.owner.check_id;
-  let info = Engine.owner.check_info;
-  let str = info.replaceAll('\n\"_', ',\"_');
-  str = '{\"_id\":\"' + id + '\",' + str + '}';
-  let json = JSON.parse(str);
-  SDUDocument.updateElement(id.split(SDUDocument.SAPARATOR)[0], id, json);
-  Graphics.refresh();
-  this.push();
-}
-// --------------------------------------------------------------------------------
 DocumentManager.upLoadDoc = function(){
   // return new Promise((resolve) => {
   //   Engine._axios({
@@ -267,31 +279,7 @@ DocumentManager.upLoadDoc = function(){
   //   });
   // });
 }
-// --------------------------------------------------------------------------------
 
-DocumentManager.newWebPage = function(src, filename){
-  // return new Promise((resolve) => {
-  //   Engine._axios({
-  //     method: 'post',
-  //     url: 'http://211.87.232.197:8081/sdudoc/img/save_by_base64',
-  //     data: {
-  //       base64 : src,
-  //       filename: filename
-  //     },
-  //     headers: {'content-type': "application/json"},
-  //     responseType: 'json'
-  //   }).then(response => {
-  //     console.log(response);
-  //     let src_link = 'http://211.87.232.197:8081/sdudoc/img/get_by_id?id=' + response.data;
-  //     DocumentManager.newPage(src_link).then(r => {
-  //       resolve();
-  //     });
-  //   }).catch(error => {
-  //     console.log(error);
-  //     resolve();
-  //   });
-  // });
-}
 
 // --------------------------------------------------------------------------------
 DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
@@ -531,11 +519,6 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
   SDUDocument.addElement(Book.TAG, book, true);
 
   this.push();
-}
-
-// --------------------------------------------------------------------------------
-DocumentManager.getNextIndex = function(key){
-  return SDUDocument.getNextIndex(key);
 }
 
 // --------------------------------------------------------------------------------

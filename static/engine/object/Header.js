@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/06/04 - Version 1.0.0
+//   2021/06/04 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -143,10 +143,10 @@ Header.prototype.saveJson = function(){
 }
 Header.prototype.exportJson = function(){
   let output = {};
-  output.title   = this._title.value;
-  output.author  = this._author.value;
-  output.book    = this._book.value;
-  output.dynasty = this._dynasty.value;
+  output.title   = this._data.title.value;
+  output.author  = this._data.author.value;
+  output.book    = this._data.book.value;
+  output.dynasty = this._data.dynasty.value;
   return output;
 }
 // ================================================================================

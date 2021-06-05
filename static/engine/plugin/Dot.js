@@ -8,7 +8,7 @@
 //   [Warning] You need SDUDOC Engine to apply this plugin.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2021/03/10 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -76,13 +76,13 @@ Object.defineProperty(Dot2D.prototype, 'type', {
 });
 Object.defineProperty(Dot2D.prototype, 'x', {
   get: function() {
-    return this.getRealPoint()._x;
+    return this.getPoint().x;
   },
   configurable: true
 });
 Object.defineProperty(Dot2D.prototype, 'y', {
   get: function() {
-    return this.getRealPoint()._y;
+    return this.getPoint().y;
   },
   configurable: true
 });
@@ -118,23 +118,28 @@ Dot2D.prototype.move = function(point){
       this._y += point.y;
       break;
     case Dot2D.Type.DEPENDENT:
-      let dependent = LineFactory.getDependent(this._father, point);
+      let line = ElementManager.getElement(Line2D.TAG, this._father).getLine();
+      let dependent = line.getDependent(point);
       this._position = Math.max(0, Math.min(1, dependent))
       break;
   }
 };
 // --------------------------------------------------------------------------------
-Dot2D.prototype.getRealPoint = function(){
+// * Get Base Object
+// --------------------------------------------------------------------------------
+Dot2D.prototype.getPoint = function(){
   switch (this._type) {
     case Dot2D.Type.FREE: default:
-      return this;
+      return new Point(this._x, this._y);
     case Dot2D.Type.DEPENDENT:
-      let line = SDUDocument.getElement(Line2D.TAG, this._father);
-      return LineFactory.getDependentPoint(line, this._position);
+      let line = ElementManager.getElement(Line2D.TAG, this._father).getLine();
+      return line.getDependentPoint(this._position);
     case Dot2D.Type.INTERSECTION:
-      return Graphics.getGridPoint(LineFactory.getIntersection(this._father1, this._father2));
+      let line1 = ElementManager.getElement(Line2D.TAG, this._father1).getLine();
+      let line2 = ElementManager.getElement(Line2D.TAG, this._father2).getLine();
+      return line1.getIntersectionPoint(line2);
   }
-};
+}
 // --------------------------------------------------------------------------------
 // * New Element
 // --------------------------------------------------------------------------------
@@ -142,43 +147,41 @@ Dot2D.prototype.newElement = function(){
   return new Dot2D('', [], Dot2D.Type.FREE, 0, 0);
 };
 // --------------------------------------------------------------------------------
+// * Add
+// --------------------------------------------------------------------------------
+Dot2D.prototype.onAwake = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Update
+// --------------------------------------------------------------------------------
+Dot2D.prototype.onUpdate = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Remove
+// --------------------------------------------------------------------------------
+Dot2D.prototype.onRemove = function(){
+  let lines = ElementManager.getFilteredElements(Line2D.TAG);
+  for(let id in lines){
+    if(lines[id].start === this._id || lines[id].end === this._id){
+      DocumentManager.removeElement(Line2D.TAG, id);
+    }
+  }
+  let polygons = ElementManager.getFilteredElements(Polygon2D.TAG);
+  for(let id in polygons){
+    if(polygons[id].points.indexOf(this._id) >= 0){
+      DocumentManager.removeElement(Polygon2D.TAG, id);
+    }
+  }
+};
+// --------------------------------------------------------------------------------
 // * Collide
 // --------------------------------------------------------------------------------
 Dot2D.prototype.checkCollide = function(point){
-  let distance = Graphics.getRenderPoint(this).distance(point);
-  return distance <= this._radius + 2 ? distance : -1;
-};
-// --------------------------------------------------------------------------------
-Dot2D.prototype.render = function(ctx){
-  Point.prototype.fillCanvas.call(this, ctx, this._radius - 2, this._color);
-  Point.prototype.strokeCanvas.call(this, ctx, this._radius - 2, this._stroke_width / 2, this._stroke_color);
-};
-Dot2D.prototype.renderCollide = function(ctx){
-  Point.prototype.fillCanvas.call(this, ctx, this._radius, this._color);
-  Point.prototype.strokeCanvas.call(this, ctx, this._radius, this._stroke_width, this._collide_color);
-};
-// --------------------------------------------------------------------------------
-Dot2D.prototype.onDelete = function(){
-  let lines = SDUDocument.getCurrentPageElements(Line2D.TAG);
-  for(let i in lines){
-    if(lines[i].start === this._id || lines[i].end === this._id){
-      if(SDUDocument.getElement(Line2D.TAG, i)) {
-        SDUDocument.deleteElement(Line2D.TAG, i);
-      }
-    }
-  }
-
-  let polygons = SDUDocument.getCurrentPageElements(Polygon2D.TAG);
-  for(let i in polygons){
-    for(let j in polygons[i].points){
-      if(polygons[i].points[j] === this._id){
-        if(SDUDocument.getElement(Polygon2D.TAG, i)) {
-          SDUDocument.deleteElement(Polygon2D.TAG, i);
-        }
-        break;
-      }
-    }
-  }
+  let distance = Graphics.getRenderPoint(this.getPoint()).distance(point);
+  let radius = 5;
+  return distance <= radius + 2 ? distance : -1;
 };
 // --------------------------------------------------------------------------------
 // * Save & Export
@@ -222,105 +225,145 @@ Language.addDictionary({
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("dot", "点工具", "mdi-circle-medium", Tool.Slot.PLUGIN, {
-  on_click: function(id){
-    ToolManager.setCurrentPlugin(id);
+ToolManager.addTool(new Tool('dot', '点工具', 'mdi-circle-medium', Tool.Slot.PLUGIN, {
+  on_click: function(){
+    ToolManager.setCurrentPlugin(this._id);
     Engine.setCurrentTodo('plugin-dot');
   }
 }));
 // --------------------------------------------------------------------------------
-ToolManager.addHandler(new Handler("dot.onLeftClick", "left_click", false, DotFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
+ToolManager.addHandler(new Handler('dot.onMouseLeftClick', 'left_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
 
-  if(collide_list.length > 0) {
-    SelectManager.select(Dot2D.TAG, collide_list[0]);
-    return;
-  }
+    let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
+    if(collide_list.length > 0) {
+      SelectManager.select(Dot2D.TAG, collide_list[0]);
+      Graphics.refresh();
+      return;
+    }
 
-  collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
-  if(collide_list.length === 2){
-    DocumentManager.addElement(Dot2D.TAG, DotFactory.makeObject(DocumentManager.getCurrentPageId(),
-      Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]));
-  }else if(collide_list.length === 1){
-    let dependent = LineFactory.getDependent(collide_list[0], new Point(event.layerX, event.layerY));
-    DocumentManager.addElement(Dot2D.TAG, DotFactory.makeObject(DocumentManager.getCurrentPageId(),
-      Dot2D.Type.DEPENDENT, collide_list[0], dependent));
-  }else{
-    let point = Graphics.getGridPoint(new Point(event.layerX, event.layerY));
-    DocumentManager.addElement(Dot2D.TAG, DotFactory.makeObject(DocumentManager.getCurrentPageId(),
-      Dot2D.Type.FREE, point.x, point.y));
-  }
-}));
-ToolManager.addHandler(new Handler("dot.onRightClick", "right_click", false, DotFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
-  if(collide_list.length === 0) return;
-  DocumentManager.deleteElement(Dot2D.TAG, collide_list[0]);
-}));
-ToolManager.addHandler(new Handler("dot.onMouseMove", "mousemove", false, DotFactory, function(event){
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("dot.onMouseOut", "mouseout", false, DotFactory, function(event){
-  Graphics.refresh();
-}));
+    SelectManager.unSelect();
+
+    collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
+    if(collide_list.length === 2){
+      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]);
+      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
+    }else if(collide_list.length === 1){
+      let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
+      let dependent = line.getDependent(mouse_point);
+      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.DEPENDENT, collide_list[0], dependent);
+      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
+    }else{
+      let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
+      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+        Dot2D.Type.FREE, mouse_point.x, mouse_point.y);
+      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
+    }
+  })
+);
+ToolManager.addHandler(new Handler('dot.onMouseRightClick', 'right_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
+    if(collide_list.length === 0) {
+      SelectManager.unSelect();
+      Graphics.refresh();
+      return;
+    }
+    DocumentManager.removeElementWithUpdate(Dot2D.TAG, collide_list[0]);
+  })
+);
+ToolManager.addHandler(new Handler('dot.onMouseMove', 'mousemove', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('dot.onMouseOut', 'mouseout', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+// ================================================================================
+
+// ================================================================================
+// * Register Renderer
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("_dot.normal", 10, DotFactory, function(ctx){
+Graphics.renderPointNormal = function(point){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  let line_color = ColorManager.RGBToHex(255, 255, 255);
+  this.drawPoint(point, 2.5, fill_color, 1, 1, line_color, 1);
+};
+Graphics.renderPointCollide = function(point){
+  let fill_color = ColorManager.RGBToHex(255, 0, 0);
+  let line_color = ColorManager.RGBToHex(255, 255, 255);
+  this.drawPoint(point, 4, fill_color, 1, 2, line_color, 1);
+};
+Graphics.renderPointVirtual = function(point){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  let line_color = ColorManager.RGBToHex(255, 255, 255);
+  this.drawPoint(point, 4, fill_color, 0.5, 2, line_color, 0.5);
+};
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer('dot.dot.all', '点工具渲染点', 50, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
-  let dots = SDUDocument.getCurrentPageElements(Dot2D.TAG);
-  for(let i in dots){
-    if(collide_list.indexOf(i) === -1){
-      dots[i].render(ctx);
+  let dots = ElementManager.getFilteredElements(Dot2D.TAG);
+  for(let id in dots){
+    if(collide_list.indexOf(id) === -1){
+      Graphics.renderPointNormal(Graphics.getRenderPoint(dots[id].getPoint()));
     }
   }
-}));
-RenderManager.addRenderer(new Renderer("!dot.collide", 11, DotFactory, function(ctx){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).render(ctx);
+    Graphics.renderPointCollide(Graphics.getRenderPoint(dots[collide_list[0]].getPoint()));
   }
 }));
-RenderManager.addRenderer(new Renderer("dot.collide", 11, DotFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('!dot.dot.all', '全局渲染点', 50, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
-  if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Dot2D.TAG, collide_list[0]).renderCollide(ctx);
+
+  let dots = ElementManager.getFilteredElements(Dot2D.TAG);
+  for(let id in dots){
+    Graphics.renderPointNormal(Graphics.getRenderPoint(dots[id].getPoint()));
   }
 }));
-RenderManager.addRenderer(new Renderer("dot.line.collide", 9, DotFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('dot.line.collide', '点工具渲染线', 41, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+
   let collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   if(collide_list.length > 0){
     for(let i = 0; i < collide_list.length; i++){
-      SDUDocument.getCurrentPageElement(Line2D.TAG, collide_list[i]).renderCollide(ctx);
+      let line_object = ElementManager.getElement(Line2D.TAG, collide_list[i]);
+      Graphics.renderLineCollide(Graphics.getRenderLine(line_object.getLine()));
     }
   }
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("dot.mouse", 100, DotFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('dot.dot.mouse', '', 100, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   if(collide_list.length > 0) return;
 
   collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   if(collide_list.length === 2){
-    let point = LineFactory.getIntersection(collide_list[0], collide_list[1]);
-    point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-    point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+    let line1 = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+    let line2 = ElementManager.getElement(Line2D.TAG, collide_list[1]).getLine();
+    let intersection_point = line1.getIntersectionPoint(line2);
+    Graphics.renderPointVirtual(Graphics.getRenderPoint(intersection_point));
   }else if(collide_list.length === 1){
-    let mouse_point = MouseInput.getMousePoint();
+    let mouse_point = Graphics.getMouseSourcePoint();
     if(mouse_point !== null){
-      let point = LineFactory.getProjection(collide_list[0], mouse_point);
-      point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-      point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+      let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
+      let projection_point = line.getProjectionPoint(mouse_point);
+      Graphics.renderPointVirtual(Graphics.getRenderPoint(projection_point));
     }
   }else{
     let mouse_point = MouseInput.getMousePoint();
     if(mouse_point !== null){
-      mouse_point.fillSelf(ctx, 3, 'rgba(255, 255, 255, 0.5)');
-      mouse_point.strokeSelf(ctx, 5, 2, 'rgba(0, 0, 255, 0.5)');
+      Graphics.renderPointVirtual(mouse_point);
     }
   }
 }));

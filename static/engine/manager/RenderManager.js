@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/15 - Version 1.0.0
+//   2021/03/15 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -33,14 +33,14 @@ RenderManager.clear = function() {
 };
 RenderManager._setupZList = function() {
   let temp = [];
-  for(let i = 0; i < this._renderers.length; i++){
-    temp.push({id: this._renderers[i].id, z: this._renderers[i].z});
+  for(let key in this._renderers){
+    temp.push({id: this._renderers[key].id, z_index: this._renderers[key].z_index});
   }
   let min_id = 0;
   while(temp.length > 0){
     min_id = 0;
     for(let i = 0;i < temp.length; i++){
-      if(temp[i].z < temp[min_id].z){
+      if(temp[i].z_index < temp[min_id].z_index){
         min_id = i;
       }
     }
@@ -55,17 +55,39 @@ RenderManager.addRenderer = function(renderer){
 };
 RenderManager.removeRenderer = function(id){
   this._renderers.remove(id);
+  for(let i = 0; i < this._z_list.length; i++){
+    if(this._z_list[i] === id){
+      this._z_list.splice(i, 1);
+    }
+  }
+};
+// --------------------------------------------------------------------------------
+RenderManager.setVisible = function(id, value){
+  this._renderers[id].setVisible(value);
+};
+// --------------------------------------------------------------------------------
+RenderManager.getVisibleList = function(){
+  let output = [];
+  for(let key in this._renderers){
+    output.push({
+      id: this._renderers[key].id,
+      name: this._renderers[key].name,
+      visible: this._renderers[key].visible
+    });
+  }
+  return output;
 };
 // --------------------------------------------------------------------------------
 RenderManager.canToolManagerCurrentPluginCall = function(id){
-  return id.startsWith('_') || id.startsWith(ToolManager.getCurrentPlugin().id)
-    || (id.startsWith('!') && !id.startsWith('!' + ToolManager.getCurrentPlugin().id))
+  return id.startsWith('_') || id.startsWith(ToolManager.getCurrentPluginId())
+    || (id.startsWith('!') && !id.startsWith('!' + ToolManager.getCurrentPluginId()))
 }
 RenderManager.callRenderer = function(ctx){
   for(let i = 0; i < this._z_list.length; i++){
-    if(this.canToolManagerCurrentPluginCall(this._renderers[this._z_list[i]].id)){
+    if(this._renderers[this._z_list[i]].visible &&
+      this.canToolManagerCurrentPluginCall(this._renderers[this._z_list[i]].id)){
       this._renderers[this._z_list[i]].render.call(this._renderers[this._z_list[i]], ctx);
     }
   }
-}
+};
 // ================================================================================

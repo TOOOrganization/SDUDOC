@@ -8,7 +8,7 @@
 //   [Warning] You need SDUDOC Engine to apply this plugin.
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/03/10 - Version 1.0.0
+//   2021/03/10 - Version 1.0.0
 //     - Initial
 // ================================================================================
 
@@ -82,15 +82,31 @@ Page.prototype.newElement = function(){
   return new Page('', '');
 };
 // --------------------------------------------------------------------------------
+// * Add
+// --------------------------------------------------------------------------------
+Page.prototype.onAwake = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Update
+// --------------------------------------------------------------------------------
+Page.prototype.onUpdate = function(){
+
+};
+// --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Page.prototype.onRemove = function(){
-  let dots = SDUDocument.getCurrentPageElements(Dot2D.TAG);
-  for(let key in dots){
-    if(SDUDocument.getElement(Dot2D.TAG, key)) {
-      SDUDocument.deleteElement(Dot2D.TAG, key);
-    }
+  let dots = ElementManager.getFilteredElements(Dot2D.TAG);
+  for(let id in dots){
+    ElementManager.removeElement(Dot2D.TAG, id);
   }
+};
+// --------------------------------------------------------------------------------
+// * Collide
+// --------------------------------------------------------------------------------
+Page.prototype.checkCollide = function(point){
+  return -1;
 };
 // --------------------------------------------------------------------------------
 // * Save & Export

@@ -6,7 +6,7 @@
 //   License: MIT license
 // --------------------------------------------------------------------------------
 //   Latest update:
-//   2020/06/03 - Version 1.0.0
+//   2021/06/03 - Version 1.0.0
 //     - Engine core
 // ================================================================================
 
@@ -27,6 +27,19 @@ ElementManager._next_index = {};
 ElementManager._element_pool_dict = {};
 ElementManager._filtered_pool_dict = {};
 // --------------------------------------------------------------------------------
+// * initialize
+// --------------------------------------------------------------------------------
+ElementManager.initialize = function(){
+  this.clear();
+};
+ElementManager.clear = function(){
+  this._next_index = {};
+  this._element_pool_dict = {};
+  this._filtered_pool_dict = {};
+};
+// --------------------------------------------------------------------------------
+// * Element
+// --------------------------------------------------------------------------------
 ElementManager.initializePool = function(type){
   this._element_pool_dict[type] = this._element_pool_dict[type] || {};
 };
@@ -45,17 +58,19 @@ ElementManager.addElement = function(type, element){
   this.initializePool(type);
   if (this.isElementExist(type, element.id)) return;
   this._element_pool_dict[type][element.id] = element;
+  element.onAwake.call(element);
 };
 ElementManager.removeElement = function(type, id){
   if (!this.isElementExist(type, id)) return;
-  this._element_pool_dict[type][id].onRemove.call(this._data[type][id]);
+  this._element_pool_dict[type][id].onRemove.call(this._element_pool_dict[type][id]);
   delete this._element_pool_dict[type][id];
 };
-ElementManager.updateElement = function(type, id, json){
+ElementManager.updateElement = function(type, id, json_object){
   if (!this.isElementExist(type, id)) return;
-  for(let key in json) {
-    this._element_pool_dict[type][id][key] = json[key];
+  for(let key in json_object) {
+    this._element_pool_dict[type][id][key] = json_object[key];
   }
+  this._element_pool_dict[type][id].onUpdate.call(this._element_pool_dict[type][id]);
 };
 // --------------------------------------------------------------------------------
 // * New Element
@@ -73,14 +88,23 @@ ElementManager.makeElement = function(type, pages){
 // --------------------------------------------------------------------------------
 // * Get Element
 // --------------------------------------------------------------------------------
+ElementManager.getAllElement = function(){
+  return this._element_pool_dict;
+}
 ElementManager.getElements = function(type){
+  if (!this._element_pool_dict[type]) return {};
   return this._element_pool_dict[type];
 }
 ElementManager.getElement = function(type, id){
   if(!this.isElementExist(type, id)) return null;
   return this._element_pool_dict[type][id];
 }
+// --------------------------------------------------------------------------------
+ElementManager.getAllFilteredElement = function(){
+  return this._filtered_pool_dict;
+}
 ElementManager.getFilteredElements = function(type){
+  if (!this._filtered_pool_dict[type]) return {};
   return this._filtered_pool_dict[type];
 }
 ElementManager.getFilteredElement = function(type, id){
@@ -137,10 +161,12 @@ ElementManager.saveJson = function(){
 ElementManager.exportJson = function(){
   let output = {};
   for(let type in this._element_pool_dict){
-    output[type] = [];
     for(let id in this._element_pool_dict[type]){
       let json_object = this._element_pool_dict[type][id].exportJson();
-      if(json_object) output[type].push(json_object);
+      if(json_object) {
+        output[type] = output[type] || [];
+        output[type].push(json_object);
+      }
     }
   }
   return output;
