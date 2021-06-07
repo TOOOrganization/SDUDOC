@@ -23,38 +23,45 @@ Book.prototype.constructor = Book;
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-Book.TAG = "Book";
-// --------------------------------------------------------------------------------
-// * Property
-// --------------------------------------------------------------------------------
-Book.prototype._line_width = 0;
-Book.prototype._line_scale = 0;
-Book.prototype._color = '';
+Book.TAG = 'Book';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Book.prototype.initialize = function(id, page){
-  PolygonGroup.prototype.initialize.call(this);
-
-  this._line_width = 2;
-  this._line_scale = 3;
-  this._color = 'rgba(255, 0, 255, 0.8)';
-
-  this._id = id;
-  this._pages = [page];
+Book.prototype.initialize = function(id, pages){
+  PolygonGroup.prototype.initialize.call(this, id, pages);
 };
 // --------------------------------------------------------------------------------
-// * Getter & Setter
+// * New Element
 // --------------------------------------------------------------------------------
-Book.prototype.setColor = function(color){
-  this._color = color;
-}
+Book.prototype.newElement = function(){
+  return new Book('', []);
+};
 // --------------------------------------------------------------------------------
-Book.prototype.getObject = function(){
-  return new Book("", "");
-}
+// * Add
 // --------------------------------------------------------------------------------
-// * Functions
+Book.prototype.onAwake = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Update
+// --------------------------------------------------------------------------------
+Book.prototype.onUpdate = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Remove
+// --------------------------------------------------------------------------------
+Book.prototype.onRemove = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Collide
+// --------------------------------------------------------------------------------
+Book.prototype.checkCollide = function(point){
+  return -1;
+};
+// --------------------------------------------------------------------------------
+// * Polygon Group
 // --------------------------------------------------------------------------------
 Book.prototype.callFatherCalcPoints = function(){
 
@@ -63,16 +70,18 @@ Book.prototype.callFatherCalcPages = function(){
 
 };
 // --------------------------------------------------------------------------------
+// * Merge
+// --------------------------------------------------------------------------------
 Book.prototype.getMergePoints = function(){
   let points = {};
   for(let i = 0; i < this._pages.length; i++){
     points[this._pages[i]] = []
   }
   for(let i = 0; i < this._children.length; i++){
-    let article = SDUDocument.getElement(Article.TAG, this._children[i]);
-    if(article){
-      for(let page in article.points){
-        points[page] = points[page].concat(article.points[page]);
+    let article_object = ElementManager.getElement(Article.TAG, this._children[i]);
+    if(article_object){
+      for(let page in article_object.points){
+        points[page] = points[page].concat(article_object.points[page]);
       }
     }
   }
@@ -81,31 +90,12 @@ Book.prototype.getMergePoints = function(){
 Book.prototype.getMergePages = function(){
   let pages = [];
   for(let i = 0; i < this._children.length; i++){
-    let article = SDUDocument.getElement(Article.TAG, this._children[i]);
-    if(article){
-      pages.push(article.pages)
+    let article_object = ElementManager.getElement(Article.TAG, this._children[i]);
+    if(article_object){
+      pages.push(article_object.pages);
     }
   }
   return pages;
-};
-// --------------------------------------------------------------------------------
-Book.prototype.render = function(ctx){
-  let point_list = this._points[SDUDocument.getCurrentPageId()]
-  for(let i = 0; i < point_list.length; i++){
-    let points = [];
-    for(let j = 0; j < point_list[i].length; j++){
-      points[j] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, point_list[i][j]));
-    }
-    let polygon = new Polygon(points).getScaledPolygon(this._line_scale);
-    PolygonGroup.prototype.strokeCanvas.call(polygon, ctx, this._line_width, this._color);
-  }
-};
-Book.prototype.renderCollide = function(ctx){
-
-};
-// --------------------------------------------------------------------------------
-Book.prototype.onDelete = function(){
-
 };
 // --------------------------------------------------------------------------------
 // * Save & Export
@@ -113,138 +103,79 @@ Book.prototype.onDelete = function(){
 Book.prototype.getExportString = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getElement(Article.TAG, this._children[i]).getExportString());
+    str.push(ElementManager.getElement(Article.TAG, this._children[i]).getExportString());
   }
   return str.join('\n\n');
-}
+};
 Book.prototype.getExportStringArray = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getElement(Article.TAG, this._children[i]).getExportStringArray());
+    str.push(ElementManager.getElement(Article.TAG, this._children[i]).getExportStringArray());
   }
   return str;
-}
+};
 // --------------------------------------------------------------------------------
-Book.prototype.loadJson = function(json){
-  this._id = json._id;
-  this._pages = json._pages;
-  this._children = json._children;
-  this._father = json._father;
-  this._points = json._points;
-}
+Book.prototype.loadJson = function(json_object){
+  PolygonGroup.prototype.loadJson.call(this, json_object);
+};
 Book.prototype.saveJson = function(){
-  return {
-    _id: this._id,
-    _pages: this._pages,
-    _children: this._children,
-    _father: this._father,
-    _points: this._points
-  }
-}
+  return PolygonGroup.prototype.saveJson.call(this);
+};
 Book.prototype.exportJson = function(){
-  return {
-    id: this._id,
-    pages: this._pages,
-    children: this._children,
-    father: this._father,
-    string: this.getExportStringArray(),
-    points: this.getExportPoints()
-  }
-}
+  return PolygonGroup.prototype.exportJson.call(this);
+};
 // ================================================================================
 
 // ================================================================================
-// * BookFactory
+// * Language
 // --------------------------------------------------------------------------------
-function BookFactory(){
-  throw new Error('This is a static class');
-}
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-BookFactory.makeObject = function(page){
-  return new Book(this.getNextIndex(), page);
-};
-BookFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex(Book.TAG);
-};
+Language.addDictionary({
+  type: Language.Type.Todo, id: 'plugin-book', dictionary:[
+    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增书籍】左键单击多边形。【选中书籍】左键单击多边形。【取消选中书籍】右键单击空白处或其他多边形。【删除书籍】右键单击多边形。'] }
+  ]
+});
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("book", "书籍工具", "mdi-book-open-outline", Tool.Slot.PLUGIN, function(id){
-  ToolManager.setCurrentPlugin(id);
-  Engine.setTodo(LanguageManager.TOOL_BOOK);
+ToolManager.addTool(new Tool('book', '书籍工具', 'mdi-book-open-outline', Tool.Slot.PLUGIN, {
+  on_click: function(){
+    ToolManager.setCurrentPlugin(this._id);
+    Engine.setCurrentTodo('plugin-book');
+  }
 }));
 // --------------------------------------------------------------------------------
-ToolManager.addHandler(new Handler("book.onLeftClick", "left_click", false, BookFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
-    if(character){
-      let word = SDUDocument.getCurrentPageElement(Character.TAG, character).father;
-      if(word){
-        let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
-        if(sentence){
-          let paragraph = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence).father;
-          if(paragraph){
-            let article = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph).father;
-            if(article){
-              let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
-              if(article_object.father){
-                SelectManager.selectId(article_object.father);
-              }else{
-                if(SelectManager.isType(Book.TAG)){
-                  let book_object = SDUDocument.getElement(Book.TAG, SelectManager.getObject());
-                  book_object.append(article_object);
-                  DocumentManager.push();
+ToolManager.addHandler(new Handler('book.onMouseLeftClick', 'left_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+    if(collide_list.length > 0){
+      let character = ElementManager.getFilteredElement(Polygon2D.TAG, collide_list[0]).character;
+      if(character){
+        let word = ElementManager.getFilteredElement(Character.TAG, character).father;
+        if(word){
+          let sentence = ElementManager.getFilteredElement(Word.TAG, word).father;
+          if(sentence){
+            let paragraph = ElementManager.getFilteredElement(Sentence.TAG, sentence).father;
+            if(paragraph){
+              let article = ElementManager.getFilteredElement(Paragraph.TAG, paragraph).father;
+              if(article){
+                let article_object = ElementManager.getFilteredElement(Article.TAG, article);
+                if(article_object.father){
+                  SelectManager.selectId(article_object.father);
                 }else{
-                  let book_object = BookFactory.makeObject(DocumentManager.getCurrentPageId());
-                  book_object.append(article_object);
-                  DocumentManager.addElement(Book.TAG, book_object);
-                  SelectManager.selectId(book_object.id);
-                  return;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("book.onRightClick", "right_click", false, BookFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
-    if(character){
-      let word = SDUDocument.getCurrentPageElement(Character.TAG, character).father;
-      if(word){
-        let sentence = SDUDocument.getCurrentPageElement(Word.TAG, word).father;
-        if(sentence){
-          let paragraph = SDUDocument.getCurrentPageElement(Sentence.TAG, sentence).father;
-          if(paragraph){
-            let article = SDUDocument.getCurrentPageElement(Paragraph.TAG, paragraph).father;
-            if(article){
-              let article_object = SDUDocument.getCurrentPageElement(Article.TAG, article);
-              let book = article_object.father;
-              if(book){
-                if(!SelectManager.isType(Book.TAG) || book === SelectManager.getObject()){
-                  let book_object = SDUDocument.getCurrentPageElement(Book.TAG, book);
-                  book_object.remove(article_object);
-                  if(book_object.isEmpty()){
-                    DocumentManager.deleteElement(Book.TAG, book);
-                    SelectManager.unSelect();
+                  if(SelectManager.isSelectedType(Book.TAG)){
+                    let book_object = SelectManager.getSelectedObject();
+                    book_object.append(article_object);
+                    /* History */
                   }else{
-                    SelectManager.selectId(book)
-                    DocumentManager.push();
+                    let book_object = ElementManager.makeElement(Book.TAG, []);
+                    book_object.append(article_object);
+                    SelectManager.selectObject(book_object);
+                    DocumentManager.addElementWithUpdate(Book.TAG, book_object);
+                    return;
                   }
-                  Graphics.refresh();
-                  return;
                 }
               }
             }
@@ -252,45 +183,106 @@ ToolManager.addHandler(new Handler("book.onRightClick", "right_click", false, Bo
         }
       }
     }
-  }
-  SelectManager.unSelect();
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("book.onMouseMove", "mousemove", false, BookFactory, function(event){
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("book.onMouseOut", "mouseout", false, BookFactory, function(event){
-  Graphics.refresh();
-}));
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('book.onMouseRightClick', 'right_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+    if(collide_list.length > 0){
+      let character = ElementManager.getFilteredElement(Polygon2D.TAG, collide_list[0]).character;
+      if(character){
+        let word = ElementManager.getFilteredElement(Character.TAG, character).father;
+        if(word){
+          let sentence = ElementManager.getFilteredElement(Word.TAG, word).father;
+          if(sentence){
+            let paragraph = ElementManager.getFilteredElement(Sentence.TAG, sentence).father;
+            if(paragraph){
+              let article = ElementManager.getFilteredElement(Paragraph.TAG, paragraph).father;
+              if(article){
+                let article_object = ElementManager.getFilteredElement(Article.TAG, article);
+                let book = article_object.father;
+                if(book){
+                  if(!SelectManager.isSelectedType(Book.TAG) || book === SelectManager.getSelectedId()){
+                    let book_object = ElementManager.getFilteredElement(Book.TAG, book);
+                    book_object.remove(article_object);
+                    if(book_object.isEmpty()){
+                      SelectManager.unSelect();
+                      DocumentManager.removeElementWithUpdate(Book.TAG, book);
+                    }else{
+                      SelectManager.selectId(book);
+                      Graphics.refresh();
+                      /* History */
+                    }
+                    return;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    SelectManager.unSelect();
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('book.onMouseMove', 'mousemove', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('book.onMouseOut', 'mouseout', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+// ================================================================================
+
+// ================================================================================
+// * Register Renderer
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("book.doc.normal", 7, BookFactory, function(ctx){
+Graphics.renderBookObjectNormal = function(book_object){
+  let line_scale = 3;
+  let line_color = ColorManager.RGBToHex(255, 0, 255);
+  let polygons = book_object.getPolyGonList();
+  for(let i = 0; i < polygons.length; i++){
+    Graphics.strokePolygon(Graphics.getRenderPolygon(polygons[i]).getScaledPolygon(line_scale),
+      2, line_color, 0.8);
+  }
+};
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer('book.doc.normal', '', 30, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let words = SDUDocument.getCurrentPageElements(Word.TAG);
-  for(let i in words){
-    words[i].render(ctx);
+  let word_objects = ElementManager.getFilteredElements(Word.TAG);
+  for(let key in word_objects){
+    Graphics.renderWordObjectNormal(word_objects[key]);
   }
-  let sentences = SDUDocument.getCurrentPageElements(Sentence.TAG);
-  for(let i in sentences){
-    sentences[i].render(ctx);
+  let sentence_objects = ElementManager.getFilteredElements(Sentence.TAG);
+  for(let key in sentence_objects){
+    Graphics.renderSentenceObjectNormal(sentence_objects[key]);
   }
-  let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
-  for(let i in paragraphs){
-    paragraphs[i].render(ctx);
+  let paragraph_objects = ElementManager.getFilteredElements(Paragraph.TAG);
+  for(let key in paragraph_objects){
+    Graphics.renderParagraphObjectNormal(paragraph_objects[key]);
   }
-  let articles = SDUDocument.getCurrentPageElements(Article.TAG);
-  for(let i in articles){
-    articles[i].render(ctx);
+  let article_objects = ElementManager.getFilteredElements(Article.TAG);
+  for(let key in article_objects){
+    Graphics.renderArticleObjectNormal(article_objects[key]);
   }
-  let books = SDUDocument.getCurrentPageElements(Book.TAG);
-  for(let i in books){
-    books[i].render(ctx);
+  let book_objects = ElementManager.getFilteredElements(Book.TAG);
+  for(let key in book_objects){
+    Graphics.renderBookObjectNormal(book_objects[key]);
   }
 }));
-RenderManager.addRenderer(new Renderer("book.polygon.collide", 6, BookFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('book.polygon.collide', '', 21, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
+    let polygon_object = ElementManager.getElement(Polygon2D.TAG, collide_list[0]);
+    Graphics.renderPolygonCollide(Graphics.getRenderPolygon(polygon_object.getPolygon()));
   }
 }));
 // ================================================================================

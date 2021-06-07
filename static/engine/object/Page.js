@@ -39,7 +39,7 @@ Page.prototype.initialize = function(id, src){
   this._src = src;
   this._width = 0;
   this._height = 0;
-}
+};
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ Object.defineProperty(Page.prototype, 'height', {
 Page.prototype.setSize = function(width, height){
   this._width = width;
   this._height = height;
-}
+};
 // --------------------------------------------------------------------------------
 // * New Element
 // --------------------------------------------------------------------------------
@@ -99,7 +99,7 @@ Page.prototype.onUpdate = function(){
 Page.prototype.onRemove = function(){
   let dots = ElementManager.getFilteredElements(Dot2D.TAG);
   for(let id in dots){
-    ElementManager.removeElement(Dot2D.TAG, id);
+    DocumentManager.removeElement(Dot2D.TAG, id);
   }
 };
 // --------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ Page.prototype.loadJson = function(json_object){
   this._src    = json_object._src    === undefined ? this._src    : json_object._src;
   this._width  = json_object._width  === undefined ? this._width  : json_object._width;
   this._height = json_object._height === undefined ? this._height : json_object._height;
-}
+};
 Page.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
   delete output._pages;
@@ -124,7 +124,7 @@ Page.prototype.saveJson = function(){
   output._width  = this._width;
   output._height = this._height;
   return output;
-}
+};
 Page.prototype.exportJson = function(){
   let output = Element.prototype.exportJson.call(this);
   delete output.pages;
@@ -132,5 +132,5 @@ Page.prototype.exportJson = function(){
   output.width  = this._width;
   output.height = this._height;
   return output;
-}
+};
 // ================================================================================

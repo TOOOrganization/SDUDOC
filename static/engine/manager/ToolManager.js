@@ -24,63 +24,66 @@ ToolManager._handlers = {};
 ToolManager._options = {};
 ToolManager._current_plugin = null;
 // --------------------------------------------------------------------------------
+ToolManager._tool_list = [];
+// --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 ToolManager.initialize = function() {
   this.clear();
+  this._tool_list = this.calcToolList();
   this._setupEventHandlers();
 };
 ToolManager.initializeEditor = function(editor){
-  this.getCurrentPlugin().on_click();
+  this.getInitialPlugin().on_click();
 }
 ToolManager.clear = function() {
   this._current_plugin = this.getInitialPluginId();
 };
 ToolManager._setupEventHandlers = function(){
-  MouseInput.addHandler(new Handler("ToolManager.leftClick", "left_click", false, this, (event) => {
-    this._processHandler.call(this, event, "left_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.middleClick", "middle_click", false, this, (event) => {
-    this._processHandler.call(this, event, "middle_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.rightClick", "right_click", false, this, (event) => {
-    this._processHandler.call(this, event, "right_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.leftDoubleClick", "left_double_click", false, this, (event) => {
-    this._processHandler.call(this, event, "left_double_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.middleDoubleClick", "middle_double_click", false, this, (event) => {
-    this._processHandler.call(this, event, "middle_double_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.rightDoubleClick", "right_double_click", false, this, (event) => {
-    this._processHandler.call(this, event, "right_double_click")}));
-  MouseInput.addHandler(new Handler("ToolManager.leftDown", "left_down", false, this, (event) => {
-    this._processHandler.call(this, event, "left_down")}));
-  MouseInput.addHandler(new Handler("ToolManager.middleDown", "middle_down", false, this, (event) => {
-    this._processHandler.call(this, event, "middle_down")}));
-  MouseInput.addHandler(new Handler("ToolManager.rightDown", "right_down", false, this, (event) => {
-    this._processHandler.call(this, event, "right_down")}));
-  MouseInput.addHandler(new Handler("ToolManager.leftUp", "left_up", false, this, (event) => {
-    this._processHandler.call(this, event, "left_up")}));
-  MouseInput.addHandler(new Handler("ToolManager.middleUp", "middle_up", false, this, (event) => {
-    this._processHandler.call(this, event, "middle_up")}));
-  MouseInput.addHandler(new Handler("ToolManager.rightUp", "right_up", false, this, (event) => {
-    this._processHandler.call(this, event, "right_up")}));
+  MouseInput.addHandler(new Handler('ToolManager.leftClick', 'left_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'left_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.middleClick', 'middle_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'middle_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.rightClick', 'right_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'right_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.leftDoubleClick', 'left_double_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'left_double_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.middleDoubleClick', 'middle_double_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'middle_double_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.rightDoubleClick', 'right_double_click', false, this, (event) => {
+    this._processHandler.call(this, event, 'right_double_click')}));
+  MouseInput.addHandler(new Handler('ToolManager.leftDown', 'left_down', false, this, (event) => {
+    this._processHandler.call(this, event, 'left_down')}));
+  MouseInput.addHandler(new Handler('ToolManager.middleDown', 'middle_down', false, this, (event) => {
+    this._processHandler.call(this, event, 'middle_down')}));
+  MouseInput.addHandler(new Handler('ToolManager.rightDown', 'right_down', false, this, (event) => {
+    this._processHandler.call(this, event, 'right_down')}));
+  MouseInput.addHandler(new Handler('ToolManager.leftUp', 'left_up', false, this, (event) => {
+    this._processHandler.call(this, event, 'left_up')}));
+  MouseInput.addHandler(new Handler('ToolManager.middleUp', 'middle_up', false, this, (event) => {
+    this._processHandler.call(this, event, 'middle_up')}));
+  MouseInput.addHandler(new Handler('ToolManager.rightUp', 'right_up', false, this, (event) => {
+    this._processHandler.call(this, event, 'right_up')}));
 
-  MouseInput.addHandler(new Handler("ToolManager.mouseMove", "mousemove", false, this, (event) => {
-    this._processHandler.call(this, event, "mousemove")}));
-  MouseInput.addHandler(new Handler("ToolManager.mouseOver", "mouseover", false, this, (event) => {
-    this._processHandler.call(this, event, "mouseover")}));
-  MouseInput.addHandler(new Handler("ToolManager.mouseOut", "mouseout", false, this, (event) => {
-    this._processHandler.call(this, event, "mouseout")}));
-  MouseInput.addHandler(new Handler("ToolManager.wheel", "wheel", false, this, (event) => {
-    this._processHandler.call(this, event, "wheel")}));
+  MouseInput.addHandler(new Handler('ToolManager.mouseMove', 'mousemove', false, this, (event) => {
+    this._processHandler.call(this, event, 'mousemove')}));
+  MouseInput.addHandler(new Handler('ToolManager.mouseOver', 'mouseover', false, this, (event) => {
+    this._processHandler.call(this, event, 'mouseover')}));
+  MouseInput.addHandler(new Handler('ToolManager.mouseOut', 'mouseout', false, this, (event) => {
+    this._processHandler.call(this, event, 'mouseout')}));
+  MouseInput.addHandler(new Handler('ToolManager.wheel', 'wheel', false, this, (event) => {
+    this._processHandler.call(this, event, 'wheel')}));
 
-  Input.addHandler(new Handler("ToolManager.keyClick", "key_click", 'all', this, (event) => {
-    this._processHandler.call(this, event, "key_click")}));
-  Input.addHandler(new Handler("ToolManager.keyHold", "key_hold", 'all', this, (event) => {
-    this._processHandler.call(this, event, "key_hold")}));
-  Input.addHandler(new Handler("ToolManager.keyLongHold", "key_long_hold", 'all', this, (event) => {
-    this._processHandler.call(this, event, "key_long_hold")}));
-  Input.addHandler(new Handler("ToolManager.keyDown", "key_down", 'all', this, (event) => {
-    this._processHandler.call(this, event, "key_down")}));
-  Input.addHandler(new Handler("ToolManager.keyUp", "key_up", 'all', this, (event) => {
-    this._processHandler.call(this, event, "key_up")}));
+  Input.addHandler(new Handler('ToolManager.keyClick', 'key_click', 'all', this, (event) => {
+    this._processHandler.call(this, event, 'key_click')}));
+  Input.addHandler(new Handler('ToolManager.keyHold', 'key_hold', 'all', this, (event) => {
+    this._processHandler.call(this, event, 'key_hold')}));
+  Input.addHandler(new Handler('ToolManager.keyLongHold', 'key_long_hold', 'all', this, (event) => {
+    this._processHandler.call(this, event, 'key_long_hold')}));
+  Input.addHandler(new Handler('ToolManager.keyDown', 'key_down', 'all', this, (event) => {
+    this._processHandler.call(this, event, 'key_down')}));
+  Input.addHandler(new Handler('ToolManager.keyUp', 'key_up', 'all', this, (event) => {
+    this._processHandler.call(this, event, 'key_up')}));
 };
 // --------------------------------------------------------------------------------
 // * Functions
@@ -142,7 +145,7 @@ ToolManager.removeHandler = function(id){
   this._handlers.remove(id);
 };
 // --------------------------------------------------------------------------------
-ToolManager.getAllToolList = function(){
+ToolManager.calcToolList = function(){
   let output = {};
   for(let i = 0; i < this._tools.length; i++){
     let slot = this._tools[i].slot;
@@ -158,21 +161,11 @@ ToolManager.getAllToolList = function(){
   }
   return output;
 }
+ToolManager.getAllToolList = function(){
+  return this._tool_list;
+}
 ToolManager.getToolList = function(slot){
-  let output = [];
-  for(let i = 0; i < this._tools.length; i++){
-    if(this._tools[i].slot === slot){
-      output.push({
-        id: this._tools[i].id,
-        tooltip: this._tools[i].tooltip,
-        icon: this._tools[i].icon,
-        on_click: this._tools[i].on_click,
-        on_hover: this._tools[i].on_hover,
-        on_leave: this._tools[i].on_leave
-      });
-    }
-  }
-  return output;
+  return this._tool_list[slot] || [];
 }
 // --------------------------------------------------------------------------------
 // * Plugin

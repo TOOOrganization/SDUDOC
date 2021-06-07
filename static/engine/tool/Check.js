@@ -13,10 +13,11 @@
 // ================================================================================
 // * Register Tool
 // ================================================================================
-ToolManager.addTool(new Tool("update", "合并修改", "mdi-upload", Tool.Slot.CHECK, {
+ToolManager.addTool(new Tool('update', '合并修改', 'mdi-upload', Tool.Slot.CHECK, {
   on_click : function(){
-    let id = Engine.getApp().check_id;
-    let info = Engine.getApp().check_info;
+    let id = Engine.getApp().getRouterComponent().check_id;
+    let info = Engine.getApp().getRouterComponent().check_info;
+    if(!id || !info) return;
     DocumentManager.updateElementWithUpdate(id.split(ElementManager.SAPARATOR)[0], id, info);
   }
 }));

@@ -7,7 +7,7 @@
         <v-btn-toggle v-if="tools['plugin']" mandatory dense tile borderless class="plugin-group">
           <v-tooltip bottom v-for="(tool, index) in tools['plugin']" :key="index">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn x-small fab tile v-bind="attrs" v-on="on" @click="tool.on_click"
+              <v-btn x-small fab tile v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
                      color="white" class="plugin-button">
                 <v-icon>{{tool.icon}}</v-icon>
               </v-btn>
@@ -35,7 +35,7 @@
           <v-btn-toggle v-if="tools['history']" dense class="top-tool-group">
             <v-tooltip bottom v-for="(tool, index) in tools['history']" :key="index">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
+                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
                        color="white" class="top-tool-button">
                   <v-icon>{{tool.icon}}</v-icon>
                 </v-btn>
@@ -46,7 +46,7 @@
           <v-btn-toggle v-if="tools['history']" dense class="top-tool-group">
             <v-tooltip bottom v-for="(tool, index) in tools['document']" :key="index">
               <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
+                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
                        color="white" class="top-tool-button">
                   <v-icon>{{tool.icon}}</v-icon>
                 </v-btn>
@@ -72,121 +72,147 @@
 
     <div v-if="right_box" ref="right_box" class="right-box">
       <div class="right-page" v-if="tab === 0">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">用户工具</v-chip>
-          <v-btn-toggle v-if="tools['user']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['user']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">用户工具</v-chip>
+            <v-btn-toggle v-if="tools['user']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['user']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
+          <div class="mb-5" v-if="!is_login">
+            <div class="mt-2">您需要登录才能使用</div>
+            <v-text-field label="用户名" v-model="user_username" :rules="user_username_rules" outlined dense
+                          hide-details="auto" class="my-4" style="font-size: 14px"></v-text-field>
+            <v-text-field label="密码" v-model="user_password" :rules="user_password_rules" outlined dense
+                          :append-icon="user_password_show ? 'mdi-eye' : 'mdi-eye-off'"
+                          :type="user_password_show ? 'text' : 'password'"
+                          @click:append="user_password_show = !user_password_show"
+                          hide-details="auto" style="font-size: 14px"></v-text-field>
+            <v-btn outlined class="mt-4" style="width: 100%" @click="login">登录</v-btn>
+          </div>
+          <div class="mb-5" v-if="is_login">
+            <v-btn outlined class="mt-4" style="width: 100%" @click="logout">登出</v-btn>
+          </div>
         </div>
       </div>
 
       <div class="right-page" v-if="tab === 1">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">云功能工具</v-chip>
-          <v-btn-toggle v-if="tools['cloud']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['cloud']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">云功能工具</v-chip>
+            <v-btn-toggle v-if="tools['cloud']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['cloud']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
         </div>
       </div>
 
       <div class="right-page" v-if="tab === 2">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">页面工具</v-chip>
-          <v-btn-toggle v-if="tools['page']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['page']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
-        </div>
-        <div id="page_view" ref="page_view" class="mt-4 page-list">
-          <v-list nav dense>
-            <v-list-item-group mandatory color="primary" v-model="current_page">
-              <v-list-item v-for="(page, index) in page_list" :key="index" class="pa-2" @click="changePage(index)">
-                <v-img max-height="60" max-width="60" :src="page.src" class="mr-4"/>
-                <v-list-item-content>
-                  {{page.id}}
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">页面工具</v-chip>
+            <v-btn-toggle v-if="tools['page']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['page']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
+          <div class="mb-5 page-list">
+            <v-list nav dense>
+              <v-list-item-group mandatory color="primary" v-model="current_page">
+                <v-list-item v-for="(page, index) in page_list" :key="index" class="pa-2" @click="changePage(index)">
+                  <v-img max-height="60" max-width="60" :src="page.src" class="mr-4"/>
+                  <v-list-item-content>
+                    {{page.id}}
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
         </div>
       </div>
 
       <div class="right-page" v-if="tab === 3">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">检查工具</v-chip>
-          <v-btn-toggle v-if="tools['check']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['check']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
-        </div>
-        <div id="check_view" ref="check_view" class="mt-4 check-list">
-          <input v-model="check_id" class="check-input"/>
-          <textarea v-model="check_info" class="check-textarea"/>
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">检查工具</v-chip>
+            <v-btn-toggle v-if="tools['check']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['check']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
+          <div class="mb-5 check-list">
+            <input v-model="check_id" class="check-input"/>
+            <textarea v-model="check_info" class="check-textarea"/>
+          </div>
         </div>
       </div>
 
       <div class="right-page" v-if="tab === 4">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">设置工具</v-chip>
-          <v-btn-toggle v-if="tools['option']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['option']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">设置工具</v-chip>
+            <v-btn-toggle v-if="tools['option']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['option']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
         </div>
       </div>
 
       <div class="right-page" v-if="tab === 5">
-        <div class="mt-5 mb-4">
-          <v-chip label outlined class="right-tool-label">实验性工具</v-chip>
-          <v-btn-toggle v-if="tools['dev']" mandatory dense tile borderless class="right-tool-group">
-            <v-tooltip bottom v-for="(tool, index) in tools['dev']" :key="index">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="tool.on_click"
-                       color="white" class="right-tool-button">
-                  <v-icon>{{tool.icon}}</v-icon>
-                </v-btn>
-              </template>
-              <span>{{tool.tooltip}}</span>
-            </v-tooltip>
-          </v-btn-toggle>
-          <div class="mt-5" style="width: 80%;margin-left: 10%">
+        <div class="mx-5 right-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="right-tool-label">实验性工具</v-chip>
+            <v-btn-toggle v-if="tools['dev']" mandatory dense tile borderless class="right-tool-group">
+              <v-tooltip bottom v-for="(tool, index) in tools['dev']" :key="index">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
+                         color="white" class="right-tool-button">
+                    <v-icon>{{tool.icon}}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{tool.tooltip}}</span>
+              </v-tooltip>
+            </v-btn-toggle>
+          </div>
+          <div>
             实验性工具还在开发中，具有不稳定性，可能对文档造成不可逆的损坏。请在使用时先保存备份，谨慎处理。
           </div>
         </div>
@@ -195,7 +221,7 @@
 
     <v-navigation-drawer :mini-variant.sync="tab_mini" permanent right class="navigator">
       <v-list nav dense>
-        <v-list-item v-for="(item, i) in tabs" :key="i" link @click="tab = changeTab(i); right_box = true"
+        <v-list-item v-for="(item, i) in tabs" :key="i" link @click="tab = changeTabFilter(i); right_box = true"
                      @click.stop="tab_mini = true">
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
@@ -225,11 +251,15 @@
 
 <script>
 import * as PIXI from 'pixi.js'
+import {EleResize} from "../js/resize";
 
 export default {
   name: "Editor",
   data(){
     return{
+      local_storage: localStorage,
+      is_login: false,
+
       left_box: true,
       right_box: true,
 
@@ -250,6 +280,18 @@ export default {
       pixi_app: null,
       pixi_context: null,
 
+      user_username: null,
+      user_username_rules: [
+        value => !!value || '请填写用户名',
+      ],
+
+      user_password: null,
+      user_password_show: false,
+      user_password_rules: [
+        value => !!value || '请填写密码',
+        value => (value && value.length >= 3) || '密码最少需要8个字符。',
+      ],
+
       page_list: null,
       current_page: 0,
 
@@ -258,12 +300,13 @@ export default {
     }
   },
   mounted () {
-    this.setupResizeEvent();
     if(window.Engine){
       this.initializePixiApplication();
       Engine.initializeEditor();
       this.updateToolData();
+      this.checkLogin();
     }
+    this.setupResizeEvent();
   },
   methods: {
     initializePixiApplication(){
@@ -286,10 +329,19 @@ export default {
     },
     resizePixiApp(){
       this.pixi_app.resize();
+      Graphics.update();
     },
-    changeTab(index){
-      // if(this.tabs[index].login)
-      //   return 0;
+    clickToolFilter(callback){
+      if(!localStorage.getItem(HttpRequest.TOKEN_KEY)) {
+        this.right_box = true;
+        this.tab = 0;
+        return;
+      }
+      callback();
+    },
+    changeTabFilter(index){
+      if(this.tabs[index].login && !localStorage.getItem(HttpRequest.TOKEN_KEY))
+         return 0;
       return index;
     },
     changePage(index){
@@ -315,13 +367,28 @@ export default {
     updateCheckData() {
       this.setCheckData(Engine.getEditorCheckData());
     },
+    checkLogin(){
+      this.is_login = localStorage.getItem(HttpRequest.TOKEN_KEY);
+    },
+    async login() {
+      if(this.user_username && this.user_password){
+        await HttpRequest.Login(this.user_username, this.user_password);
+      }
+      this.checkLogin();
+    },
+    logout() {
+      localStorage.removeItem(HttpRequest.TOKEN_KEY);
+      this.checkLogin();
+    },
     setupResizeEvent: function (){
+      let that = this;
+      EleResize.on(this.$refs.editor_view, this.resizePixiApp.bind(this));
+
       let box = this.$refs.main_box;
       let resize_left = this.$refs.resize_box_left;
       let resize_right = this.$refs.resize_box_right;
       resize_left.first_x = null;
       resize_right.first_x = null;
-      let that = this;
       resize_left.onmousedown = function (e) {
         if(!that.left_box) {
           that.left_box = true;
@@ -405,12 +472,18 @@ export default {
   width: 250px;
   height: 100%;
 }
+.left-page{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
 
 .resize-box{
   background-color: #f5f5f5;
   width: 10px;
   height: 100%;
-  cursor: ew-resize;
+  cursor: col-resize;
   border-left: 1px lightgrey solid;
   border-right: 1px lightgrey solid;
 }
@@ -472,14 +545,18 @@ export default {
   width: 100%;
   height: 100%;
 }
+.right-content{
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
 .right-tool-group{
-  width: 80%;
-  margin: 0 10%;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
 .right-tool-label{
-  width: 80%;
+  width: 100%;
   padding-top: 2px;
   justify-content: center;
 }
@@ -510,21 +587,19 @@ export default {
 }
 
 .page-list{
-  width: 80%;
-  margin: 0 10%;
+  width: 100%;
   background: white;
+  flex-grow: 1;
   overflow-y: scroll;
-  height: 400px;
 }
 .page-list::-webkit-scrollbar {
   display:none
 }
 
 .check-list{
-  width: 80%;
-  margin: 0 10%;
+  width: 100%;
   background: white;
-  height: 400px;
+  flex-grow: 1;
 }
 .check-input{
   width: 100%;
@@ -532,14 +607,17 @@ export default {
   font-size: 8px;
   background: white;
   border: none;
+  outline-color: #5D9BFF;
 }
 .check-textarea{
   width: 100%;
   height: calc(100% - 38px);
   padding: 10px;
+  margin-top : 1px;
   font-size: 8px;
   background: white;
   border: none;
   resize: none;
+  outline-color: #5D9BFF;
 }
 </style>

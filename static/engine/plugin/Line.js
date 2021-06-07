@@ -134,16 +134,16 @@ Line2D.prototype.loadJson = function(json_object){
   Element.prototype.loadJson.call(this, json_object);
   this._start = json_object._start === undefined ? this._start : json_object._start;
   this._end   = json_object._end   === undefined ? this._end   : json_object._end;
-}
+};
 Line2D.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
   output._start = this._start;
   output._end   = this._end;
   return output;
-}
+};
 Line2D.prototype.exportJson = function(){
   return null;
-}
+};
 // ================================================================================
 
 // ================================================================================
@@ -153,7 +153,7 @@ Language.addDictionary({
   type: Language.Type.Todo, id: 'plugin-line', dictionary:[
     { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增线】依次点击两个点。【取消新增线】点击第二个点前，右键单击。【删除线】右键单击一条线。'] }
   ]
-})
+});
 // ================================================================================
 
 // ================================================================================
@@ -209,6 +209,7 @@ ToolManager.addHandler(new Handler('line.onMouseLeftClick', 'left_click', false,
 ToolManager.addHandler(new Handler('line.onMouseRightClick', 'right_click', false, Engine,
   function(event){
     if(DocumentManager.getCurrentPage() <= 0) return;
+
     if(SelectManager.isSelectedType(Dot2D.TAG)){
       SelectManager.unSelect();
       Graphics.refresh();
@@ -254,16 +255,27 @@ Graphics.renderLineVirtual = function(line){
   this.drawPolygon(line.getRenderPolygon(2.5), fill_color, 0.5, 1, line_color, 0.5);
 };
 // --------------------------------------------------------------------------------
+Graphics.renderLineNormalList = function(line_list){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  let line_color = ColorManager.RGBToHex(255, 255, 255);
+  for(let i = 0; i < line_list.length; i++){
+    line_list[i] = line_list[i].getRenderPolygon(1);
+  }
+  this.drawPolygonList(line_list, fill_color, 1, 0.5, line_color, 1);
+};
+// --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer('line.line.all', '', 40, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
   let lines = ElementManager.getFilteredElements(Line2D.TAG);
+  let render_lines = [];
   for(let id in lines){
     if(collide_list.indexOf(id) === -1){
-      Graphics.renderLineNormal(Graphics.getRenderLine(lines[id].getLine()));
+      render_lines.push(Graphics.getRenderLine(lines[id].getLine()));
     }
   }
+  Graphics.renderLineNormalList(render_lines);
   if(collide_list.length > 0){
     for(let i = 0; i < collide_list.length; i++){
       Graphics.renderLineCollide(Graphics.getRenderLine(lines[collide_list[i]].getLine()));
@@ -274,9 +286,11 @@ RenderManager.addRenderer(new Renderer('!line.line.all', '', 40, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let lines = ElementManager.getFilteredElements(Line2D.TAG);
+  let render_lines = [];
   for(let id in lines){
-    Graphics.renderLineNormal(Graphics.getRenderLine(lines[id].getLine()));
+    render_lines.push(Graphics.getRenderLine(lines[id].getLine()));
   }
+  Graphics.renderLineNormalList(render_lines);
 }));
 RenderManager.addRenderer(new Renderer('line.dot.collide', '', 51, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;

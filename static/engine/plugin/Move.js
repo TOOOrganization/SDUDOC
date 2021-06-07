@@ -13,21 +13,36 @@
 // ================================================================================
 
 // ================================================================================
+// * Move
+// --------------------------------------------------------------------------------
+function Move(){
+  throw new Error('This is a static class');
+}
+// ================================================================================
+
+// ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
 Language.addDictionary({
   type: Language.Type.Todo, id: 'plugin-move', dictionary:[
     { id: 'zh-cn', text: ['【移动】按下鼠标任意键+拖动。【缩放】滚动鼠标中键。'] },
     { id: 'zh-tw', text: ['【移動】按下鼠標任意鍵+拖動。【縮放】滾動鼠標中鍵。'] },
-    { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] },
+    { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
   ]
-})
+});
+Language.addDictionary({
+  type: Language.Type.ToolTip, id: 'plugin-move', dictionary:[
+    { id: 'zh-cn', text: ['移动工具'] },
+    { id: 'zh-tw', text: [''] },
+    { id: 'en-us', text: ['Move Tool'] }
+  ]
+});
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('move', '移动工具', 'mdi-arrow-all', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('move', 'plugin-move', 'mdi-arrow-all', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
     Engine.setCurrentTodo('plugin-move');
@@ -42,6 +57,7 @@ ToolManager.addHandler(new Handler('move.onMouseLeftDown', 'left_down', false, E
         SelectManager.selectId(collide_list[0]);
       }
     }
+    Move.start = true;
     Graphics.refresh();
   })
 );
@@ -50,6 +66,7 @@ ToolManager.addHandler(new Handler('move.onMouseLeftUp', 'left_up', false, Engin
     if(SelectManager.isSelectedType(Dot2D.TAG)) {
       /* History */
     }
+    Move.start = false;
     SelectManager.unSelect();
     Graphics.refresh();
   })
@@ -70,16 +87,20 @@ ToolManager.addHandler(new Handler('move.onMouseMove', 'mousemove', false, Engin
       Graphics.refresh();
       return;
     }
+    if(!Move.start) {
+      Graphics.refresh();
+      return;
+    }
     if(MouseInput.isPressed(MouseInput.Mouse.LEFT) || MouseInput.isPressed(MouseInput.Mouse.RIGHT)) {
       let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
       Graphics.moveOrigin(distance.x, distance.y);
       return;
     }
-    Graphics.refresh();
   })
 );
 ToolManager.addHandler(new Handler('move.onMouseOut', 'mouseout', false, Engine,
   function(event){
+    Move.start = false;
     SelectManager.unSelect();
     Graphics.refresh();
   })

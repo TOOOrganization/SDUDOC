@@ -66,6 +66,21 @@ Object.defineProperty(PolygonGroup.prototype, 'points', {
   configurable: true
 });
 // --------------------------------------------------------------------------------
+// * Get Base Object
+// --------------------------------------------------------------------------------
+PolygonGroup.prototype.getPolyGonList = function(){
+  let point_list = this._points[DocumentManager.getCurrentPageId()];
+  let output = [];
+  for(let i = 0; i < point_list.length; i++){
+    let points = [];
+    for(let j = 0; j < point_list[i].length; j++){
+      points[j] = ElementManager.getFilteredElement(Dot2D.TAG, point_list[i][j]).getPoint();
+    }
+    output.push(new Polygon(points));
+  }
+  return output;
+};
+// --------------------------------------------------------------------------------
 // * New Element
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.newElement = function(){
@@ -114,6 +129,8 @@ PolygonGroup.prototype.isEmpty = function(){
   return this._children.length === 0;
 };
 // --------------------------------------------------------------------------------
+// * Polygon Group
+// --------------------------------------------------------------------------------
 PolygonGroup.prototype.calcPoints = function(){
   this._points = {}
   let points_list = this.getMergePoints()
@@ -142,7 +159,7 @@ PolygonGroup.prototype.isLineInPolygon = function(dot1, dot2, points){
   if(a < 0 || b < 0) return false;
   if((a === 0 && b === points.length - 1) || (a === points.length - 1 && b === 0)) return true;
   return Math.abs(a - b) === 1;
-}
+};
 PolygonGroup.prototype.hasCommonLine = function(points_1, points_2){
   let a, b;
   for(let i = 0; i < points_1.length; i++){
@@ -156,7 +173,7 @@ PolygonGroup.prototype.hasCommonLine = function(points_1, points_2){
     }
   }
   return false;
-}
+};
 PolygonGroup.prototype.getGroupBFS = function(map){
   let visited = new Array(map.length);
   for(let i = 0; i < visited.length; i++) {
@@ -182,7 +199,7 @@ PolygonGroup.prototype.getGroupBFS = function(map){
     }
   }
   return polygons;
-}
+};
 PolygonGroup.prototype.mergePolygon = function(polygon_1, polygon_2){
   let common_dots = [];
   let start_dot = null;
@@ -229,7 +246,7 @@ PolygonGroup.prototype.mergePolygon = function(polygon_1, polygon_2){
     }
   }
   return polygon;
-}
+};
 PolygonGroup.prototype.mergePoints = function(points){
   let polygon_map = [];
   for(let i = 0; i < points.length; i++) {
@@ -291,7 +308,7 @@ PolygonGroup.prototype.getExportPoints = function(){
     for(let i = 0; i < this.points[key].length; i++){
       temp[key].push([]);
       for(let j = 0; j < this.points[key][i].length; j++){
-        let point = SDUDocument.getElement(Dot2D.TAG, this._points[key][i][j]);
+        let point = ElementManager.getElement(Dot2D.TAG, this._points[key][i][j]);
         temp[key][temp[key].length - 1].push([point.x.toFixed(2), point.y.toFixed(2)]);
       }
     }
@@ -299,11 +316,11 @@ PolygonGroup.prototype.getExportPoints = function(){
   let output = [];
   for(let i = 0; i < this._pages.length; i++){
     let points_list = temp[this._pages[i]];
-    let string = "" + this._pages[i];
+    let string = '' + this._pages[i];
     for(let j = 0; j < points_list.length; j++){
-      string += "|";
+      string += '|';
       for(let k = 0; k < points_list[j].length; k++) {
-        string += points_list[j][k][0] + ":" + points_list[j][k][1] + ";";
+        string += points_list[j][k][0] + ':' + points_list[j][k][1] + ';';
       }
       string = string.substring(0, string.length - 1);
     }
@@ -323,14 +340,14 @@ PolygonGroup.prototype.loadJson = function(json_object){
   this._children = json_object._children === undefined ? this._children : json_object._children;
   this._father   = json_object._father   === undefined ? this._father   : json_object._father;
   this._points   = json_object._points   === undefined ? this._points   : json_object._points;
-}
+};
 PolygonGroup.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
   output._children = this._children;
   output._father   = this._father;
   output._points   = this._points;
   return output;
-}
+};
 PolygonGroup.prototype.exportJson = function(){
   let output = Element.prototype.exportJson.call(this);
   output.children     = this._children;
@@ -339,5 +356,5 @@ PolygonGroup.prototype.exportJson = function(){
   output.string       = this.getExportString();
   output.string_array = this.getExportStringArray();
   return output;
-}
+};
 // ================================================================================

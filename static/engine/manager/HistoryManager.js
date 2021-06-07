@@ -53,16 +53,18 @@ HistoryManager.canRedo = function(){
   return this._right_queue.length > 0;
 }
 // --------------------------------------------------------------------------------
-HistoryManager.undo = function(){
+HistoryManager.undo = async function(){
+  if (!this.canUndo()) return;
   let history = this._left_queue.pop();
   for(let i = history.length - 1; i >= 0; i--){
-    history[i].undo();
+    await history[i].undo();
   }
 }
-HistoryManager.redo = function(){
-  let history = this._left_queue.pop();
-  for(let i = history.length - 1; i >= 0; i--){
-    history[i].redo();
+HistoryManager.redo = async function(){
+  if (!this.canRedo()) return;
+  let history = this._right_queue.pop();
+  for(let i = 0; i < history.length; i++){
+    await history[i].redo();
   }
 }
 // ================================================================================

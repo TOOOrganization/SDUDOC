@@ -107,6 +107,14 @@ Polygon.prototype.getScaledPolygon = function(scale){
   return new Polygon(new_points)
 };
 // --------------------------------------------------------------------------------
+Polygon.prototype.getCorePoint = function(){
+  let point = new Point(0, 0);
+  for(let i = 0; i < this._points.length; i++){
+    point = point.add(this._points[i]);
+  }
+  return point.division(this._points.length);
+};
+// --------------------------------------------------------------------------------
 Polygon.prototype.getRenderArray = function(){
   let output = [];
   for(let i = 0; i < this._points.length; i++){

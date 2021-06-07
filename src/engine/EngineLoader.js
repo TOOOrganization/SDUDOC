@@ -47,9 +47,9 @@ EngineLoader.OBJECT_LIST = [
 ];
 EngineLoader.MANAGER_LIST = [
   'ElementManager', 'HistoryManager', 'ColorManager',
- // DocumentManager Engine Graphice
-  "DocumentManager", "RenderManager", "CollideManager",
-  "ToolManager", "SelectManager"
+ // DocumentManager Engine
+  'DocumentManager', 'RenderManager', 'CollideManager',
+  'ToolManager', 'SelectManager'
 ];
 EngineLoader.TOOL_LIST = [
   "Page", "History", "Document", "Check", "Dev"
@@ -95,6 +95,10 @@ EngineLoader.load = async function(app_element, packages){
   Engine.initialize();
 
   Engine.setCurrentTodo('engine-ready');
+
+  for(let i = 0; i < 10; i++){
+    Engine.notice(i + '');
+  }
 };
 // --------------------------------------------------------------------------------
 EngineLoader.loadEngine = async function(){

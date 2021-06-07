@@ -1,5 +1,14 @@
 <template>
-  <v-app>
+  <v-app class="no-select">
+    <v-progress-linear buffer-value="60" value="0" indeterminate color="orange" top
+                       style="position: absolute;top:0px;z-index: 1000;background-color: white">
+    </v-progress-linear>
+
+    <v-snackbar v-model="notice_snackbar" :timeout="2000" light top
+                style="position: fixed !important;top: 0px">
+      {{ notice_text }}
+    </v-snackbar>
+
     <v-dialog v-model="alert_dialog" max-width="400" @click:outside="pop_callback_cancel">
       <v-card>
         <v-card-title class="headline">
@@ -46,7 +55,7 @@
       <v-spacer></v-spacer>
       <div class="mx-3" style="width: 220px">
         <v-select v-model="current_language" :items="language_list.name" prepend-icon="mdi-earth"
-                  style="font-size: 12px" menu-props="auto"
+                  style="font-size: 12px;" menu-props="auto"
                   :label="language_selector" outlined dense hide-details @change="onLanguageChange">
         </v-select>
       </div>
@@ -66,6 +75,7 @@
     <v-footer app outlined class="footer-bar">
       Todo：{{todo_text ? todo_text : todo_default}}
     </v-footer>
+
   </v-app>
 </template>
 
@@ -73,6 +83,7 @@
 import axios from "axios";
 import {Base64} from "js-base64";
 import {EngineLoader} from "../engine/EngineLoader";
+import qs from "qs";
 
 export default {
   name: "MainLayout",
@@ -89,6 +100,9 @@ export default {
 
       todo_default: null,
       todo_text: null,
+
+      notice_snackbar: null,
+      notice_text: null,
 
       alert_dialog: false,
       prompt_dialog: false,
@@ -125,7 +139,7 @@ export default {
   },
   methods: {
     async loadEngine() {
-      let packages = { axios: axios, base64: Base64}
+      let packages = { axios: axios, base64: Base64, qs:qs }
       await EngineLoader.load(this, packages);
     },
     getRouterComponent(){
@@ -171,6 +185,10 @@ export default {
       this.prompt_text         = json.default_text    === undefined ? this.prompt_text         : json.default_text;
       this.prompt_dialog = true;
     },
+    notice(json){
+      this.notice_text         = json.notice_text     === undefined ? this.notice_text         : json.notice_text;
+      this.notice_snackbar = true;
+    },
     setTodo(text){
       this.todo_text = text;
     },
@@ -185,6 +203,13 @@ export default {
 </script>
 
 <style scoped>
+.no-select{
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .app-bar{
   border-left: none !important;
   border-right: none !important;
@@ -196,7 +221,7 @@ export default {
 }
 .version-chip{
   font-size: 8px;
-  color: darkgrey;
+  color: darkgrey !important;
 }
 
 .router-container{

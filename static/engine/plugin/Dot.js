@@ -195,7 +195,7 @@ Dot2D.prototype.loadJson = function(json_object){
   this._position = json_object._position === undefined ? this._position : json_object._position;
   this._father1  = json_object._father1  === undefined ? this._father1  : json_object._father1;
   this._father2  = json_object._father2  === undefined ? this._father2  : json_object._father2;
-}
+};
 Dot2D.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
   output._type     = this._type;
@@ -206,10 +206,10 @@ Dot2D.prototype.saveJson = function(){
   output._father1  = this._father1;
   output._father2  = this._father2;
   return output;
-}
+};
 Dot2D.prototype.exportJson = function(){
   return null;
-}
+};
 // ================================================================================
 
 // ================================================================================
@@ -219,7 +219,7 @@ Language.addDictionary({
   type: Language.Type.Todo, id: 'plugin-dot', dictionary:[
     { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增点】左键单击，【删除点】右键单击一个点。'] }
   ]
-})
+});
 // ================================================================================
 
 // ================================================================================
@@ -308,29 +308,39 @@ Graphics.renderPointVirtual = function(point){
   this.drawPoint(point, 4, fill_color, 0.5, 2, line_color, 0.5);
 };
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer('dot.dot.all', '点工具渲染点', 50, function(ctx){
+Graphics.renderPointNormalList = function(point_list){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  let line_color = ColorManager.RGBToHex(255, 255, 255);
+  this.drawPointList(point_list, 2.5, fill_color, 1, 1, line_color, 1);
+};
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer('dot.dot.all', '', 50, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
   let dots = ElementManager.getFilteredElements(Dot2D.TAG);
+  let render_dots = [];
   for(let id in dots){
     if(collide_list.indexOf(id) === -1){
-      Graphics.renderPointNormal(Graphics.getRenderPoint(dots[id].getPoint()));
+      render_dots.push(Graphics.getRenderPoint(dots[id].getPoint()));
     }
   }
+  Graphics.renderPointNormalList(render_dots);
   if(collide_list.length > 0){
     Graphics.renderPointCollide(Graphics.getRenderPoint(dots[collide_list[0]].getPoint()));
   }
 }));
-RenderManager.addRenderer(new Renderer('!dot.dot.all', '全局渲染点', 50, function(ctx){
+RenderManager.addRenderer(new Renderer('!dot.dot.all', '', 50, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let dots = ElementManager.getFilteredElements(Dot2D.TAG);
+  let render_dots = [];
   for(let id in dots){
-    Graphics.renderPointNormal(Graphics.getRenderPoint(dots[id].getPoint()));
+    render_dots.push(Graphics.getRenderPoint(dots[id].getPoint()));
   }
+  Graphics.renderPointNormalList(render_dots);
 }));
-RenderManager.addRenderer(new Renderer('dot.line.collide', '点工具渲染线', 41, function(ctx){
+RenderManager.addRenderer(new Renderer('dot.line.collide', '', 41, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Line2D.TAG, 2);

@@ -47,7 +47,7 @@ Header.prototype._data = {
   author:  { language_id: 'header-author',  value: '' },
   book:    { language_id: 'header-book',    value: '' },
   dynasty: { language_id: 'header-dynasty', value: '' }
-}
+};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ Header.prototype.initialize = function(){
     book:    { language_id: 'header-book',    value: '' },
     dynasty: { language_id: 'header-dynasty', value: '' }
   }
-}
+};
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ Header.prototype.getTextArray = function(){
     Language.get(Language.Type.Text, this._data.book.language_id),
     Language.get(Language.Type.Text, this._data.dynasty.language_id)
   ];
-}
+};
 // --------------------------------------------------------------------------------
 Header.prototype.getDataArray = function(){
   return [
@@ -117,13 +117,13 @@ Header.prototype.getDataArray = function(){
     this._data.book.value,
     this._data.dynasty.value
   ];
-}
+};
 Header.prototype.setDataArray = function(data){
   this._data.title.value   = data[0];
   this._data.author.value  = data[1];
   this._data.book.value    = data[2];
   this._data.dynasty.value = data[3];
-}
+};
 // --------------------------------------------------------------------------------
 // * Save & Export
 // --------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ Header.prototype.loadJson = function(json_object){
   this._data.author.value  = json_object._author  || this._data.author.value;
   this._data.book.value    = json_object._book    || this._data.book.value;
   this._data.dynasty.value = json_object._dynasty || this._data.dynasty.value;
-}
+};
 Header.prototype.saveJson = function(){
   let output = {};
   output._title   = this._data.title.value;
@@ -140,7 +140,7 @@ Header.prototype.saveJson = function(){
   output._book    = this._data.book.value;
   output._dynasty = this._data.dynasty.value;
   return output;
-}
+};
 Header.prototype.exportJson = function(){
   let output = {};
   output.title   = this._data.title.value;
@@ -148,5 +148,5 @@ Header.prototype.exportJson = function(){
   output.book    = this._data.book.value;
   output.dynasty = this._data.dynasty.value;
   return output;
-}
+};
 // ================================================================================

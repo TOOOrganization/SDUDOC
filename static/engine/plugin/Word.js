@@ -23,49 +23,58 @@ Word.prototype.constructor = Word;
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-Word.TAG = "Word";
-// --------------------------------------------------------------------------------
-// * Property
-// --------------------------------------------------------------------------------
-Word.prototype._line_width = 0;
-Word.prototype._line_scale = 0;
-Word.prototype._color = '';
+Word.TAG = 'Word';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Word.prototype.initialize = function(id, page){
-  PolygonGroup.prototype.initialize.call(this);
-
-  this._line_width = 2;
-  this._line_scale = 11;
-  this._color = 'rgba(255, 255, 0, 0.8)';
-
-  this._id = id;
-  this._pages = [page];
+Word.prototype.initialize = function(id, pages){
+  PolygonGroup.prototype.initialize.call(this, id, pages);
 };
 // --------------------------------------------------------------------------------
-// * Getter & Setter
+// * New Element
 // --------------------------------------------------------------------------------
-Word.prototype.setColor = function(color){
-  this._color = color;
-}
+Word.prototype.newElement = function(){
+  return new Word('', []);
+};
 // --------------------------------------------------------------------------------
-Word.prototype.getObject = function(){
-  return new Word("", "");
-}
+// * Add
 // --------------------------------------------------------------------------------
-// * Functions
+Word.prototype.onAwake = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Update
+// --------------------------------------------------------------------------------
+Word.prototype.onUpdate = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Remove
+// --------------------------------------------------------------------------------
+Word.prototype.onRemove = function(){
+
+};
+// --------------------------------------------------------------------------------
+// * Collide
+// --------------------------------------------------------------------------------
+Word.prototype.checkCollide = function(point){
+  return -1;
+};
+// --------------------------------------------------------------------------------
+// * Polygon Group
 // --------------------------------------------------------------------------------
 Word.prototype.callFatherCalcPoints = function(){
   if(this._father){
-    SDUDocument.getElement(Sentence.TAG, this._father).calcPoints();
+    ElementManager.getElement(Sentence.TAG, this._father).calcPoints();
   }
 };
 Word.prototype.callFatherCalcPages = function(){
   if(this._father){
-    SDUDocument.getElement(Sentence.TAG, this._father).calcPages();
+    ElementManager.getElement(Sentence.TAG, this._father).calcPages();
   }
 };
+// --------------------------------------------------------------------------------
+// * Merge
 // --------------------------------------------------------------------------------
 Word.prototype.getMergePoints = function(){
   let points = {};
@@ -73,10 +82,10 @@ Word.prototype.getMergePoints = function(){
     points[this._pages[i]] = []
   }
   for(let i = 0; i < this._children.length; i++){
-    let character = SDUDocument.getElement(Character.TAG, this._children[i]);
-    if(character){
-      let polygon = SDUDocument.getElement(Polygon2D.TAG, character.polygon);
-      points[character.page].push(polygon.points);
+    let character_object = ElementManager.getElement(Character.TAG, this._children[i]);
+    if(character_object){
+      let polygon_object = ElementManager.getElement(Polygon2D.TAG, character_object.polygon);
+      points[character_object.pages[0]].push(polygon_object.points);
     }
   }
   return points;
@@ -84,31 +93,12 @@ Word.prototype.getMergePoints = function(){
 Word.prototype.getMergePages = function(){
   let pages = [];
   for(let i = 0; i < this._children.length; i++){
-    let character = SDUDocument.getElement(Character.TAG, this._children[i]);
-    if(character){
-      pages.push([character.page])
+    let character_object = ElementManager.getElement(Character.TAG, this._children[i]);
+    if(character_object){
+      pages.push(character_object.pages);
     }
   }
   return pages;
-};
-// --------------------------------------------------------------------------------
-Word.prototype.render = function(ctx){
-  let point_list = this._points[SDUDocument.getCurrentPageId()]
-  for(let i = 0; i < point_list.length; i++){
-    let points = [];
-    for(let j = 0; j < point_list[i].length; j++){
-      points[j] = Graphics.getRenderPoint(SDUDocument.getCurrentPageElement(Dot2D.TAG, point_list[i][j]));
-    }
-    let polygon = new Polygon(points).getScaledPolygon(this._line_scale);
-    PolygonGroup.prototype.strokeCanvas.call(polygon, ctx, this._line_width, this._color);
-  }
-};
-Word.prototype.renderCollide = function(ctx){
-
-};
-// --------------------------------------------------------------------------------
-Word.prototype.onDelete = function(){
-
 };
 // --------------------------------------------------------------------------------
 // * Save & Export
@@ -116,160 +106,162 @@ Word.prototype.onDelete = function(){
 Word.prototype.getExportString = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getElement(Character.TAG, this._children[i]).char);
+    str.push(ElementManager.getElement(Character.TAG, this._children[i]).char);
   }
   return str.join('');
-}
+};
 Word.prototype.getExportStringArray = function(){
   let str = [];
   for(let i = 0; i < this._children.length; i++){
-    str.push(SDUDocument.getElement(Character.TAG, this._children[i]).char);
+    str.push(ElementManager.getElement(Character.TAG, this._children[i]).char);
   }
   return str;
-}
+};
 // --------------------------------------------------------------------------------
-Word.prototype.loadJson = function(json){
-  this._id = json._id;
-  this._pages = json._pages;
-  this._children = json._children;
-  this._father = json._father;
-  this._points = json._points;
-}
+Word.prototype.loadJson = function(json_object){
+  PolygonGroup.prototype.loadJson.call(this, json_object);
+};
 Word.prototype.saveJson = function(){
-  return {
-    _id: this._id,
-    _pages: this._pages,
-    _children: this._children,
-    _father: this._father,
-    _points: this._points
-  }
-}
+  return PolygonGroup.prototype.saveJson.call(this);
+};
 Word.prototype.exportJson = function(){
-  return {
-    id: this._id,
-    pages: this._pages,
-    children: this._children,
-    father: this._father,
-    string: this.getExportStringArray(),
-    points: this.getExportPoints()
-  }
-}
+  return PolygonGroup.prototype.exportJson.call(this);
+};
 // ================================================================================
 
 // ================================================================================
-// * WordFactory
+// * Language
 // --------------------------------------------------------------------------------
-function WordFactory(){
-  throw new Error('This is a static class');
-}
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-WordFactory.makeObject = function(page){
-  return new Word(this.getNextIndex(), page);
-};
-WordFactory.getNextIndex = function(){
-  return DocumentManager.getNextIndex(Word.TAG);
-};
+Language.addDictionary({
+  type: Language.Type.Todo, id: 'plugin-word', dictionary:[
+    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增字符】左键单击一个没有字符的多边形。【修改字符】左键单击一个已有字符的多边形。【删除字符】右键单击一个已有字符的多边形。'] }
+  ]
+});
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool("word", "词汇工具", "mdi-file-word-box", Tool.Slot.PLUGIN, function(id){
-  ToolManager.setCurrentPlugin(id);
-  Engine.setTodo(LanguageManager.TOOL_WORD);
+ToolManager.addTool(new Tool('word', '词汇工具', 'mdi-file-word-box', Tool.Slot.PLUGIN, {
+  on_click: function(){
+    ToolManager.setCurrentPlugin(this._id);
+    Engine.setCurrentTodo('plugin-word');
+  }
 }));
 // --------------------------------------------------------------------------------
-ToolManager.addHandler(new Handler("word.onLeftClick", "left_click", false, WordFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
-    if(character){
-      let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
-      if(character_object.father){
-        SelectManager.selectId(character_object.father);
-      }else{
-        if(SelectManager.isType(Word.TAG)){
-          let word_object = SDUDocument.getElement(Word.TAG, SelectManager.getObject());
-          word_object.append(character_object);
-          DocumentManager.push();
+ToolManager.addHandler(new Handler('word.onMouseLeftClick', 'left_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+    if(collide_list.length > 0){
+      let character = ElementManager.getFilteredElement(Polygon2D.TAG, collide_list[0]).character;
+      if(character){
+        let character_object = ElementManager.getFilteredElement(Character.TAG, character);
+        if(character_object.father){
+          SelectManager.selectId(character_object.father);
         }else{
-          let word_object = WordFactory.makeObject(DocumentManager.getCurrentPageId());
-          word_object.append(character_object);
-          DocumentManager.addElement(Word.TAG, word_object);
-          SelectManager.selectId(word_object.id);
-          return;
-        }
-      }
-    }
-  }
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("word.onRightClick", "right_click", false, WordFactory, function(event){
-  if(DocumentManager.getCurrentPage() <= 0) return;
-  let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
-  if(collide_list.length > 0){
-    let character = SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).character;
-    if(character){
-      let character_object = SDUDocument.getCurrentPageElement(Character.TAG, character);
-      let word = character_object.father;
-      if(word){
-        if(!SelectManager.isType(Word.TAG) || word === SelectManager.getObject()){
-          let word_object = SDUDocument.getCurrentPageElement(Word.TAG, word);
-          word_object.remove(character_object);
-          if(word_object.isEmpty()){
-            DocumentManager.deleteElement(Word.TAG, word);
-            SelectManager.unSelect();
+          if(SelectManager.isSelectedType(Word.TAG)){
+            let word_object = SelectManager.getSelectedObject();
+            word_object.append(character_object);
+            /* History */
           }else{
-            SelectManager.selectId(word);
-            DocumentManager.push();
+            let word_object = ElementManager.makeElement(Word.TAG, []);
+            word_object.append(character_object);
+            SelectManager.selectObject(word_object);
+            DocumentManager.addElementWithUpdate(Word.TAG, word_object);
+            return;
           }
-          Graphics.refresh();
-          return;
         }
       }
     }
-  }
-  SelectManager.unSelect();
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("word.onMouseMove", "mousemove", false, WordFactory, function(event){
-  Graphics.refresh();
-}));
-ToolManager.addHandler(new Handler("word.onMouseOut", "mouseout", false, WordFactory, function(event){
-  Graphics.refresh();
-}));
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('word.onMouseRightClick', 'right_click', false, Engine,
+  function(event){
+    if(DocumentManager.getCurrentPage() <= 0) return;
+    let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
+    if(collide_list.length > 0){
+      let character = ElementManager.getFilteredElement(Polygon2D.TAG, collide_list[0]).character;
+      if(character){
+        let character_object = ElementManager.getFilteredElement(Character.TAG, character);
+        let word = character_object.father;
+        if(word){
+          if(!SelectManager.isSelectedType(Word.TAG) || word === SelectManager.getSelectedId()){
+            let word_object = ElementManager.getFilteredElement(Word.TAG, word);
+            word_object.remove(character_object);
+            if(word_object.isEmpty()){
+              SelectManager.unSelect();
+              DocumentManager.removeElementWithUpdate(Word.TAG, word);
+            }else{
+              Graphics.refresh();
+              SelectManager.selectId(word);
+              /* History */
+            }
+            return;
+          }
+        }
+      }
+    }
+    SelectManager.unSelect();
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('word.onMouseMove', 'mousemove', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+ToolManager.addHandler(new Handler('word.onMouseOut', 'mouseout', false, Engine,
+  function(event){
+    Graphics.refresh();
+  })
+);
+// ================================================================================
+
+// ================================================================================
+// * Register Renderer
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer("word.doc.normal", 7, WordFactory, function(ctx){
+Graphics.renderWordObjectNormal = function(word_object){
+  let line_scale = 11;
+  let line_color = ColorManager.RGBToHex(255, 255, 0);
+  let polygons = word_object.getPolyGonList();
+  for(let i = 0; i < polygons.length; i++){
+    Graphics.strokePolygon(Graphics.getRenderPolygon(polygons[i]).getScaledPolygon(line_scale),
+      2, line_color, 0.8);
+  }
+};
+// --------------------------------------------------------------------------------
+RenderManager.addRenderer(new Renderer('word.doc.all', '', 30, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
-  let words = SDUDocument.getCurrentPageElements(Word.TAG);
-  for(let i in words){
-    words[i].render(ctx);
+  let word_objects = ElementManager.getFilteredElements(Word.TAG);
+  for(let key in word_objects){
+    Graphics.renderWordObjectNormal(word_objects[key]);
   }
-  let sentences = SDUDocument.getCurrentPageElements(Sentence.TAG);
-  for(let i in sentences){
-    sentences[i].render(ctx);
+  let sentence_objects = ElementManager.getFilteredElements(Sentence.TAG);
+  for(let key in sentence_objects){
+    Graphics.renderSentenceObjectNormal(sentence_objects[key]);
   }
-  let paragraphs = SDUDocument.getCurrentPageElements(Paragraph.TAG);
-  for(let i in paragraphs){
-    paragraphs[i].render(ctx);
+  let paragraph_objects = ElementManager.getFilteredElements(Paragraph.TAG);
+  for(let key in paragraph_objects){
+    Graphics.renderParagraphObjectNormal(paragraph_objects[key]);
   }
-  let articles = SDUDocument.getCurrentPageElements(Article.TAG);
-  for(let i in articles){
-    articles[i].render(ctx);
+  let article_objects = ElementManager.getFilteredElements(Article.TAG);
+  for(let key in article_objects){
+    Graphics.renderArticleObjectNormal(article_objects[key]);
   }
-  let books = SDUDocument.getCurrentPageElements(Book.TAG);
-  for(let i in books){
-    books[i].render(ctx);
+  let book_objects = ElementManager.getFilteredElements(Book.TAG);
+  for(let key in book_objects){
+    Graphics.renderBookObjectNormal(book_objects[key]);
   }
 }));
-RenderManager.addRenderer(new Renderer("word.polygon.collide", 6, WordFactory, function(ctx){
+RenderManager.addRenderer(new Renderer('word.polygon.collide', '', 21, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
+
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   if(collide_list.length > 0){
-    SDUDocument.getCurrentPageElement(Polygon2D.TAG, collide_list[0]).renderCollide(ctx);
+    let polygon_object = ElementManager.getElement(Polygon2D.TAG, collide_list[0]);
+    Graphics.renderPolygonCollide(Graphics.getRenderPolygon(polygon_object.getPolygon()));
   }
 }));
 // ================================================================================

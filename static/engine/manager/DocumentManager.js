@@ -38,6 +38,7 @@ DocumentManager.clearData = function(){
   this._page_array = new PageArray();
   this._header = new Header();
   ElementManager.clear();
+  SelectManager.clear();
 };
 // --------------------------------------------------------------------------------
 // * Document
@@ -121,6 +122,16 @@ DocumentManager.addAfterCurrentPage = async function(src, filename){
   this._page_array.addAfterCurrentPage(page.id);
   await this.afterChangePage();
 }
+DocumentManager.clearPage = function(index){
+  let page = ElementManager.getElement(Page.TAG, this._page_array.getPageId(index));
+  page.onRemove.call(page);
+  this.afterChangeElement();
+}
+DocumentManager.clearCurrentPage = function(){
+  let page = this.getCurrentPageObject();
+  page.onRemove.call(page);
+  this.afterChangeElement();
+}
 DocumentManager.removeCurrentPage = async function(){
   this.removeElement(Page.TAG, this.getCurrentPageId());
   this._page_array.removeCurrentPage();
@@ -170,10 +181,10 @@ DocumentManager.afterChangePage = async function(){
 // * Save & Export
 // --------------------------------------------------------------------------------
 DocumentManager.getSaveFilename = function(){
-  return (this._filename ? this._filename : "Untitled") + ".sjs";
+  return (this._filename ? this._filename : 'Untitled') + '.sjs';
 };
 DocumentManager.getExportFilename = function(){
-  return (this._filename ? this._filename : "Untitled") + ".sdudoc";
+  return (this._filename ? this._filename : 'Untitled') + '.sdudoc';
 };
 // --------------------------------------------------------------------------------
 DocumentManager.getElementManagerTopElementTag = function(){
@@ -182,7 +193,7 @@ DocumentManager.getElementManagerTopElementTag = function(){
   for(let i = 0; i < tags.length; i++){
     let elements = ElementManager.getElements(tags[i]);
     if (elements && Object.getOwnPropertyNames(elements).length > 0){
-      top_tag = Word.TAG;
+      top_tag = tags[i];
     }
   }
   return top_tag;
@@ -218,6 +229,9 @@ DocumentManager.save = function(){
 DocumentManager.export = function(){
   return JSON.stringify(this.exportJson());
 };
+DocumentManager.exportOldVersion = function(){
+  return JSON.stringify(this.exportOldVersionJson());
+};
 // --------------------------------------------------------------------------------
 DocumentManager.loadJson = function(json_object){
   this.clearData();
@@ -240,99 +254,98 @@ DocumentManager.exportJson = function(){
   output.Elements = ElementManager.exportJson();
   return output;
 };
-// ================================================================================
+DocumentManager.exportOldVersionJson = function(){
+  let page_list = this._page_array.exportJson();
+  let elements = ElementManager.exportJson();
+  let pages = [];
+  for(let i = 0; i < page_list.length; i++){
+    for(let j = 0;j < elements[Page.TAG].length; j++){
+      if(elements[Page.TAG][j].id === page_list[i]){
+        pages.push(elements[Page.TAG][j]);
+        break;
+      }
+    }
+  }
+  let output = {};
+  output.Header = this._header.exportJson();
+  output.Document = this.getExportDocument();
+  output[Page.TAG] = pages;
+  for(let key in elements){
+    if(key !== Page.TAG){
+      for (let i = 0; i < elements[key].length; i++) {
+        if(elements[key][i].string_array){
+          elements[key][i].string = elements[key][i].string_array;
+          delete elements[key][i].string_array;
+        }
+      }
+      output[key] = elements[key];
+    }
+  }
+  if(output[Character.TAG]){
+    for(let i = 0;i < output[Character.TAG].length; i++){
+      output[Character.TAG][i].page = output[Character.TAG][i].pages[0];
+      delete output[Character.TAG][i].pages;
+    }
+  }
+  return output;
+};
+// --------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-/*
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------------
-DocumentManager.upLoadDoc = function(){
-  // return new Promise((resolve) => {
-  //   Engine._axios({
-  //     method: 'post',
-  //     url: 'http://211.87.232.197:8081/sdudoc/doc/insert_sdudoc',
-  //     data: SDUDocument.exportJson(),
-  //     headers: {
-  //       'content-type': 'application/json',
-  //       'Access-Control-Allow-Origin': 'http://211.87.232.197'
-  //     },
-  //     responseType: 'json'
-  //   }).then(response => {
-  //     console.log(response);
-  //     resolve();
-  //   }).catch(error => {
-  //     console.log(error);
-  //     resolve();
-  //   });
-  // });
-}
-
-
-// --------------------------------------------------------------------------------
 DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
-  SDUDocument.clearPage(SDUDocument.getCurrentPage());
+  if(this.getCurrentPage() <= 0) return;
+  this.clearCurrentPage();
   let width = Graphics._image.width - padding.left - padding.right;
   let height = Graphics._image.height - padding.top - padding.bottom;
-  let page = this.getCurrentPageId()
+  let pages = [this.getCurrentPageId()];
   let base_dots = [], base_lines = [];
-  base_dots[0] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left, padding.top);
-  base_dots[1] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left + width, padding.top);
-  base_dots[2] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left + width, padding.top + height);
-  base_dots[3] = DotFactory.makeObject(page, Dot2D.Type.FREE, padding.left, padding.top + height);
+  base_dots[0] = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.FREE, padding.left, padding.top);
+  base_dots[1] = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.FREE, padding.left + width, padding.top);
+  base_dots[2] = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.FREE, padding.left + width, padding.top + height);
+  base_dots[3] = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.FREE, padding.left, padding.top + height);
   for(let i = 0; i < base_dots.length; i++){
-    SDUDocument.addElement(Dot2D.TAG, base_dots[i], true);
+    this.addElement(Dot2D.TAG, base_dots[i]);
     base_dots[i] = base_dots[i].id;
   }
-  base_lines[0] = LineFactory.makeObject(page, base_dots[0], base_dots[1]);
-  base_lines[1] = LineFactory.makeObject(page, base_dots[1], base_dots[2]);
-  base_lines[2] = LineFactory.makeObject(page, base_dots[2], base_dots[3]);
-  base_lines[3] = LineFactory.makeObject(page, base_dots[3], base_dots[0]);
+  base_lines[0] = ElementManager.makeElement(Line2D.TAG, pages, base_dots[0], base_dots[1]);
+  base_lines[1] = ElementManager.makeElement(Line2D.TAG, pages, base_dots[1], base_dots[2]);
+  base_lines[2] = ElementManager.makeElement(Line2D.TAG, pages, base_dots[2], base_dots[3]);
+  base_lines[3] = ElementManager.makeElement(Line2D.TAG, pages, base_dots[3], base_dots[0]);
   for(let i = 0; i < base_lines.length; i++){
-    SDUDocument.addElement(Line2D.TAG, base_lines[i], true);
+    this.addElement(Line2D.TAG, base_lines[i]);
     base_lines[i] = base_lines[i].id;
   }
   let dependent_dots = [[],[],[],[]], dependent_lines = [[],[]];
   for(let i = 0; i < x - 1; i++){
-    let dot1 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[0], (1 / x * (i + 1)));
-    let dot2 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[2], 1 - (1 / x * (i + 1)));
-    SDUDocument.addElement(Dot2D.TAG, dot1, true);
-    SDUDocument.addElement(Dot2D.TAG, dot2, true);
+    let dot1 = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.DEPENDENT, base_lines[0], (1 / x * (i + 1)));
+    let dot2 = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.DEPENDENT, base_lines[2], 1 - (1 / x * (i + 1)));
+    this.addElement(Dot2D.TAG, dot1);
+    this.addElement(Dot2D.TAG, dot2);
     dependent_dots[0].push(dot1.id);
     dependent_dots[2].push(dot2.id);
-    let line = LineFactory.makeObject(page, dot1.id, dot2.id);
-    SDUDocument.addElement(Line2D.TAG, line, true);
+    let line = ElementManager.makeElement(Line2D.TAG, pages, dot1.id, dot2.id);
+    this.addElement(Line2D.TAG, line);
     dependent_lines[0].push(line.id);
   }
   for(let i = 0; i < y - 1; i++){
-    let dot1 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[1], (1 / y * (i + 1)));
-    let dot2 = DotFactory.makeObject(page, Dot2D.Type.DEPENDENT, base_lines[3], 1 - (1 / y * (i + 1)));
-    SDUDocument.addElement(Dot2D.TAG, dot1, true);
-    SDUDocument.addElement(Dot2D.TAG, dot2, true);
+    let dot1 = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.DEPENDENT, base_lines[1], (1 / y * (i + 1)));
+    let dot2 = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.DEPENDENT, base_lines[3], 1 - (1 / y * (i + 1)));
+    this.addElement(Dot2D.TAG, dot1);
+    this.addElement(Dot2D.TAG, dot2);
     dependent_dots[1].push(dot1.id);
     dependent_dots[3].push(dot2.id);
-    let line = LineFactory.makeObject(page, dot1.id, dot2.id);
-    SDUDocument.addElement(Line2D.TAG, line, true);
+    let line = ElementManager.makeElement(Line2D.TAG, pages, dot1.id, dot2.id);
+    this.addElement(Line2D.TAG, line);
     dependent_lines[1].push(line.id);
   }
   let intersection_dots = [];
   for(let i = 0; i < y - 1; i++){
     intersection_dots.push([]);
     for(let j = 0; j < x - 1; j++){
-      let dot = DotFactory.makeObject(page, Dot2D.Type.INTERSECTION, dependent_lines[0][j], dependent_lines[1][i]);
-      SDUDocument.addElement(Dot2D.TAG, dot, true);
+      let dot = ElementManager.makeElement(Dot2D.TAG, pages, Dot2D.Type.INTERSECTION, dependent_lines[0][j], dependent_lines[1][i]);
+      this.addElement(Dot2D.TAG, dot);
       intersection_dots[i].push(dot.id);
     }
   }
@@ -345,14 +358,12 @@ DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
   for(let i = x - 1; i >= 0; i--){
     for(let j = 0; j < y; j++){
       let points = [dot_map[j][i], dot_map[j][i + 1], dot_map[j + 1][i + 1], dot_map[j + 1][i]];
-      let polygon = PolygonFactory.makeObject(page, points);
-      SDUDocument.addElement(Polygon2D.TAG, polygon, true);
+      let polygon = ElementManager.makeElement(Polygon2D.TAG, pages, points);
+      this.addElement(Polygon2D.TAG, polygon);
       polygon_callback.call(this, polygon);
     }
   }
-  SDUDocument.updateCurrentPageData();
-  Graphics.refresh();
-  this.push();
+  this.afterChangeElement();
 }
 // --------------------------------------------------------------------------------
 DocumentManager.generateDocumentByText = async function(img_width, img_height, char_horizontal, char_vertical, padding, text){
@@ -360,8 +371,8 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
   let canvas = document.createElement('canvas');
   canvas.width = img_width;
   canvas.height = img_height;
-  let ctx = canvas.getContext("2d");
-  let rect = new Rectangle(0, 0, img_width, img_height)
+  let ctx = canvas.getContext('2d');
+  let rect = new Rectangle(0, 0, img_width, img_height);
   let max_width = img_width - padding.left - padding.right;
   let max_height = img_height - padding.top - padding.bottom;
   let max_char_width = Math.floor(max_width / char_horizontal);
@@ -377,9 +388,9 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
   let jump_index = 0;
 
   let newPage = async function(draw_text, start_index){
-    rect.clear(ctx);
-    rect.fillSelf(ctx, 'rgba(255, 255, 255, 1)');
-    ctx.save();
+    ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
+    ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+    ctx.fillRect(rect.x, rect.y, rect.width, rect.height, );
     ctx.fillStyle = 'rgba(0, 0, 0, 1)';
     for(let i = 0; i <= char_horizontal; i++){
       let draw_x = x + (i * char_size);
@@ -426,13 +437,13 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
     ctx.restore();
 
     let data = canvas.toDataURL('image/jpeg');
-    await DocumentManager.newWebPage(data, String(Math.random()) + '.jpg')
+    await DocumentManager.addAfterCurrentPage(data, String(Math.random()) + '.jpg')
 
-    if(!book) book = BookFactory.makeObject(DocumentManager.getCurrentPageId());
-    if(!article) article = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
-    if(!paragraph) paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
-    if(!sentence) sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
-    if(!word) word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+    if(!book) book = ElementManager.makeElement(Book.TAG, [DocumentManager.getCurrentPageId()]);
+    if(!article) article = ElementManager.makeElement(Article.TAG, [DocumentManager.getCurrentPageId()]);
+    if(!paragraph) paragraph = ElementManager.makeElement(Paragraph.TAG, [DocumentManager.getCurrentPageId()]);
+    if(!sentence) sentence = ElementManager.makeElement(Sentence.TAG, [DocumentManager.getCurrentPageId()]);
+    if(!word) word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
 
     let character_index = start_index;
     DocumentManager.createModulePage(char_horizontal, char_vertical, draw_padding, function(polygon){
@@ -443,47 +454,38 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
         let char = text.charAt(character_index);
         switch (char){
           case ' ':
-            SDUDocument.addElement(Word.TAG, word, true);
+            DocumentManager.addElement(Word.TAG, word);
             sentence.append(word);
-            word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
+            word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
             character_index ++;
             break;
           case '，':
-            SDUDocument.addElement(Word.TAG, word, true);
+            DocumentManager.addElement(Word.TAG, word);
             sentence.append(word);
-            word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
-            SDUDocument.addElement(Sentence.TAG, sentence, true);
+            word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
+            DocumentManager.addElement(Sentence.TAG, sentence);
             paragraph.append(sentence);
-            sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
+            sentence = ElementManager.makeElement(Sentence.TAG, [DocumentManager.getCurrentPageId()]);
             character_index ++;
             break;
           case '\\':
             if(text.charAt(character_index + 1) === 'n'){
+              DocumentManager.addElement(Word.TAG, word);
+              sentence.append(word);
+              word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
+              DocumentManager.addElement(Sentence.TAG, sentence);
+              paragraph.append(sentence);
+              sentence = ElementManager.makeElement(Sentence.TAG, [DocumentManager.getCurrentPageId()]);
+              DocumentManager.addElement(Paragraph.TAG, paragraph);
+              article.append(paragraph);
+              paragraph = ElementManager.makeElement(Paragraph.TAG, [DocumentManager.getCurrentPageId()]);
               if(text.charAt(character_index + 2) === '\\' && text.charAt(character_index + 3) === 'n'){
-                SDUDocument.addElement(Word.TAG, word, true);
-                sentence.append(word);
-                word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
-                SDUDocument.addElement(Sentence.TAG, sentence, true);
-                paragraph.append(sentence);
-                sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
-                SDUDocument.addElement(Paragraph.TAG, paragraph, true);
-                article.append(paragraph);
-                paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
-                SDUDocument.addElement(Article.TAG, article, true);
+                DocumentManager.addElement(Article.TAG, article);
                 book.append(article);
-                article = ArticleFactory.makeObject(DocumentManager.getCurrentPageId());
+                article = ElementManager.makeElement(Article.TAG, [DocumentManager.getCurrentPageId()]);
                 character_index += 4;
                 break;
               }else{
-                SDUDocument.addElement(Word.TAG, word, true);
-                sentence.append(word);
-                word = WordFactory.makeObject(DocumentManager.getCurrentPageId());
-                SDUDocument.addElement(Sentence.TAG, sentence, true);
-                paragraph.append(sentence);
-                sentence = SentenceFactory.makeObject(DocumentManager.getCurrentPageId());
-                SDUDocument.addElement(Paragraph.TAG, paragraph, true);
-                article.append(paragraph);
-                paragraph = ParagraphFactory.makeObject(DocumentManager.getCurrentPageId());
                 character_index += 2;
                 break;
               }
@@ -492,10 +494,10 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
         }
         if(character_index < text.length) {
           let char = text.charAt(character_index);
-          let character = CharacterFactory.makeObject(DocumentManager.getCurrentPageId(),
-            polygon.id, char);
+          let character = ElementManager.makeElement(Character.TAG, [DocumentManager.getCurrentPageId()],
+            polygon.id, char, '');
           polygon.character = character.id;
-          SDUDocument.addElement(Character.TAG, character, true);
+          DocumentManager.addElement(Character.TAG, character, true);
           word.append(character);
           character_index ++;
         }
@@ -508,19 +510,20 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
     current_place = await newPage(text, current_place);
   }
 
-  SDUDocument.addElement(Word.TAG, word, true);
+  DocumentManager.addElement(Word.TAG, word);
   sentence.append(word);
-  SDUDocument.addElement(Sentence.TAG, sentence, true);
+  DocumentManager.addElement(Sentence.TAG, sentence);
   paragraph.append(sentence);
-  SDUDocument.addElement(Paragraph.TAG, paragraph, true);
+  DocumentManager.addElement(Paragraph.TAG, paragraph);
   article.append(paragraph);
-  SDUDocument.addElement(Article.TAG, article, true);
+  DocumentManager.addElement(Article.TAG, article);
   book.append(article);
-  SDUDocument.addElement(Book.TAG, book, true);
-
-  this.push();
+  DocumentManager.addElementWithUpdate(Book.TAG, book);
 }
+// ================================================================================
 
+// ================================================================================
+// * Unused
 // --------------------------------------------------------------------------------
 DocumentManager.cloneObject = function (obj) {
   if(obj === null) return null
@@ -537,22 +540,22 @@ DocumentManager.cloneObject = function (obj) {
 };
 DocumentManager.xmlToObject = function(xml){
   if(!xml) return;
-  let list = xml.split("  ");
+  let list = xml.split('  ');
   if(list.length === 0) return;
   list[0] = list[0].substring(1, list[0].length);
   list[list.length - 1] = list[list.length - 1].substring(0, list[list.length - 1].length - 2);
   let object = this.cloneObject(window[list.shift()].get());
   for(let i in list){
-    let data = list[i].split("=");
+    let data = list[i].split('=');
     switch(data[1]){
-      case "false":
+      case 'false':
         object[data[0]] = false;
         break;
-      case "true":
+      case 'true':
         object[data[0]] = true;
         break;
       default:
-        if(data[1].charAt(0) === "\""){
+        if(data[1].charAt(0) === '\''){
           object[data[0]] = data[1].substring(1, data[1].length - 1)
         }else{
           object[data[0]] = Number(data[1]);
@@ -562,52 +565,19 @@ DocumentManager.xmlToObject = function(xml){
   return object;
 }
 DocumentManager.objectToXml = function(obj){
-  let string_builder = "";
-  string_builder += "<" + obj.__proto__.constructor.name;
+  let string_builder = '';
+  string_builder += '<' + obj.__proto__.constructor.name;
   for(let i in obj){
     switch(typeof obj[i]){
-      case "string":
-        string_builder += "  " + i + "=\"" + obj[i] + "\"";
+      case 'string':
+        string_builder += '  ' + i + '=\'' + obj[i] + '\'';
         break;
-      case "number": case "boolean":
-        string_builder += "  " + i + "=" + obj[i];
+      case 'number': case 'boolean':
+        string_builder += '  ' + i + '=' + obj[i];
         break;
     }
   }
-  string_builder += "/>";
+  string_builder += '/>';
   return string_builder;
 }
-// --------------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------------
-DocumentManager.clearHistory = function(){
-  this._history = []
-  this._now_history = 0;
-}
-DocumentManager.push = function(){
-  this._history.splice(++ this._now_history, this._history.length - this._now_history);
-  this._history.push([SDUDocument.saveJson(), SDUDocument.getCurrentPage()]);
-  if(this._history.length >= this.MAX_HISTORY){
-    this._history.shift();
-  }
-  this._now_history = this._history.length - 1;
-  SDUDocument.updateCurrentPageData();
-}
-DocumentManager.undo = async function(){
-  if(this._now_history > 0){
-    let index = -- this._now_history;
-    await SDUDocument.loadJson(this._history[index][0]);
-    await SDUDocument.setCurrentPage(this._history[index][1]);
-    this.updateList();
-  }
-}
-DocumentManager.redo = async function(){
-  if(this._now_history < this._history.length - 1){
-    let index = ++ this._now_history;
-    await SDUDocument.loadJson(this._history[index][0]);
-    await SDUDocument.setCurrentPage(this._history[index][1]);
-    this.updateList();
-  }
-}
 // ================================================================================
-*/

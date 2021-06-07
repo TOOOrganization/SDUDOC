@@ -23,7 +23,8 @@ Language.Type = {
   ToolTip: 'tooltip',
   Todo: 'todo',
   System: 'system',
-  Text: 'text'
+  Text: 'text',
+  ResponseStatus : 'response-status'
 };
 // --------------------------------------------------------------------------------
 // * Constant
@@ -239,6 +240,11 @@ Language.addLanguage = function (id, name){
 };
 Language.addDictionary = function (json){
   this._add_dictionary.push(json);
+};
+Language.addDictionaryList = function (json_array){
+  for(let i = 0; i < json_array.length; i++){
+    this._add_dictionary.push(json_array[i]);
+  }
 };
 // --------------------------------------------------------------------------------
 Language.getLanguageList = function (){

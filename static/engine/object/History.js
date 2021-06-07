@@ -46,10 +46,10 @@ Object.defineProperty(History.prototype, 'new_handle', {
 // --------------------------------------------------------------------------------
 // * Function
 // --------------------------------------------------------------------------------
-History.prototype.undo = function(){
-  this._old_handle.callback.call(this._old_handle.owner);
+History.prototype.undo = async function(){
+  await this._old_handle.callback.call(this._old_handle);
 };
-History.prototype.redo = function(){
-  this._new_handle.callback.call(this._new_handle.owner);
+History.prototype.redo = async function(){
+  await this._new_handle.callback.call(this._new_handle);
 };
 // ================================================================================

@@ -27,7 +27,7 @@ SelectManager.initialize = function(){
   this.clear();
 }
 SelectManager.clear = function(){
-  this._target = null;
+  this.unSelect();
 };
 // --------------------------------------------------------------------------------
 // * Functions

@@ -79,17 +79,17 @@ Element.prototype.checkCollide = function(point){
 Element.prototype.loadJson = function(json_object){
   this._id    = json_object._id    === undefined ? this._id    : json_object._id;
   this._pages = json_object._pages === undefined ? this._pages : json_object._pages;
-}
+};
 Element.prototype.saveJson = function(){
   let output = {};
   output._id    = this._id;
   output._pages = this._pages;
   return output;
-}
+};
 Element.prototype.exportJson = function(){
   let output = {};
   output.id    = this._id;
   output.pages = this._pages;
   return output;
-}
+};
 // ================================================================================

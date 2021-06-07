@@ -23,7 +23,7 @@ Polygon2D.prototype.constructor = Polygon2D;
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-Polygon2D.TAG = "Polygon2D";
+Polygon2D.TAG = 'Polygon2D';
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
@@ -33,8 +33,8 @@ Polygon2D.prototype._character = '';
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.initialize = function(id, page, points){
-  Element.prototype.initialize.call(this, id, page);
+Polygon2D.prototype.initialize = function(id, pages, points){
+  Element.prototype.initialize.call(this, id, pages);
 
   this._points = points;
   this._character = '';
@@ -92,7 +92,7 @@ Polygon2D.prototype.onUpdate = function(){
 // * Remove
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onRemove = function(){
-  ElementManager.removeElement(Character.TAG, this._character);
+  DocumentManager.removeElement(Character.TAG, this._character);
   this._character = '';
 };
 // --------------------------------------------------------------------------------
@@ -115,34 +115,22 @@ Polygon2D.prototype.isClose = function(point){
   return this._points[0] === point;
 };
 // --------------------------------------------------------------------------------
-Polygon2D.prototype.getCorePoint = function(){
-  let points = [];
-  for(let i = 0; i < this._points.length; i++){
-    points[i] = ElementManager.getCurrentPageElement(Dot2D.TAG, this._points[i]);
-  }
-  let point = new Point(0, 0);
-  for(let i = 0; i < points.length; i++){
-    point = point.add(points[i]);
-  }
-  return point.division(points.length);
-};
-// --------------------------------------------------------------------------------
 // * Save & Export
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.loadJson = function(json_object){
   Element.prototype.loadJson.call(this, json_object);
   this._points    = json_object._points    === undefined ? this._points    : json_object._points;
   this._character = json_object._character === undefined ? this._character : json_object._character;
-}
+};
 Polygon2D.prototype.saveJson = function(){
   let output = Element.prototype.saveJson.call(this);
   output._points    = this._points;
   output._character = this._character;
   return output;
-}
+};
 Polygon2D.prototype.exportJson = function(){
   return null;
-}
+};
 // ================================================================================
 
 // ================================================================================
@@ -152,7 +140,7 @@ Language.addDictionary({
   type: Language.Type.Todo, id: 'plugin-polygon', dictionary:[
     { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【删除多边形】右键单击一个多边形。'] }
   ]
-})
+});
 // ================================================================================
 
 // ================================================================================
@@ -194,6 +182,7 @@ ToolManager.addHandler(new Handler('polygon.onMouseLeftClick', 'left_click', fal
         SelectManager.unSelect();
       }else{
         polygon_object.append(dot_object.id);
+        SelectManager.updateCheckData();
         Graphics.refresh();
       }
     }else{
@@ -211,6 +200,7 @@ ToolManager.addHandler(new Handler('polygon.onMouseLeftClick', 'left_click', fal
         SelectManager.unSelect();
       }else{
         polygon_object.append(collide_list[0]);
+        SelectManager.updateCheckData();
         Graphics.refresh();
       }
     }else{
@@ -266,16 +256,21 @@ Graphics.renderPolygonVirtual = function(polygon){
   this.fillPolygon(polygon, fill_color, 0.3);
 };
 // --------------------------------------------------------------------------------
+Graphics.renderPolygonNormalList = function(polygon_list){
+  let fill_color = ColorManager.RGBToHex(0, 0, 255);
+  this.fillPolygonList(polygon_list, fill_color, 0.4);
+};
+// --------------------------------------------------------------------------------
 RenderManager.addRenderer(new Renderer('polygon.polygon.all', '', 30, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
   let polygons = ElementManager.getFilteredElements(Polygon2D.TAG);
+  let render_polygons = [];
   for(let id in polygons){
-    if(collide_list.indexOf(id) === -1){
-      Graphics.renderPolygonNormal(Graphics.getRenderPolygon(polygons[id].getPolygon()));
-    }
+    render_polygons.push(Graphics.getRenderPolygon(polygons[id].getPolygon()));
   }
+  Graphics.renderPolygonNormalList(render_polygons);
   if(collide_list.length > 0){
     Graphics.renderPolygonCollide(Graphics.getRenderPolygon(polygons[collide_list[0]].getPolygon()));
   }
@@ -284,9 +279,11 @@ RenderManager.addRenderer(new Renderer('!polygon.polygon.all', '', 30, function(
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let polygons = ElementManager.getFilteredElements(Polygon2D.TAG);
+  let render_polygons = [];
   for(let id in polygons){
-    Graphics.renderPolygonNormal(Graphics.getRenderPolygon(polygons[id].getPolygon()));
+    render_polygons.push(Graphics.getRenderPolygon(polygons[id].getPolygon()));
   }
+  Graphics.renderPolygonNormalList(render_polygons);
 }));
 RenderManager.addRenderer(new Renderer('polygon.dot.collide', '', 51, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;

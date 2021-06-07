@@ -35,6 +35,9 @@ Engine._current_loading_text = '';
 Engine._app_element = null;
 Engine._packages = {};
 // --------------------------------------------------------------------------------
+Engine._notice_in_process = false;
+Engine._notice_list = [];
+// --------------------------------------------------------------------------------
 Engine._todo = null;
 // --------------------------------------------------------------------------------
 // * App - Getter & Setter
@@ -76,7 +79,7 @@ Engine.checkRouter = function(name){
 };
 // --------------------------------------------------------------------------------
 Engine.setCurrentLanguage = function(id){
-  Language.setCurrentLanguage(id);
+   Language.setCurrentLanguage(id);
   this.updateAllData();
 };
 Engine.setCurrentTodo = function(id){
@@ -93,6 +96,7 @@ Engine.updateAllData = function(){
   this.updateAppData();
   this.updateLoadingData();
   this.updateIndexData();
+  this.updateEditorData()
 };
 // --------------------------------------------------------------------------------
 // * App - PageData - App
@@ -249,7 +253,6 @@ Engine.initialize = function(){
   CollideManager.initialize();
   ElementManager.initialize();
   DocumentManager.initialize();
-
   SelectManager.initialize();
   HistoryManager.initialize();
 };
@@ -259,12 +262,11 @@ Engine.initializeEditor = function(){
   let editor = this._app_element.getRouterComponent();
   MouseInput.initializeEditor(editor);
   Graphics.initializeEditor(editor);
-
   ToolManager.initializeEditor(editor);
 };
 // --------------------------------------------------------------------------------
 Engine.createHandler = function(){
-  MouseInput.addHandler(new Handler("engine.onMouseMove", "mousemove", false, Engine,
+  MouseInput.addHandler(new Handler('engine.onMouseMove', 'mousemove', false, Engine,
     function(event){
       if(MouseInput.isPressed(MouseInput.Mouse.MIDDLE)) {
         let distance = new Point(event.layerX, event.layerY).minus(MouseInput.getMousePoint());
@@ -272,7 +274,7 @@ Engine.createHandler = function(){
       }
     })
   );
-  MouseInput.addHandler(new Handler("engine.onMouseWheel", "wheel", false, Engine,
+  MouseInput.addHandler(new Handler('engine.onMouseWheel', 'wheel', false, Engine,
     function(event){
       let scale = 1 - event.deltaY / 1200;
       let oldScale = Graphics.scale;
@@ -288,7 +290,7 @@ Engine.createInputBox = function(){
   this._input.setAttribute('accept', 'image/*');
   this._input.setAttribute('id','file_input');
   this._input.setAttribute('type','file');
-  this._input.setAttribute("style",'visibility:hidden; display:none');
+  this._input.setAttribute('style','visibility:hidden; display:none');
   this._input._reader = new FileReader();
   this._input._file = null;
   this._input._readAsText = false;
@@ -296,7 +298,7 @@ Engine.createInputBox = function(){
     this._file = event.target.files[0];
     if(this._file){
       if(this._readAsText){
-        this._reader.readAsText(event.target.files[0], "UTF-8")
+        this._reader.readAsText(event.target.files[0], 'UTF-8')
       }else{
         this._reader.readAsDataURL(event.target.files[0]);
       }
@@ -310,6 +312,7 @@ Engine.createInputBox = function(){
 // --------------------------------------------------------------------------------
 Engine.clearToolTemp = function(){
   SelectManager.unSelect();
+  Graphics.update();
 }
 // --------------------------------------------------------------------------------
 Engine.readImage = function(from, callback){
@@ -381,59 +384,21 @@ Engine.prompt = function(owner, title, tooltip, default_text, callback){
     });
   });
 }
-// --------------------------------------------------------------------------------
-
-/*
-Engine._owner = null;
-Engine._axios = null;
-Engine._base64 = null;
-// --------------------------------------------------------------------------------
-// * Initialize
-// --------------------------------------------------------------------------------
-Engine.initialize = function(){
-  this.createHandler();
-  this.createInputBox();
-
-  Graphics.initialize();
-  MouseInput.initialize();
-  Input.initialize();
-
-  SDUDocument.initialize();
-  DocumentManager.initialize();
-
-  RenderManager.initialize();
-  ToolManager.initialize();
-};
-Engine.setElements = function(canvas, element, axios, base64, owner){
-  this._owner = owner;
-  this._axios = axios;
-  this._base64 = base64;
-  Graphics.setCanvas(canvas, element);
-  MouseInput.setupTargetHandlers(canvas);
-};
-
-// --------------------------------------------------------------------------------
-// * Getter & Setter
-// --------------------------------------------------------------------------------
-Object.defineProperty(Engine, 'owner', {
-  get: function() {
-    return this._owner;
-  },
-  configurable: true
-});
-
-// --------------------------------------------------------------------------------
-// * Functions
-// --------------------------------------------------------------------------------
-Engine.clearFactory = function(){
-  PolygonFactory.clearPoints();
-  LineFactory.clearFirstPoint();
-  SelectManager.unSelect();
+Engine.notice = function(text){
+  if(text){
+    this._notice_list.push(text);
+    if(this._notice_in_process){
+      return;
+    }
+    this._notice_in_process = true;
+  }
+  if(this._notice_list.length === 0){
+    this._notice_in_process = false;
+    return;
+  }
+  this._app_element.notice({
+    notice_text: this._notice_list.shift()
+  });
+  setTimeout(Engine.notice.bind(Engine), 2200);
 }
-// --------------------------------------------------------------------------------
-Engine.setTodo = function(text){
-  Engine.owner.todo_text = 'Todo: ' + text;
-}
-
 // ================================================================================
-*/
