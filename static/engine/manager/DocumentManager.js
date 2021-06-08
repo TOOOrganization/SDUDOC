@@ -117,10 +117,12 @@ DocumentManager.getPageList = function(){
 // --------------------------------------------------------------------------------
 DocumentManager.addAfterCurrentPage = async function(src, filename){
   let request_src = await HttpRequest.uploadWebPage(src, filename);
+  if(!request_src) return;
   let page = ElementManager.makeElement(Page.TAG, request_src);
   this.addElement(Page.TAG, page);
   this._page_array.addAfterCurrentPage(page.id);
   await this.afterChangePage();
+  Engine.progress(100);
 }
 DocumentManager.clearPage = function(index){
   let page = ElementManager.getElement(Page.TAG, this._page_array.getPageId(index));

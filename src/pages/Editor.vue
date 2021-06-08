@@ -333,6 +333,7 @@ export default {
     },
     clickToolFilter(callback){
       if(!localStorage.getItem(HttpRequest.TOKEN_KEY)) {
+        Engine.noticeHint('need-login', true);
         this.right_box = true;
         this.tab = 0;
         return;
@@ -340,8 +341,10 @@ export default {
       callback();
     },
     changeTabFilter(index){
-      if(this.tabs[index].login && !localStorage.getItem(HttpRequest.TOKEN_KEY))
-         return 0;
+      if(this.tabs[index].login && !localStorage.getItem(HttpRequest.TOKEN_KEY)) {
+        Engine.noticeHint('need-login', true);
+        return 0;
+      }
       return index;
     },
     changePage(index){
@@ -377,6 +380,7 @@ export default {
       this.checkLogin();
     },
     logout() {
+      Engine.noticeSuccess(200);
       localStorage.removeItem(HttpRequest.TOKEN_KEY);
       this.checkLogin();
     },

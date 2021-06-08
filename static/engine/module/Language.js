@@ -24,15 +24,15 @@ Language.Type = {
   Todo: 'todo',
   System: 'system',
   Text: 'text',
-  ResponseStatus : 'response-status'
+  Notice: 'notice'
 };
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
 Language.DEFAULT_LANGUAGES = [
   { id: 'zh-cn', name: '简体中文(中国)' },
-  { id: 'zh-tw', name: '繁體中文(中國-臺灣)'},
-  { id: 'en-us', name: 'English(United States)'}
+  { id: 'zh-tw', name: '繁體中文(中國)' },
+  { id: 'en-us', name: 'English(United States)' }
 ];
 Language.DEFAULT_LANGUAGE = 'zh-cn';
 Language.DEFAULT_DICTIONARY = [
@@ -62,35 +62,51 @@ Language.DEFAULT_DICTIONARY = [
     ]
   }, {
     type: Language.Type.System, id: 'loading-label', dictionary:[
-      { id: 'zh-cn', text: ['正在加载引擎 休息一下吧'] }
+      { id: 'zh-cn', text: ['正在加载引擎 休息一下吧'] },
+      { id: 'zh-tw', text: ['正在加載引擎 休息一下吧'] },
+      { id: 'en-us', text: ['Now Loading. Please wait'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-engine', dictionary:[
-      { id: 'zh-cn', text: ['正在加载引擎'] }
+      { id: 'zh-cn', text: ['正在加载引擎'] },
+      { id: 'zh-tw', text: ['正在加載引擎'] },
+      { id: 'en-us', text: ['Loading Engine'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-core', dictionary:[
-      { id: 'zh-cn', text: ['正在加载核心组件'] }
+      { id: 'zh-cn', text: ['正在加载核心组件'] },
+      { id: 'zh-tw', text: ['正在加載核心組件'] },
+      { id: 'en-us', text: ['Loading Core Object'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-object', dictionary:[
-      { id: 'zh-cn', text: ['正在加载数据对象'] }
+      { id: 'zh-cn', text: ['正在加载数据对象'] },
+      { id: 'zh-tw', text: ['正在加載數據對象'] },
+      { id: 'en-us', text: ['Loading Data Object'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-manager', dictionary:[
-      { id: 'zh-cn', text: ['正在加载管理器'] }
+      { id: 'zh-cn', text: ['正在加载管理器'] },
+      { id: 'zh-tw', text: ['正在加載管理器'] },
+      { id: 'en-us', text: ['Loading Manager'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-tool', dictionary:[
-      { id: 'zh-cn', text: ['正在加载系统工具'] }
+      { id: 'zh-cn', text: ['正在加载系统工具'] },
+      { id: 'zh-tw', text: ['正在加載系統工具'] },
+      { id: 'en-us', text: ['Loading System Tool'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-plugin', dictionary:[
-      { id: 'zh-cn', text: ['正在加载插件'] }
+      { id: 'zh-cn', text: ['正在加载插件'] },
+      { id: 'zh-tw', text: ['正在加載插件'] },
+      { id: 'en-us', text: ['Loading Plugin'] }
     ]
   }, {
     type: Language.Type.System, id: 'loading-complete', dictionary:[
-      { id: 'zh-cn', text: ['加载完成'] }
+      { id: 'zh-cn', text: ['加载完成'] },
+      { id: 'zh-tw', text: ['加載完成'] },
+      { id: 'en-us', text: ['Loading Success'] }
     ]
   }, {
     type: Language.Type.System, id: 'index-main', dictionary:[
@@ -100,7 +116,9 @@ Language.DEFAULT_DICTIONARY = [
     ]
   }, {
     type: Language.Type.System, id: 'index-sub', dictionary:[
-      { id: 'zh-cn', text: ['我们列出了一些常用功能，希望对您有所帮助：'] }
+      { id: 'zh-cn', text: ['我们列出了一些常用功能，希望对您有所帮助：'] },
+      { id: 'zh-tw', text: ['我們列出了一些常用功能，希望對您有所幫助：'] },
+      { id: 'en-us', text: ['Welcome! Just Enjoy.'] }
     ]
   }, {
     type: Language.Type.Todo, id: 'default', dictionary:[
@@ -117,6 +135,12 @@ Language.DEFAULT_DICTIONARY = [
       { id: 'zh-cn', text: ['欢迎使用！'] },
       { id: 'zh-tw', text: ['歡迎使用！'] },
       { id: 'en-us', text: ['Just Enjoy!'] }
+    ]
+  }, {
+    type: Language.Type.Notice, id: 'need-login', dictionary:[
+      { id: 'zh-cn', text: ['请先登录'] },
+      { id: 'zh-tw', text: ['請先登錄'] },
+      { id: 'en-us', text: ['Please login'] }
     ]
   },
 ];

@@ -47,13 +47,17 @@ EngineLoader.OBJECT_LIST = [
 ];
 EngineLoader.MANAGER_LIST = [
   'ElementManager', 'HistoryManager', 'ColorManager',
- // DocumentManager Engine
   'DocumentManager', 'RenderManager', 'CollideManager',
   'ToolManager', 'SelectManager'
 ];
 EngineLoader.TOOL_LIST = [
   "Page", "History", "Document", "Check", "Dev"
 ];
+EngineLoader.PLUGIN_LIST = require('../../static/engine/plugins.json').PLUGIN_LIST;
+// --------------------------------------------------------------------------------
+// * Property
+// --------------------------------------------------------------------------------
+EngineLoader._progress = 0;
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
@@ -61,6 +65,7 @@ EngineLoader.load = async function(app_element, packages){
   await this.loadEngine();
   Engine.setApp(app_element);
   Engine.setPackages(packages);
+  this.setProgress(0);
 
   await this.loadModule();
   Language.initializeOnLoad();
@@ -95,49 +100,45 @@ EngineLoader.load = async function(app_element, packages){
   Engine.initialize();
 
   Engine.setCurrentTodo('engine-ready');
-
-  for(let i = 0; i < 10; i++){
-    Engine.notice(i + '');
-  }
+  this.setProgress(100);
 };
 // --------------------------------------------------------------------------------
 EngineLoader.loadEngine = async function(){
-  await this.loadScript(EngineLoader.PATH, EngineLoader.ENGINE + '.js');
+  await this.loadScript(this.PATH, this.ENGINE + '.js');
 }
 EngineLoader.loadModule = async function(){
-  for(let i = 0; i < EngineLoader.MODULE_LIST.length; i++){
-    await this.loadScript(EngineLoader.MODULE, EngineLoader.MODULE_LIST[i] + '.js');
+  for(let i = 0; i < this.MODULE_LIST.length; i++){
+    await this.loadScript(this.MODULE, this.MODULE_LIST[i] + '.js');
   }
 }
 EngineLoader.loadCore = async function(){
-  for(let i = 0; i < EngineLoader.CORE_LIST.length; i++){
-    await this.loading(100, 'loading-core', '：' + EngineLoader.CORE_LIST[i]);
-    await this.loadScript(EngineLoader.CORE, EngineLoader.CORE_LIST[i] + '.js');
+  for(let i = 0; i < this.CORE_LIST.length; i++){
+    await this.loading(100, 'loading-core', '：' + this.CORE_LIST[i]);
+    await this.loadScript(this.CORE, this.CORE_LIST[i] + '.js');
   }
 };
 EngineLoader.loadObject = async function(){
-  for(let i = 0; i < EngineLoader.OBJECT_LIST.length; i++){
-    await this.loading(100, 'loading-object', '：' + EngineLoader.OBJECT_LIST[i]);
-    await this.loadScript(EngineLoader.OBJECT, EngineLoader.OBJECT_LIST[i] + '.js');
+  for(let i = 0; i < this.OBJECT_LIST.length; i++){
+    await this.loading(100, 'loading-object', '：' + this.OBJECT_LIST[i]);
+    await this.loadScript(this.OBJECT, this.OBJECT_LIST[i] + '.js');
   }
 };
 EngineLoader.loadManager = async function(){
-  for(let i = 0; i < EngineLoader.MANAGER_LIST.length; i++){
-    await this.loading(100, 'loading-manager', '：' + EngineLoader.MANAGER_LIST[i] );
-    await this.loadScript(EngineLoader.MANAGER, EngineLoader.MANAGER_LIST[i] + '.js');
+  for(let i = 0; i < this.MANAGER_LIST.length; i++){
+    await this.loading(100, 'loading-manager', '：' + this.MANAGER_LIST[i] );
+    await this.loadScript(this.MANAGER, this.MANAGER_LIST[i] + '.js');
   }
 };
 EngineLoader.loadTool = async function(){
-  for(let i = 0; i < EngineLoader.TOOL_LIST.length; i++){
-    await this.loading(100, 'loading-tool', '：' + EngineLoader.TOOL_LIST[i]);
-    await this.loadScript(EngineLoader.TOOL, EngineLoader.TOOL_LIST[i] + '.js');
+  for(let i = 0; i < this.TOOL_LIST.length; i++){
+    await this.loading(100, 'loading-tool', '：' + this.TOOL_LIST[i]);
+    await this.loadScript(this.TOOL, this.TOOL_LIST[i] + '.js');
   }
 };
 EngineLoader.loadPlugin = async function(){
-  let plugin_list = require('../../static/engine/plugins.json').PLUGIN_LIST;
-  for(let i = 0; i < plugin_list.length; i++){
-    await this.loading(100, 'loading-plugin', '：' + plugin_list[i]);
-    await this.loadScript(EngineLoader.PLUGIN, plugin_list[i]);
+  for(let i = 0; i < this.PLUGIN_LIST.length; i++){
+    await this.loading(100, 'loading-plugin', '：' + this.PLUGIN_LIST[i]);
+    await this.loadScript(this.PLUGIN, this.PLUGIN_LIST[i]);
   }
 };
 // --------------------------------------------------------------------------------
@@ -147,6 +148,7 @@ EngineLoader.wait = function(time){
   });
 };
 EngineLoader.loading = async function(loading_time, id, text){
+  this.loadingProgress();
   if (!this.ALLOW_LOADING) return;
   let time = 0;
   while(time < loading_time){
@@ -156,6 +158,19 @@ EngineLoader.loading = async function(loading_time, id, text){
     Engine.setCurrentLoadingProcess(id, text + '...' +
       Math.floor(time / loading_time * 100) + '%');
   }
+};
+EngineLoader.loadingProgress = function(){
+  let length = this.MODULE_LIST.length + this.CORE_LIST.length + this.OBJECT_LIST.length +
+    this.MANAGER_LIST.length + this.TOOL_LIST.length + this.PLUGIN_LIST.length;
+  this.addProgress(100 / length);
+};
+EngineLoader.setProgress = function(value){
+  this._progress = value;
+  Engine.progress(this._progress);
+};
+EngineLoader.addProgress = function(value){
+  this._progress += value;
+  Engine.progress(this._progress);
 };
 // --------------------------------------------------------------------------------
 EngineLoader.loadScript = function(path, name){

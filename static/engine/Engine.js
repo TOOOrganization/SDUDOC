@@ -35,7 +35,7 @@ Engine._current_loading_text = '';
 Engine._app_element = null;
 Engine._packages = {};
 // --------------------------------------------------------------------------------
-Engine._notice_in_process = false;
+Engine._notice_in_process = null;
 Engine._notice_list = [];
 // --------------------------------------------------------------------------------
 Engine._todo = null;
@@ -350,6 +350,8 @@ Engine.saveFile = function(filename, content){
   }
 }
 // --------------------------------------------------------------------------------
+// * Application Interaction
+// --------------------------------------------------------------------------------
 Engine.alert = function(owner, title, callback){
   return new Promise((resolve) => {
     this._app_element.alert({
@@ -384,21 +386,59 @@ Engine.prompt = function(owner, title, tooltip, default_text, callback){
     });
   });
 }
-Engine.notice = function(text){
+Engine.notice = function(text, icon, color, deny_repeat){
   if(text){
-    this._notice_list.push(text);
+    if(this._notice_in_process && text === this._notice_in_process.text && deny_repeat) return;
+    let notice_text = Language.get(Language.Type.Notice, text) || text;
+    this._notice_list.push({
+      text: text,
+      notice_text: notice_text,
+      notice_icon: icon,
+      notice_color: color
+    });
     if(this._notice_in_process){
       return;
     }
-    this._notice_in_process = true;
   }
   if(this._notice_list.length === 0){
-    this._notice_in_process = false;
+    this._notice_in_process = null;
     return;
   }
-  this._app_element.notice({
-    notice_text: this._notice_list.shift()
-  });
+  this._notice_in_process = this._notice_list.shift();
+  this._app_element.notice(this._notice_in_process);
   setTimeout(Engine.notice.bind(Engine), 2200);
+}
+Engine.progress = function(value){
+  this._app_element.progress({
+    progress_value: value
+  });
+}
+Engine.progressAuto = function(){
+  let value = this._app_element.progress_value;
+  if(value < 0){
+    this._app_element.progress({
+      progress_value: 0
+    });
+  }else if(value < 100){
+    this._app_element.progress({
+      progress_value: value + (100 - value) * 0.1
+    });
+  }else{
+    return;
+  }
+  setTimeout(Engine.progressAuto.bind(Engine), 200);
+}
+// --------------------------------------------------------------------------------
+Engine.noticeDefault = function(text, deny_repeat){
+  this.notice(text, null, 'black', deny_repeat);
+}
+Engine.noticeHint = function(text, deny_repeat){
+  this.notice(text, 'mdi-alert-circle-outline', 'black', deny_repeat);
+}
+Engine.noticeWarning = function(text, deny_repeat){
+  this.notice(text, 'mdi-close-circle-outline', 'red', deny_repeat);
+}
+Engine.noticeSuccess = function(text, deny_repeat){
+  this.notice(text, 'mdi-check-circle-outline', 'green', deny_repeat);
 }
 // ================================================================================

@@ -1,12 +1,15 @@
 <template>
   <v-app class="no-select">
-    <v-progress-linear buffer-value="60" value="0" indeterminate color="orange" top
-                       style="position: absolute;top:0px;z-index: 1000;background-color: white">
-    </v-progress-linear>
-
-    <v-snackbar v-model="notice_snackbar" :timeout="2000" light top
-                style="position: fixed !important;top: 0px">
-      {{ notice_text }}
+    <v-progress-linear :buffer-value="progress_value" indeterminate
+                       v-if="progress_value >= 0" color="cyan" top class="progress-bar"/>
+    <v-snackbar v-model="notice_snackbar" :timeout="2000" light top absolute
+                class="snack-bar" color="white" >
+      <div class="text-center" :style="'color:' + notice_color" >
+        <v-icon left v-if="notice_icon" class="snack-icon" :color="notice_color">
+          {{ notice_icon }}
+        </v-icon>
+        <div class="ml-9 mr-3">{{ notice_text }}</div>
+      </div>
     </v-snackbar>
 
     <v-dialog v-model="alert_dialog" max-width="400" @click:outside="pop_callback_cancel">
@@ -101,8 +104,12 @@ export default {
       todo_default: null,
       todo_text: null,
 
-      notice_snackbar: null,
+      progress_value: -1,
+
+      notice_snackbar: false,
+      notice_icon: null,
       notice_text: null,
+      notice_color: 'black',
 
       alert_dialog: false,
       prompt_dialog: false,
@@ -172,9 +179,9 @@ export default {
       this.setElementData(Engine.getAppElementData());
     },
     alert(json){
-      this.pop_title           = json.title           === undefined ? this.pop_title           : json.title;
-      this.pop_callback_ok     = json.callback_ok     === undefined ? this.pop_callback_ok     : json.callback_ok;
-      this.pop_callback_cancel = json.callback_cancel === undefined ? this.pop_callback_cancel : json.callback_cancel;
+      this.pop_title           = json.title           === undefined ? this.pop_title             : json.title;
+      this.pop_callback_ok     = json.callback_ok     === undefined ? this.pop_callback_ok       : json.callback_ok;
+      this.pop_callback_cancel = json.callback_cancel === undefined ? this.pop_callback_cancel   : json.callback_cancel;
       this.alert_dialog = true;
     },
     prompt(json){
@@ -187,7 +194,15 @@ export default {
     },
     notice(json){
       this.notice_text         = json.notice_text     === undefined ? this.notice_text         : json.notice_text;
+      this.notice_icon         = json.notice_icon     === undefined ? null                     : json.notice_icon;
+      this.notice_color        = json.notice_color    === undefined ? 'black'                  : json.notice_color;
       this.notice_snackbar = true;
+    },
+    progress(json){
+      this.progress_value      = json.progress_value  === undefined ? this.progress_value        : json.progress_value;
+      if(this.progress_value >= 100){
+        setTimeout(function(){this.progress_value = -1}.bind(this), 500);
+      }
     },
     setTodo(text){
       this.todo_text = text;
@@ -208,6 +223,23 @@ export default {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.progress-bar{
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+}
+
+.snack-bar{
+  z-index:20;
+  margin-left: 12px;
+}
+.snack-icon{
+  position: absolute;
+  left: 15px;
+  margin-top: -2px;
 }
 
 .app-bar{
