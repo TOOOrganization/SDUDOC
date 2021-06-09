@@ -20,11 +20,12 @@ function Language() {
 // * Enum
 // --------------------------------------------------------------------------------
 Language.Type = {
-  ToolTip: 'tooltip',
   Todo: 'todo',
-  System: 'system',
   Text: 'text',
-  Notice: 'notice'
+  Label: 'Label',
+  System: 'system',
+  Notice: 'notice',
+  ToolTip: 'tooltip'
 };
 // --------------------------------------------------------------------------------
 // * Constant
@@ -118,7 +119,7 @@ Language.DEFAULT_DICTIONARY = [
     type: Language.Type.System, id: 'index-sub', dictionary:[
       { id: 'zh-cn', text: ['我们列出了一些常用功能，希望对您有所帮助：'] },
       { id: 'zh-tw', text: ['我們列出了一些常用功能，希望對您有所幫助：'] },
-      { id: 'en-us', text: ['Welcome! Just Enjoy.'] }
+      { id: 'en-us', text: ['Here are useful features:'] }
     ]
   }, {
     type: Language.Type.Todo, id: 'default', dictionary:[

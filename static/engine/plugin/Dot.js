@@ -215,20 +215,30 @@ Dot2D.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-dot', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增点】左键单击，【删除点】右键单击一个点。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-dot', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增点】左键单击。【移除点】右键单击一个点。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增點】左鍵單擊。【移除點】右鍵單擊一個點。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Point2D]: Left click. [Remove Point2D]: Right click.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-dot', dictionary:[
+      { id: 'zh-cn', text: ['点工具'] },
+      { id: 'zh-tw', text: ['點工具'] },
+      { id: 'en-us', text: ['Dot2D Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('dot', '点工具', 'mdi-circle-medium', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('dot', 'plugin-tooltip-dot', 'mdi-circle-medium', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-dot');
+    Engine.setCurrentTodo('plugin-todo-dot');
   }
 }));
 // --------------------------------------------------------------------------------

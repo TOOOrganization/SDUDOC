@@ -11,14 +11,34 @@
 // ================================================================================
 
 // ================================================================================
-// * Register Tool
+// * Language
+// --------------------------------------------------------------------------------
+Language.addDictionaryList([
+  {
+    type: Language.Type.ToolTip, id: 'tool-tooltip-undo', dictionary:[
+      { id: 'zh-cn', text: ['撤销 (Ctrl+Z)'] },
+      { id: 'zh-tw', text: ['撤銷 (Ctrl+Z)'] },
+      { id: 'en-us', text: ['Undo (Ctrl+Z)'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'tool-tooltip-redo', dictionary:[
+      { id: 'zh-cn', text: ['重做 (Ctrl+Y)'] },
+      { id: 'zh-tw', text: ['重做 (Ctrl+Y)'] },
+      { id: 'en-us', text: ['Redo (Ctrl+Y)'] }
+    ]
+  }
+]);
 // ================================================================================
-ToolManager.addTool(new Tool('undo', '撤销(Ctrl+Z)', 'mdi-undo-variant', Tool.Slot.HISTORY,
+
+// ================================================================================
+// * Register Tool
+// --------------------------------------------------------------------------------
+ToolManager.addTool(new Tool('undo', 'tool-tooltip-undo', 'mdi-undo-variant', Tool.Slot.HISTORY,
   async function(){
     await HistoryManager.undo();
   })
 );
-ToolManager.addTool(new Tool('redo', '重做(Ctrl+Y)', 'mdi-redo-variant', Tool.Slot.HISTORY,
+ToolManager.addTool(new Tool('redo', 'tool-tooltip-redo', 'mdi-redo-variant', Tool.Slot.HISTORY,
   async function(){
     await HistoryManager.redo();
   })

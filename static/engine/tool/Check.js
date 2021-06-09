@@ -11,9 +11,23 @@
 // ================================================================================
 
 // ================================================================================
+// * Language
+// --------------------------------------------------------------------------------
+Language.addDictionaryList([
+  {
+    type: Language.Type.ToolTip, id: 'tool-tooltip-update-element', dictionary:[
+      { id: 'zh-cn', text: ['强制更新所选文档组件（请先备份）'] },
+      { id: 'zh-tw', text: ['強製更新所選文檔組件（請先備份）'] },
+      { id: 'en-us', text: ['Force update element (Please backup first)'] }
+    ]
+  }
+]);
+// ================================================================================
+
+// ================================================================================
 // * Register Tool
 // ================================================================================
-ToolManager.addTool(new Tool('update', '合并修改', 'mdi-upload', Tool.Slot.CHECK, {
+ToolManager.addTool(new Tool('update-element', 'tool-tooltip-update-element', 'mdi-upload', Tool.Slot.CHECK, {
   on_click : function(){
     let id = Engine.getApp().getRouterComponent().check_id;
     let info = Engine.getApp().getRouterComponent().check_info;

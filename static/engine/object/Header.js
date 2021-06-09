@@ -11,31 +11,6 @@
 // ================================================================================
 
 // ================================================================================
-// * Language
-// --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Text, id: 'header-title', dictionary:[
-    { id: 'zh-cn', text: ['文章标题'] }
-  ]
-});
-Language.addDictionary({
-  type: Language.Type.Text, id: 'header-author', dictionary:[
-    { id: 'zh-cn', text: ['文章作者'] }
-  ]
-});
-Language.addDictionary({
-  type: Language.Type.Text, id: 'header-book', dictionary:[
-    { id: 'zh-cn', text: ['所属书名'] }
-  ]
-});
-Language.addDictionary({
-  type: Language.Type.Text, id: 'header-dynasty', dictionary:[
-    { id: 'zh-cn', text: ['作者朝代'] }
-  ]
-});
-// ================================================================================
-
-// ================================================================================
 // * Header
 // --------------------------------------------------------------------------------
 function Header(){
@@ -43,20 +18,20 @@ function Header(){
 }
 // --------------------------------------------------------------------------------
 Header.prototype._data = {
-  title:   { language_id: 'header-title',   value: '' },
-  author:  { language_id: 'header-author',  value: '' },
-  book:    { language_id: 'header-book',    value: '' },
-  dynasty: { language_id: 'header-dynasty', value: '' }
+  title:   { language_id: 'prompt-tooltip-header-title',   value: '' },
+  author:  { language_id: 'prompt-tooltip-header-author',  value: '' },
+  book:    { language_id: 'prompt-tooltip-header-book',    value: '' },
+  dynasty: { language_id: 'prompt-tooltip-header-dynasty', value: '' }
 };
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 Header.prototype.initialize = function(){
   this._data = {
-    title:   { language_id: 'header-title',   value: '' },
-    author:  { language_id: 'header-author',  value: '' },
-    book:    { language_id: 'header-book',    value: '' },
-    dynasty: { language_id: 'header-dynasty', value: '' }
+    title:   { language_id: 'prompt-tooltip-header-title',   value: '' },
+    author:  { language_id: 'prompt-tooltip-header-author',  value: '' },
+    book:    { language_id: 'prompt-tooltip-header-book',    value: '' },
+    dynasty: { language_id: 'prompt-tooltip-header-dynasty', value: '' }
   }
 };
 // --------------------------------------------------------------------------------
@@ -103,10 +78,10 @@ Object.defineProperty(Header.prototype, 'dynasty', {
 // --------------------------------------------------------------------------------
 Header.prototype.getTextArray = function(){
   return [
-    Language.get(Language.Type.Text, this._data.title.language_id),
-    Language.get(Language.Type.Text, this._data.author.language_id),
-    Language.get(Language.Type.Text, this._data.book.language_id),
-    Language.get(Language.Type.Text, this._data.dynasty.language_id)
+    Language.get(Language.Type.ToolTip, this._data.title.language_id),
+    Language.get(Language.Type.ToolTip, this._data.author.language_id),
+    Language.get(Language.Type.ToolTip, this._data.book.language_id),
+    Language.get(Language.Type.ToolTip, this._data.dynasty.language_id)
   ];
 };
 // --------------------------------------------------------------------------------
@@ -149,4 +124,36 @@ Header.prototype.exportJson = function(){
   output.dynasty = this._data.dynasty.value;
   return output;
 };
+// ================================================================================
+
+// ================================================================================
+// * Language
+// --------------------------------------------------------------------------------
+Language.addDictionaryList([
+  {
+    type: Language.Type.ToolTip, id: 'prompt-tooltip-header-title', dictionary:[
+      { id: 'zh-cn', text: ['文章标题'] },
+      { id: 'zh-tw', text: ['文章標題'] },
+      { id: 'en-us', text: ['Title'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'prompt-tooltip-header-author', dictionary:[
+      { id: 'zh-cn', text: ['文章作者'] },
+      { id: 'zh-tw', text: ['文章作者'] },
+      { id: 'en-us', text: ['Author'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'prompt-tooltip-header-book', dictionary:[
+      { id: 'zh-cn', text: ['所属书名'] },
+      { id: 'zh-tw', text: ['所屬書名'] },
+      { id: 'en-us', text: ['Book name'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'prompt-tooltip-header-dynasty', dictionary:[
+      { id: 'zh-cn', text: ['作者朝代'] },
+      { id: 'zh-tw', text: ['作者朝代'] },
+      { id: 'en-us', text: ['Dynasty'] }
+    ]
+  }
+]);
 // ================================================================================

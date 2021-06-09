@@ -40,7 +40,7 @@ Book.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Book.prototype.onAwake = function(){
-
+  PolygonGroup.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
@@ -75,7 +75,7 @@ Book.prototype.callFatherCalcPages = function(){
 Book.prototype.getMergePoints = function(){
   let points = {};
   for(let i = 0; i < this._pages.length; i++){
-    points[this._pages[i]] = []
+    points[this._pages[i]] = [];
   }
   for(let i = 0; i < this._children.length; i++){
     let article_object = ElementManager.getElement(Article.TAG, this._children[i]);
@@ -129,20 +129,30 @@ Book.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-book', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增书籍】左键单击多边形。【选中书籍】左键单击多边形。【取消选中书籍】右键单击空白处或其他多边形。【删除书籍】右键单击多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-book', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增书籍】左键单击多边形。【选中书籍】左键单击多边形。【取消选中书籍】右键单击空白处或其他多边形。【移除书籍】右键单击多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增書籍】左鍵單擊多邊形。【選中書籍】左鍵單擊多邊形。【取消選中書籍】右鍵單擊空白處或其他多邊形。【移除書籍】右鍵單擊多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-book', dictionary:[
+      { id: 'zh-cn', text: ['书籍工具'] },
+      { id: 'zh-tw', text: ['書籍工具'] },
+      { id: 'en-us', text: ['Book Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('book', '书籍工具', 'mdi-book-open-outline', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('book', 'plugin-tooltip-book', 'mdi-book-open-outline', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-book');
+    Engine.setCurrentTodo('plugin-todo-book');
   }
 }));
 // --------------------------------------------------------------------------------

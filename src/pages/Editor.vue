@@ -3,7 +3,7 @@
 
     <div class="plugin-bar">
       <div class="my-4">
-        <v-chip label outlined class="plugin-label mb-2">工具</v-chip>
+        <v-chip label outlined class="plugin-label mb-2">{{ tool_labels['plugin'] }}</v-chip>
         <v-btn-toggle v-if="tools['plugin']" mandatory dense tile borderless class="plugin-group">
           <v-tooltip bottom v-for="(tool, index) in tools['plugin']" :key="index">
             <template v-slot:activator="{ on, attrs }">
@@ -74,7 +74,7 @@
       <div class="right-page" v-if="tab === 0">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">用户工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['user'] }}</v-chip>
             <v-btn-toggle v-if="tools['user']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['user']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -107,7 +107,7 @@
       <div class="right-page" v-if="tab === 1">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">云功能工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['cloud'] }}</v-chip>
             <v-btn-toggle v-if="tools['cloud']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['cloud']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -126,7 +126,7 @@
       <div class="right-page" v-if="tab === 2">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">页面工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['page'] }}</v-chip>
             <v-btn-toggle v-if="tools['page']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['page']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -157,7 +157,7 @@
       <div class="right-page" v-if="tab === 3">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">检查工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['check'] }}</v-chip>
             <v-btn-toggle v-if="tools['check']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['check']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -180,7 +180,7 @@
       <div class="right-page" v-if="tab === 4">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">设置工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['option'] }}</v-chip>
             <v-btn-toggle v-if="tools['option']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['option']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -199,7 +199,7 @@
       <div class="right-page" v-if="tab === 5">
         <div class="mx-5 right-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">实验性工具</v-chip>
+            <v-chip label outlined class="right-tool-label">{{ tool_labels['dev'] }}</v-chip>
             <v-btn-toggle v-if="tools['dev']" mandatory dense tile borderless class="right-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['dev']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
@@ -275,6 +275,7 @@ export default {
       tab_mini: true,
 
       tools: {},
+      tool_labels: {},
 
       pixi: null,
       pixi_app: null,
@@ -307,6 +308,8 @@ export default {
       this.checkLogin();
     }
     this.setupResizeEvent();
+    this.setupDropEvent();
+    this.setupUnloadEvent();
   },
   methods: {
     initializePixiApplication(){
@@ -352,6 +355,7 @@ export default {
     },
     setToolData(json) {
       this.tools        = json.tools        === undefined ? this.tools       : json.tools;
+      this.tool_labels  = json.tool_labels  === undefined ? this.tool_labels : json.tool_labels;
     },
     setPageData(json) {
       this.page_list    = json.page_list    === undefined ? this.page_list   : json.page_list;
@@ -434,6 +438,33 @@ export default {
         box.onmousemove = null;
       };
     },
+    setupDropEvent: function (){
+      let prevent_default = function(event){
+        event.preventDefault();
+      }
+      document.addEventListener('drop', prevent_default);
+      document.addEventListener('dragleave', prevent_default);
+      document.addEventListener('dragover', prevent_default);
+      document.addEventListener('dragenter', prevent_default);
+      this.$refs.editor_view.addEventListener('drop', async function(event){
+        event.preventDefault();
+        let file = event.dataTransfer.files[0];
+        if(file.type.startsWith('image')){
+          await Engine.loadImage(Engine, file, async function (filename, src) {
+            await DocumentManager.addAfterCurrentPage(filename, src);
+          });
+        }else if(file.name.endsWith('.sjs')){
+          await Engine.loadFile(Engine, file, async function (filename, src) {
+            await DocumentManager.load(filename, src);
+          });
+        }
+      });
+    },
+    setupUnloadEvent: function(){
+      window.addEventListener('beforeunload', function(event){
+        event.returnValue = true;
+      });
+    }
   }
 }
 </script>

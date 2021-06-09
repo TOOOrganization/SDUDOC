@@ -193,7 +193,8 @@ Engine.updateIndexTextData = function(){
 // --------------------------------------------------------------------------------
 Engine.getEditorToolData = function(){
   return {
-    tools: ToolManager.getAllToolList()
+    tools: ToolManager.calcToolList(),
+    tool_labels:  ToolManager.getToolLabels(),
   };
 };
 Engine.getEditorPageData = function(){
@@ -298,7 +299,7 @@ Engine.createInputBox = function(){
     this._file = event.target.files[0];
     if(this._file){
       if(this._readAsText){
-        this._reader.readAsText(event.target.files[0], 'UTF-8')
+        this._reader.readAsText(event.target.files[0], 'UTF-8');
       }else{
         this._reader.readAsDataURL(event.target.files[0]);
       }
@@ -315,12 +316,35 @@ Engine.clearToolTemp = function(){
   Graphics.update();
 }
 // --------------------------------------------------------------------------------
+Engine.loadImage = async function(from, file, callback){
+  if (!file) return;
+  return new Promise((resolve) => {
+    let reader = new FileReader();
+    reader.onload = async function(event){
+      await callback.call(from, file.name, event.target.result);
+      resolve();
+    }
+    reader.readAsDataURL(file);
+  });
+}
+Engine.loadFile = async function(from, file, callback){
+  if (!file) return;
+  return new Promise((resolve) => {
+    let reader = new FileReader();
+    reader.onload = async function(event){
+      await callback.call(from, file.name, event.target.result);
+      resolve();
+    }
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+// --------------------------------------------------------------------------------
 Engine.readImage = function(from, callback){
   return new Promise((resolve) => {
     this._input.setAttribute('accept', 'image/*');
     this._input._readAsText = false;
-    this._input._reader.onload = function(event){
-      callback.call(from, event.target.result, Engine._input._file.name);
+    this._input._reader.onload = async function(event){
+      await callback.call(from, Engine._input._file.name, event.target.result);
       resolve();
     }
     this._input.click();
@@ -352,32 +376,34 @@ Engine.saveFile = function(filename, content){
 // --------------------------------------------------------------------------------
 // * Application Interaction
 // --------------------------------------------------------------------------------
-Engine.alert = function(owner, title, callback){
+Engine.alert = function(owner, title, callback_ok, callback_cancel){
   return new Promise((resolve) => {
     this._app_element.alert({
-      title: title,
-      callback_ok: function(){
-        callback.call(owner);
+      title: Language.get(Language.Type.Text, title) || title,
+      callback_ok: async function(){
+        await callback_ok.call(owner);
         Engine.getApp().alert_dialog = false;
-        resolve();
+        resolve(true);
       },
-      callback_cancel: function(){
+      callback_cancel: async function(){
+        if(callback_cancel) await callback_cancel.call(owner);
         Engine.getApp().alert_dialog = false;
-        resolve();
+        resolve(false);
       }
     });
   });
 }
-Engine.prompt = function(owner, title, tooltip, default_text, callback){
+Engine.prompt = function(owner, title, tooltip, default_text, callback_ok, callback_cancel){
   return new Promise((resolve) => {
     this._app_element.prompt({
-      title: title,
-      callback_ok: function(){
-        callback.call(owner, Engine.getApp().prompt_text);
+      title: Language.get(Language.Type.Text, title) || title,
+      callback_ok: async function(){
+        await callback_ok.call(owner, Engine.getApp().prompt_text);
         Engine.getApp().prompt_dialog = false;
         resolve();
       },
-      callback_cancel: function(){
+      callback_cancel: async function(){
+        if(callback_cancel) await callback_cancel.call(owner);
         Engine.getApp().prompt_dialog = false;
         resolve();
       },

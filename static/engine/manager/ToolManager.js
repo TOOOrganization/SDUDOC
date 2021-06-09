@@ -86,7 +86,7 @@ ToolManager._setupEventHandlers = function(){
     this._processHandler.call(this, event, 'key_up')}));
 };
 // --------------------------------------------------------------------------------
-// * Functions
+// * Handler
 // --------------------------------------------------------------------------------
 ToolManager._processHandler = function(event, type){
   if(!this._current_plugin) return;
@@ -113,19 +113,19 @@ ToolManager._processHandler = function(event, type){
     case 'key_down':
     case 'key_up':this.callKeyHandler(event, type);break;
   }
-}
+};
 // --------------------------------------------------------------------------------
 ToolManager.canCurrentPluginCall = function(id){
   return id.startsWith('_') || id.startsWith(this.getCurrentPluginId())
     || (id.startsWith('!') && !id.startsWith('!' + this.getCurrentPluginId()))
-}
+};
 ToolManager.callMouseHandler = function(event, type){
   for(let key in this._handlers){
     if(this._handlers[key].type === type && this.canCurrentPluginCall(this._handlers[key].id)){
       this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
-}
+};
 ToolManager.callKeyHandler = function(event, type){
   for(let key in this._handlers){
     if(this._handlers[key].type === type && this._handlers[key].key_code === Input.getKeyCode(event.keyCode)
@@ -133,11 +133,13 @@ ToolManager.callKeyHandler = function(event, type){
       this._handlers[key].callback.call(this._handlers[key], event);
     }
   }
-}
+};
+// --------------------------------------------------------------------------------
+// * Tool
 // --------------------------------------------------------------------------------
 ToolManager.addTool = function(tool){
   this._tools.push(tool);
-}
+};
 ToolManager.addHandler = function(handler){
   this._handlers[handler.id] = handler;
 };
@@ -152,7 +154,7 @@ ToolManager.calcToolList = function(){
     output[slot] = output[slot] || [];
     output[slot].push({
       id: this._tools[i].id,
-      tooltip: this._tools[i].tooltip,
+      tooltip: Language.get(Language.Type.ToolTip, this._tools[i].tooltip) || this._tools[i].tooltip,
       icon: this._tools[i].icon,
       on_click: this._tools[i].on_click,
       on_hover: this._tools[i].on_hover,
@@ -160,12 +162,24 @@ ToolManager.calcToolList = function(){
     });
   }
   return output;
-}
+};
 ToolManager.getAllToolList = function(){
   return this._tool_list;
-}
+};
 ToolManager.getToolList = function(slot){
   return this._tool_list[slot] || [];
+};
+// --------------------------------------------------------------------------------
+ToolManager.getToolLabels = function(){
+  let output = {};
+  output.plugin = Language.get(Language.Type.Label, 'editor-label-plugin');
+  output.cloud  = Language.get(Language.Type.Label, 'editor-label-cloud');
+  output.option = Language.get(Language.Type.Label, 'editor-label-option');
+  output.page   = Language.get(Language.Type.Label, 'editor-label-page');
+  output.check  = Language.get(Language.Type.Label, 'editor-label-check');
+  output.user   = Language.get(Language.Type.Label, 'editor-label-user');
+  output.dev    = Language.get(Language.Type.Label, 'editor-label-dev');
+  return output;
 }
 // --------------------------------------------------------------------------------
 // * Plugin
@@ -174,10 +188,10 @@ ToolManager.getInitialPlugin = function(){
   let list = this.getToolList(Tool.Slot.PLUGIN);
   if(list.length === 0) return {id: null};
   return list[0];
-}
+};
 ToolManager.getInitialPluginId = function(){
   return this.getInitialPlugin().id;
-}
+};
 ToolManager.getCurrentPlugin = function(){
   let list = this.getToolList(Tool.Slot.PLUGIN);
   for(let i = 0; i < list.length; i++){
@@ -186,10 +200,10 @@ ToolManager.getCurrentPlugin = function(){
     }
   }
   return {id: null};
-}
+};
 ToolManager.getCurrentPluginId = function(){
   return this.getCurrentPlugin().id;
-}
+};
 ToolManager.setCurrentPlugin = function(id){
   let list = this.getToolList(Tool.Slot.PLUGIN);
   for(let i = 0; i < list.length; i++){
@@ -198,7 +212,7 @@ ToolManager.setCurrentPlugin = function(id){
     }
   }
   Engine.clearToolTemp();
-}
+};
 // --------------------------------------------------------------------------------
 // * Plugin Option
 // --------------------------------------------------------------------------------
@@ -235,4 +249,54 @@ ToolManager.resetAllOption = function(){
     }
   }
 };
+// ================================================================================
+
+// ================================================================================
+// * Language
+// --------------------------------------------------------------------------------
+Language.addDictionaryList([
+  {
+    type: Language.Type.Label, id: 'editor-label-plugin', dictionary:[
+      { id: 'zh-cn', text: ['工具'] },
+      { id: 'zh-tw', text: ['工具'] },
+      { id: 'en-us', text: ['Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-page', dictionary:[
+      { id: 'zh-cn', text: ['页面工具'] },
+      { id: 'zh-tw', text: ['頁面工具'] },
+      { id: 'en-us', text: ['Page Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-check', dictionary:[
+      { id: 'zh-cn', text: ['检查工具'] },
+      { id: 'zh-tw', text: ['檢查工具'] },
+      { id: 'en-us', text: ['Check Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-user', dictionary:[
+      { id: 'zh-cn', text: ['用户工具'] },
+      { id: 'zh-tw', text: ['用戶工具'] },
+      { id: 'en-us', text: ['User Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-option', dictionary:[
+      { id: 'zh-cn', text: ['选项工具'] },
+      { id: 'zh-tw', text: ['選項工具'] },
+      { id: 'en-us', text: ['Option Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-cloud', dictionary:[
+      { id: 'zh-cn', text: ['云功能工具'] },
+      { id: 'zh-tw', text: ['雲功能工具'] },
+      { id: 'en-us', text: ['Cloud Tools'] }
+    ]
+  }, {
+    type: Language.Type.Label, id: 'editor-label-dev', dictionary: [
+      {id: 'zh-cn', text: ['开发者工具']},
+      {id: 'zh-tw', text: ['開發者工具']},
+      {id: 'en-us', text: ['Development Tools']}
+    ]
+  }
+]);
 // ================================================================================

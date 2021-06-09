@@ -163,20 +163,30 @@ Character.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-character', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增词】左键单击多边形。【选中词】左键单击多边形。【取消选中词】右键单击空白处或其他多边形。【删除词】右键单击多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-character', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增词】左键单击多边形。【选中词】左键单击多边形。【取消选中词】右键单击空白处或其他多边形。【移除词】右键单击多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增詞】左鍵單擊多邊形。【選中詞】左鍵單擊多邊形。【取消選中詞】右鍵單擊空白處或其他多邊形。【移除詞】右鍵單擊多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-character', dictionary:[
+      { id: 'zh-cn', text: ['文字工具'] },
+      { id: 'zh-tw', text: ['文字工具'] },
+      { id: 'en-us', text: ['Character Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('character', '文字工具', 'mdi-format-text-variant', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('character', 'plugin-tooltip-character', 'mdi-format-text-variant', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-character');
+    Engine.setCurrentTodo('plugin-todo-character');
   }
 }));
 // --------------------------------------------------------------------------------

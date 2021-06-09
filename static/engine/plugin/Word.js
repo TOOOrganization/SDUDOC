@@ -40,7 +40,7 @@ Word.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Word.prototype.onAwake = function(){
-
+  PolygonGroup.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
@@ -132,20 +132,30 @@ Word.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-word', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增字符】左键单击一个没有字符的多边形。【修改字符】左键单击一个已有字符的多边形。【删除字符】右键单击一个已有字符的多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-word', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增字符】左键单击一个没有字符的多边形。【修改字符】左键单击一个已有字符的多边形。【移除字符】右键单击一个已有字符的多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增字符】左鍵單擊一個沒有字符的多邊形。【修改字符】左鍵單擊一個已有字符的多邊形。【移除字符】右鍵單擊一個已有字符的多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-word', dictionary:[
+      { id: 'zh-cn', text: ['词汇工具'] },
+      { id: 'zh-tw', text: ['詞匯工具'] },
+      { id: 'en-us', text: ['Word Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('word', '词汇工具', 'mdi-file-word-box', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('word', 'plugin-tooltip-word', 'mdi-file-word-box', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-word');
+    Engine.setCurrentTodo('plugin-todo-word');
   }
 }));
 // --------------------------------------------------------------------------------

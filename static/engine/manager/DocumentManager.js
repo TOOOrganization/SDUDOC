@@ -115,8 +115,8 @@ DocumentManager.getPageList = function(){
   return data;
 }
 // --------------------------------------------------------------------------------
-DocumentManager.addAfterCurrentPage = async function(src, filename){
-  let request_src = await HttpRequest.uploadWebPage(src, filename);
+DocumentManager.addAfterCurrentPage = async function(filename, src){
+  let request_src = await HttpRequest.uploadWebPage(filename, src);
   if(!request_src) return;
   let page = ElementManager.makeElement(Page.TAG, request_src);
   this.addElement(Page.TAG, page);
@@ -155,12 +155,12 @@ DocumentManager.setCurrentPage = async function(index){
   await this.afterChangePage();
 }
 // --------------------------------------------------------------------------------
-DocumentManager.moveCurrentPageMinus = async function(){
-  this._page_array.moveCurrentPageMinus();
+DocumentManager.moveCurrentPageForward = async function(){
+  this._page_array.moveCurrentPageForward();
   await this.afterChangePage();
 }
-DocumentManager.moveCurrentPagePlus = async function(){
-  this._page_array.moveCurrentPagePlus();
+DocumentManager.moveCurrentPageBackward = async function(){
+  this._page_array.moveCurrentPageBackward();
   await this.afterChangePage();
 }
 DocumentManager.moveCurrentPageTo = async function(target){
@@ -296,7 +296,7 @@ DocumentManager.exportOldVersionJson = function(){
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
+DocumentManager.createModulePage = async function(x, y, padding, polygon_callback){
   if(this.getCurrentPage() <= 0) return;
   this.clearCurrentPage();
   let width = Graphics._image.width - padding.left - padding.right;
@@ -362,7 +362,7 @@ DocumentManager.createModulePage = function(x, y, padding, polygon_callback){
       let points = [dot_map[j][i], dot_map[j][i + 1], dot_map[j + 1][i + 1], dot_map[j + 1][i]];
       let polygon = ElementManager.makeElement(Polygon2D.TAG, pages, points);
       this.addElement(Polygon2D.TAG, polygon);
-      polygon_callback.call(this, polygon);
+      if(polygon_callback) await polygon_callback.call(this, polygon);
     }
   }
   this.afterChangeElement();
@@ -387,7 +387,6 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
   let draw_padding = {'left': x, 'right':x, 'top':y, 'bottom':y};
 
   let book, article, paragraph, sentence, word;
-  let jump_index = 0;
 
   let newPage = async function(draw_text, start_index){
     ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
@@ -410,7 +409,7 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
         if(place < draw_text.length){
           let char = text.charAt(place);
           switch (char){
-            case '，': case ' ':
+            case '，': case '。': case '？': case '！': case ' ':
               place ++;
               j--;
               break;
@@ -448,10 +447,7 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
     if(!word) word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
 
     let character_index = start_index;
-    DocumentManager.createModulePage(char_horizontal, char_vertical, draw_padding, function(polygon){
-      if(jump_index > 0){
-        //SDUDocument.deleteElement(Polygon2D.TAG, polygon.id);
-      }
+    await DocumentManager.createModulePage(char_horizontal, char_vertical, draw_padding, async function(polygon){
       if(character_index < text.length){
         let char = text.charAt(character_index);
         switch (char){
@@ -461,7 +457,7 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
             word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
             character_index ++;
             break;
-          case '，':
+          case '，': case '。': case '？': case '！':
             DocumentManager.addElement(Word.TAG, word);
             sentence.append(word);
             word = ElementManager.makeElement(Word.TAG, [DocumentManager.getCurrentPageId()]);
@@ -495,11 +491,10 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
             break;
         }
         if(character_index < text.length) {
-          let char = text.charAt(character_index);
-          let character = ElementManager.makeElement(Character.TAG, [DocumentManager.getCurrentPageId()],
-            polygon.id, char, '');
+          char = text.charAt(character_index);
+          let character = ElementManager.makeElement(Character.TAG, [DocumentManager.getCurrentPageId()], polygon.id, char, '');
           polygon.character = character.id;
-          DocumentManager.addElement(Character.TAG, character, true);
+          DocumentManager.addElement(Character.TAG, character);
           word.append(character);
           character_index ++;
         }

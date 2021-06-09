@@ -9,8 +9,7 @@
     <div class="mt-1 mb-13" style="font-size: 10px;color: gainsboro">
       <v-chip class="ma-2" @click="goEditor">现在开始编辑</v-chip>
       <v-chip class="ma-2">查看教程</v-chip>
-      <v-chip class="ma-2">现在开始编辑</v-chip>
-      <v-chip class="ma-2" @click="alert">现在开始编辑</v-chip>
+      <v-chip class="ma-2">个人信息修改</v-chip>
     </div>
   </div>
 </template>

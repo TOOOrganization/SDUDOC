@@ -63,10 +63,10 @@ PageArray.prototype.removeCurrentPage = function(){
   return page_id;
 };
 // --------------------------------------------------------------------------------
-PageArray.prototype.moveCurrentPageMinus = function(){
+PageArray.prototype.moveCurrentPageForward = function(){
   this.moveCurrentPageTo(this._current_page - 1)
 };
-PageArray.prototype.moveCurrentPagePlus = function(){
+PageArray.prototype.moveCurrentPageBackward = function(){
   this.moveCurrentPageTo(this._current_page + 1)
 };
 PageArray.prototype.moveCurrentPageTo = function(target){

@@ -45,24 +45,34 @@ AutoPolygon.getTempDots = function(point){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-auto-polygon', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】将鼠标放在四个点中间，并按下鼠标左键。【删除多边形】右键单击一个多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-auto-polygon', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】将鼠标放在四个点中间，并按下鼠标左键。【移除多边形】右键单击一个多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增多邊形】將鼠標放在四個點中間，並按下鼠標左鍵。【移除多邊形】右鍵單擊一個多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-auto-polygon', dictionary:[
+      { id: 'zh-cn', text: ['自动多边形工具'] },
+      { id: 'zh-tw', text: ['自動多邊形工具'] },
+      { id: 'en-us', text: ['Auto Polygon2D Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('auto_polygon', '自动多边形工具', 'mdi-shape-polygon-plus', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('auto-polygon', 'plugin-tooltip-auto-polygon', 'mdi-shape-polygon-plus', Tool.Slot.PLUGIN, {
   on_click: function() {
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-auto-polygon');
+    Engine.setCurrentTodo('plugin-todo-auto-polygon');
   }
 }));
 // --------------------------------------------------------------------------------
-ToolManager.addHandler(new Handler('auto_polygon.onMouseLeftClick', 'left_click', false, Engine,
+ToolManager.addHandler(new Handler('auto-polygon.onMouseLeftClick', 'left_click', false, Engine,
   function(event){
     if(DocumentManager.getCurrentPage() <= 0) return;
     let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
@@ -75,7 +85,7 @@ ToolManager.addHandler(new Handler('auto_polygon.onMouseLeftClick', 'left_click'
     }
   })
 );
-ToolManager.addHandler(new Handler('auto_polygon.onMouseRightClick', 'right_click', false, Engine,
+ToolManager.addHandler(new Handler('auto-polygon.onMouseRightClick', 'right_click', false, Engine,
   function(event){
     if(DocumentManager.getCurrentPage() <= 0) return;
 
@@ -87,12 +97,12 @@ ToolManager.addHandler(new Handler('auto_polygon.onMouseRightClick', 'right_clic
     DocumentManager.removeElementWithUpdate(Polygon2D.TAG, collide_list[0]);
   })
 );
-ToolManager.addHandler(new Handler('auto_polygon.onMouseMove', 'mousemove', false, Engine,
+ToolManager.addHandler(new Handler('auto-polygon.onMouseMove', 'mousemove', false, Engine,
   function(event){
     Graphics.refresh();
   })
 );
-ToolManager.addHandler(new Handler('auto_polygon.onMouseOut', 'mouseout', false, Engine,
+ToolManager.addHandler(new Handler('auto-polygon.onMouseOut', 'mouseout', false, Engine,
   function(event){
     Graphics.refresh();
   })
@@ -102,7 +112,7 @@ ToolManager.addHandler(new Handler('auto_polygon.onMouseOut', 'mouseout', false,
 // ================================================================================
 // * Register Renderer
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer('auto_polygon.polygon.collide', '', 21, function(ctx){
+RenderManager.addRenderer(new Renderer('auto-polygon.polygon.collide', '', 21, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);
@@ -112,7 +122,7 @@ RenderManager.addRenderer(new Renderer('auto_polygon.polygon.collide', '', 21, f
   }
 }));
 // --------------------------------------------------------------------------------
-RenderManager.addRenderer(new Renderer('auto_polygon.mouse', '', 39, function(ctx){
+RenderManager.addRenderer(new Renderer('auto-polygon.mouse', '', 39, function(ctx){
   if(DocumentManager.getCurrentPage() <= 0) return;
 
   let collide_list = CollideManager.getCollideList(Polygon2D.TAG, 1);

@@ -17,7 +17,7 @@
         <v-card-title class="headline">
           <v-icon class="mr-2">mdi-alert-circle-outline</v-icon> {{alert_title}}
         </v-card-title>
-        <v-card-text>{{pop_title}}</v-card-text>
+        <v-card-text class="mt-2">{{pop_title}}</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="pop_callback_ok">{{pop_confirm_text}}</v-btn>
@@ -233,13 +233,13 @@ export default {
 }
 
 .snack-bar{
-  z-index:20;
-  margin-left: 12px;
+  z-index:20 !important;
+  margin-left: 12px !important;
 }
 .snack-icon{
-  position: absolute;
-  left: 15px;
-  margin-top: -2px;
+  position: absolute !important;
+  left: 15px !important;
+  margin-top: -2px !important;
 }
 
 .app-bar{

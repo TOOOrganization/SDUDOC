@@ -40,7 +40,7 @@ Paragraph.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Paragraph.prototype.onAwake = function(){
-
+  PolygonGroup.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
@@ -79,7 +79,7 @@ Paragraph.prototype.callFatherCalcPages = function(){
 Paragraph.prototype.getMergePoints = function(){
   let points = {};
   for(let i = 0; i < this._pages.length; i++){
-    points[this._pages[i]] = []
+    points[this._pages[i]] = [];
   }
   for(let i = 0; i < this._children.length; i++){
     let sentence_object = ElementManager.getElement(Sentence.TAG, this._children[i]);
@@ -133,20 +133,30 @@ Paragraph.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-paragraph', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增段落】左键单击多边形。【选中段落】左键单击多边形。【取消选中段落】右键单击空白处或其他多边形。【删除段落】右键单击多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-paragraph', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增段落】左键单击多边形。【选中段落】左键单击多边形。【取消选中段落】右键单击空白处或其他多边形。【移除段落】右键单击多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增段落】左鍵單擊多邊形。【選中段落】左鍵單擊多邊形。【取消選中段落】右鍵單擊空白處或其他多邊形。【移除段落】右鍵單擊多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-paragraph', dictionary:[
+      { id: 'zh-cn', text: ['段落工具'] },
+      { id: 'zh-tw', text: ['段落工具'] },
+      { id: 'en-us', text: ['Paragraph Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('paragraph', '段落工具', 'mdi-format-align-left', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('paragraph', 'plugin-tooltip-paragraph', 'mdi-format-align-left', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-paragraph');
+    Engine.setCurrentTodo('plugin-todo-paragraph');
   }
 }));
 // --------------------------------------------------------------------------------

@@ -149,20 +149,30 @@ Line2D.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-line', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增线】依次点击两个点。【取消新增线】点击第二个点前，右键单击。【删除线】右键单击一条线。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-line', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增线】依次点击两个点。【取消新增线】点击第二个点前，右键单击。【移除线】右键单击一条线。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增線】依次點擊兩個點。【取消新增線】點擊第二個點前，右鍵單擊。【移除線】右鍵單擊一條線。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-line', dictionary:[
+      { id: 'zh-cn', text: ['直线工具'] },
+      { id: 'zh-tw', text: ['直線工具'] },
+      { id: 'en-us', text: ['Line2D Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('line', '直线工具', 'mdi-ray-start-end', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('line', 'plugin-tooltip-line', 'mdi-ray-start-end', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-line');
+    Engine.setCurrentTodo('plugin-todo-line');
   }
 }));
 // --------------------------------------------------------------------------------

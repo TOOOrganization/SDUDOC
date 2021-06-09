@@ -23,29 +23,30 @@ function Move(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-move', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下鼠标任意键+拖动。【缩放】滚动鼠标中键。'] },
-    { id: 'zh-tw', text: ['【移動】按下鼠標任意鍵+拖動。【縮放】滾動鼠標中鍵。'] },
-    { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
-  ]
-});
-Language.addDictionary({
-  type: Language.Type.ToolTip, id: 'plugin-move', dictionary:[
-    { id: 'zh-cn', text: ['移动工具'] },
-    { id: 'zh-tw', text: [''] },
-    { id: 'en-us', text: ['Move Tool'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-move', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下鼠标任意键+拖动。【缩放】滚动鼠标中键。'] },
+      { id: 'zh-tw', text: ['【移動】按下鼠標任意鍵+拖動。【縮放】滾動鼠標中鍵。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-move', dictionary:[
+      { id: 'zh-cn', text: ['移动工具'] },
+      { id: 'zh-tw', text: ['移動工具'] },
+      { id: 'en-us', text: ['Move Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('move', 'plugin-move', 'mdi-arrow-all', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('move', 'plugin-tooltip-move', 'mdi-arrow-all', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-move');
+    Engine.setCurrentTodo('plugin-todo-move');
   }
 }));
 // --------------------------------------------------------------------------------

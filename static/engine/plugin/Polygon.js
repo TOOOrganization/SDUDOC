@@ -136,20 +136,30 @@ Polygon2D.prototype.exportJson = function(){
 // ================================================================================
 // * Language
 // --------------------------------------------------------------------------------
-Language.addDictionary({
-  type: Language.Type.Todo, id: 'plugin-polygon', dictionary:[
-    { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【删除多边形】右键单击一个多边形。'] }
-  ]
-});
+Language.addDictionaryList([
+  {
+    type: Language.Type.Todo, id: 'plugin-todo-polygon', dictionary:[
+      { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【移除多边形】右键单击一个多边形。'] },
+      { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增多邊形】依次點擊多個點，再點擊第一個點。【取消新增多邊形】再次點擊第一個點前，右鍵單擊。【移除多邊形】右鍵單擊一個多邊形。'] },
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+    ]
+  }, {
+    type: Language.Type.ToolTip, id: 'plugin-tooltip-polygon', dictionary:[
+      { id: 'zh-cn', text: ['多边形工具'] },
+      { id: 'zh-tw', text: ['多邊形工具'] },
+      { id: 'en-us', text: ['Polygon2D Tool'] }
+    ]
+  }
+]);
 // ================================================================================
 
 // ================================================================================
 // * Register Plugin Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('polygon', '多边形工具', 'mdi-pentagon-outline', Tool.Slot.PLUGIN, {
+ToolManager.addTool(new Tool('polygon', 'plugin-tooltip-polygon', 'mdi-pentagon-outline', Tool.Slot.PLUGIN, {
   on_click: function(){
     ToolManager.setCurrentPlugin(this._id);
-    Engine.setCurrentTodo('plugin-polygon');
+    Engine.setCurrentTodo('plugin-todo-polygon');
   }
 }));
 // --------------------------------------------------------------------------------
