@@ -40,4 +40,43 @@ OptionManager.getValue = function(id){
 OptionManager.getOptionList = function(){
 
 };
+// --------------------------------------------------------------------------------
+// * Plugin Option
+// --------------------------------------------------------------------------------
+OptionManager.addOption = function(option){
+  this._options[option.tool_id] = this._options[option.tool_id] || {};
+  this._options[option.tool_id][option.id] = option;
+};
+OptionManager.haveOption = function(tool_id, id){
+  return id && this._options[tool_id] && this._options[tool_id][id];
+};
+// --------------------------------------------------------------------------------
+OptionManager.calcValue = function(tool_id, id, value){
+
+// ------------------------------------------------------------------------------
+// };--
+OptionManager.setValue = function(tool_id, id, value){
+  if (!this.haveOption()) return;
+  this._values[tool_id] = this._values[tool_id] || [];
+  this._values[tool_id][id] = this.calcValue(tool_id, id, value);
+};
+OptionManager.getValue = function(tool_id, id){
+  if (!this.haveOption()) return null;
+  if(id && this._values[tool_id] && this._values[tool_id][id]){
+    return this._values[tool_id][id];
+  }
+  return this._options[tool_id][id].value;
+};
+// --------------------------------------------------------------------------------
+OptionManager.resetValue = function(tool_id, id){
+  if (!this.haveOption()) return;
+  this._options[tool_id][id].value = this._options[tool_id][id].default_value;
+};
+OptionManager.resetAllOption = function(){
+  for(let tool_id in this._options){
+    for(let id in this._options[tool_id]){
+      this._options[tool_id][id].value = this._options[tool_id][id].default_value;
+    }
+  }
+};
 // ================================================================================

@@ -31,42 +31,46 @@ Option.Slot = {
 // --------------------------------------------------------------------------------
 // * Property
 // --------------------------------------------------------------------------------
+Option.prototype._id = '';
+Option.prototype._tool_id = '';
 Option.prototype._type = '';
-Option.prototype._slot = '';
 Option.prototype._name = '';
 Option.prototype._default_value = '';
 Option.prototype._options = {};
+Option.prototype._callback = function(){};
+// --------------------------------------------------------------------------------
 Option.prototype._on_change = function(){};
 // --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
-Option.prototype.initialize = function(type, slot, name, default_value, options, on_change) {
+Option.prototype.initialize = function(id, tool_id, type, name, default_value, options, callback) {
+  this._id = id;
+  this._tool_id = tool_id;
   this._type = type;
-  this._slot = slot;
   this._name = name;
   this._default_value = default_value;
   this._options = options;
-  this._on_change = on_change.bind(this);
+  this._callback = callback;
+  this._on_change = this.onChange.bind(this);
 }
 // --------------------------------------------------------------------------------
 // * Getter & Setter
 // --------------------------------------------------------------------------------
-Object.defineProperty(Option.prototype, 'type', {
+Object.defineProperty(Option.prototype, 'id', {
   get: function() {
-    return this._type;
-  },
-  set: function(value) {
-    this._type = value;
+    return this._id;
   },
   configurable: true
 });
-
-Object.defineProperty(Option.prototype, 'slot', {
+Object.defineProperty(Option.prototype, 'tool_id', {
   get: function() {
-    return this._slot;
+    return this._tool_id;
   },
-  set: function(value) {
-    this._slot = value;
+  configurable: true
+});
+Object.defineProperty(Option.prototype, 'type', {
+  get: function() {
+    return this._type;
   },
   configurable: true
 });
@@ -74,17 +78,11 @@ Object.defineProperty(Option.prototype, 'name', {
   get: function() {
     return this._name;
   },
-  set: function(value) {
-    this._name = value;
-  },
   configurable: true
 });
 Object.defineProperty(Option.prototype, 'default_value', {
   get: function() {
     return this._default_value;
-  },
-  set: function(value) {
-    this._defaule_value = value;
   },
   configurable: true
 });
@@ -92,8 +90,11 @@ Object.defineProperty(Option.prototype, 'options', {
   get: function() {
     return this._options;
   },
-  set: function(value) {
-    this._options = value;
+  configurable: true
+});
+Object.defineProperty(Tool.prototype, 'callback', {
+  get: function() {
+    return this._callback;
   },
   configurable: true
 });
@@ -101,11 +102,12 @@ Object.defineProperty(Option.prototype, 'on_change', {
   get: function() {
     return this._on_change;
   },
-  set: function(value) {
-    this._on_change = value;
-  },
   configurable: true
 });
 // --------------------------------------------------------------------------------
-
+Option.prototype.onChange = function(){
+  if(this._callback) {
+    this._callback.call(this);
+  }
+};
 // ================================================================================

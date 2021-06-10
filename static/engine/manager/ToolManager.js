@@ -21,7 +21,6 @@ function ToolManager() {
 // --------------------------------------------------------------------------------
 ToolManager._tools = [];
 ToolManager._handlers = {};
-ToolManager._options = {};
 ToolManager._current_plugin = null;
 // --------------------------------------------------------------------------------
 ToolManager._tool_list = [];
@@ -212,42 +211,6 @@ ToolManager.setCurrentPlugin = function(id){
     }
   }
   Engine.clearToolTemp();
-};
-// --------------------------------------------------------------------------------
-// * Plugin Option
-// --------------------------------------------------------------------------------
-ToolManager.addOption = function(tool_id, id, type, default_value, min, max){
-  this._options[tool_id] = this._options[tool_id] || {};
-  this._options[tool_id][id] = {
-    type: type,
-    default_value: default_value,
-    value: default_value,
-    min: min || null,
-    max: max || null
-  };
-};
-ToolManager.haveOption = function(tool_id, id){
-  return id && this._options[tool_id] && this._options[tool_id] && this._options[tool_id][id];
-};
-ToolManager.setValue = function(tool_id, id, value){
-  if (!this.haveOption()) return;
-  this._options[tool_id][id].value = value;
-};
-ToolManager.getValue = function(tool_id, id){
-  if (!this.haveOption()) return null;
-  return this._options[tool_id][id].value;
-};
-// --------------------------------------------------------------------------------
-ToolManager.resetValue = function(tool_id, id){
-  if (!this.haveOption()) return;
-  this._options[tool_id][id].value = this._options[tool_id][id].default_value;
-};
-ToolManager.resetAllOption = function(){
-  for(let tool_id in this._options){
-    for(let id in this._options[tool_id]){
-      this._options[tool_id][id].value = this._options[tool_id][id].default_value;
-    }
-  }
 };
 // ================================================================================
 
