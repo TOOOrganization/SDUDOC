@@ -51,8 +51,8 @@ OptionManager.haveOption = function(tool_id, id){
   return id && this._options[tool_id] && this._options[tool_id][id];
 };
 // --------------------------------------------------------------------------------
-OptionManager.calcValue = function(tool_id, id, value){
-
+OptionManager.calcValue = function(tool_id, id, value) {
+}
 // ------------------------------------------------------------------------------
 // };--
 OptionManager.setValue = function(tool_id, id, value){
