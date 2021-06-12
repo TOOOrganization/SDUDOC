@@ -21,12 +21,10 @@ function Option() {
 // --------------------------------------------------------------------------------
 Option.Type = {
   BOOLEAN: 0,
-  NUMBER_INPUT: 1,
-  NUMBER_SLIDE: 1,
-  TEXT: 2,
-};
-Option.Slot = {
-  RENDERER: 0
+  INT_INPUT: 1,
+  INT_SLIDE: 2,
+  DOUBLE_INPUT: 3,
+  DOUBLE_SLIDE: 4,
 };
 // --------------------------------------------------------------------------------
 // * Property
@@ -105,9 +103,11 @@ Object.defineProperty(Option.prototype, 'on_change', {
   configurable: true
 });
 // --------------------------------------------------------------------------------
-Option.prototype.onChange = function(){
+Option.prototype.onChange = function(value){
+  OptionManager.setValue(this._tool_id, this._id, value);
   if(this._callback) {
     this._callback.call(this);
   }
+  Engine.updateEditorOptionData();
 };
 // ================================================================================

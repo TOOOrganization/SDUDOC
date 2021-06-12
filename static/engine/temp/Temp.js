@@ -1,4 +1,21 @@
+OptionManager.addOption(new Option('line.continue2', 'line', Option.Type.INT_SLIDE, 'option-line-continue', 0, {
+  min: 0, max:100, step:5}, function(){
 
+}));
+OptionManager.addOption(new Option('line.continue3', 'line', Option.Type.INT_INPUT, 'option-line-continue', 0, {
+  min: 0, max:100, step:5}, function(){
+
+}));
+OptionManager.addOption(new Option('line.continue1', 'dot', Option.Type.INT_INPUT, 'option-line-continue', 0, {}, function(){}));
+OptionManager.addOption(new Option('line.continue2', 'dot', Option.Type.BOOLEAN, 'option-line-continue', true, {}, function(){
+
+}));
+OptionManager.addOption(new Option('line.continue3', 'dot', Option.Type.INT_SLIDE, 'option-line-continue', 0, {}, function(){}));
+OptionManager.addOption(new Option('line.continue1', 'move', Option.Type.INT_SLIDE, 'option-line-continue', 0, {}, function(){}));
+OptionManager.addOption(new Option('line.continue2', 'move', Option.Type.INT_INPUT, 'option-line-continue', 0, {}, function(){}));
+OptionManager.addOption(new Option('line.continue3', 'move', Option.Type.BOOLEAN, 'option-line-continue', true, {}, function(){
+
+}));
 /*
 Input.addHandler(new Handler('Input.onMouseDown1', 'key_down', 'M', Engine, function(event){
   console.log('key_down')

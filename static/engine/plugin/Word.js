@@ -137,7 +137,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-word', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增字符】左键单击一个没有字符的多边形。【修改字符】左键单击一个已有字符的多边形。【移除字符】右键单击一个已有字符的多边形。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增字符】左鍵單擊一個沒有字符的多邊形。【修改字符】左鍵單擊一個已有字符的多邊形。【移除字符】右鍵單擊一個已有字符的多邊形。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Word]: Left click polygon. [Modify Word]: Left click. [Remove Word]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-word', dictionary:[

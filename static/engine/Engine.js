@@ -174,8 +174,11 @@ Engine.updateLoadingProcessData = function(){
 // --------------------------------------------------------------------------------
 Engine.getIndexTextData = function(){
   return {
-    main_text: Language.get(Language.Type.System, 'index-main'),
-    sub_text: Language.get(Language.Type.System, 'index-sub')
+    texts: {
+      go_editor: Language.get(Language.Type.System, 'index-text-go-editor'),
+    },
+    main_text: Language.get(Language.Type.System, 'index-text-main'),
+    sub_text: Language.get(Language.Type.System, 'index-text-sub')
   };
 };
 // --------------------------------------------------------------------------------
@@ -194,7 +197,12 @@ Engine.updateIndexTextData = function(){
 Engine.getEditorToolData = function(){
   return {
     tools: ToolManager.calcToolList(),
-    tool_labels:  ToolManager.getToolLabels(),
+    tool_labels: ToolManager.getToolLabels(),
+  };
+};
+Engine.getEditorOptionData = function(){
+  return {
+    options: OptionManager.getOptionList(),
   };
 };
 Engine.getEditorPageData = function(){
@@ -209,16 +217,45 @@ Engine.getEditorCheckData = function(){
     check_info: SelectManager.extractElementObject(SelectManager.getSelectedObject())
   };
 };
+Engine.getEditorTextData = function(){
+  return {
+    texts: {
+      login:         Language.get(Language.Type.System, 'editor-text-login'),
+      logout:        Language.get(Language.Type.System, 'editor-text-logout'),
+      dev:           Language.get(Language.Type.System, 'editor-text-dev'),
+      username:      Language.get(Language.Type.System, 'editor-text-username'),
+      password:      Language.get(Language.Type.System, 'editor-text-password'),
+      need_login:    Language.get(Language.Type.System, 'editor-text-need-login'),
+
+      need_username: Language.get(Language.Type.System, 'editor-text-need-username'),
+      need_password: Language.get(Language.Type.System, 'editor-text-need-password'),
+      password_min:  Language.get(Language.Type.System, 'editor-text-password-min'),
+      tab_user:      Language.get(Language.Type.System, 'editor-text-tab-user'),
+      tab_cloud:     Language.get(Language.Type.System, 'editor-text-tab-cloud'),
+      tab_page:      Language.get(Language.Type.System, 'editor-text-tab-page'),
+      tab_check:     Language.get(Language.Type.System, 'editor-text-tab-check'),
+      tab_option:    Language.get(Language.Type.System, 'editor-text-tab-option'),
+      tab_dev:       Language.get(Language.Type.System, 'editor-text-tab-dev'),
+    },
+  };
+};
 // --------------------------------------------------------------------------------
 Engine.updateEditorData = function(){
   this.updateEditorToolData();
+  this.updateEditorOptionData();
   this.updateEditorPageData();
   this.updateEditorCheckData();
+  this.updateEditorTextData();
 };
 // --------------------------------------------------------------------------------
 Engine.updateEditorToolData = function(){
   if(this.checkRouter('Editor')){
     this._app_element.getRouterComponent().updateToolData();
+  }
+};
+Engine.updateEditorOptionData = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().updateOptionData();
   }
 };
 Engine.updateEditorPageData = function(){
@@ -229,6 +266,11 @@ Engine.updateEditorPageData = function(){
 Engine.updateEditorCheckData = function(){
   if(this.checkRouter('Editor')){
     this._app_element.getRouterComponent().updateCheckData();
+  }
+};
+Engine.updateEditorTextData = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().updateTextData();
   }
 };
 // --------------------------------------------------------------------------------
@@ -312,6 +354,9 @@ Engine.createInputBox = function(){
 // * Functions
 // --------------------------------------------------------------------------------
 Engine.clearToolTemp = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().current_plugin = ToolManager.getCurrentPluginIndex();
+  }
   SelectManager.unSelect();
   Graphics.update();
 }

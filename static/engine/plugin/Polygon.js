@@ -141,7 +141,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-polygon', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】依次点击多个点，再点击第一个点。【取消新增多边形】再次点击第一个点前，右键单击。【移除多边形】右键单击一个多边形。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增多邊形】依次點擊多個點，再點擊第一個點。【取消新增多邊形】再次點擊第一個點前，右鍵單擊。【移除多邊形】右鍵單擊一個多邊形。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Polygon]: Left click. [Cancel]: Right click. [Remove Polygon]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-polygon', dictionary:[
@@ -188,20 +188,19 @@ ToolManager.addHandler(new Handler('polygon.onMouseLeftClick', 'left_click', fal
     if(SelectManager.isSelectedType(Polygon2D.TAG)) {
       let polygon_object = SelectManager.getSelectedObject();
       if(polygon_object.isClose(dot_object.id)){
-        DocumentManager.addElement(Polygon2D.TAG, polygon_object);
         SelectManager.unSelect();
+        DocumentManager.addElementWithUpdate(Polygon2D.TAG, polygon_object);
       }else{
         polygon_object.append(dot_object.id);
         SelectManager.updateCheckData();
-        Graphics.refresh();
+        DocumentManager.afterChangeElement();
       }
     }else{
       let polygon_object = ElementManager.makeElement(Polygon2D.TAG,
         [DocumentManager.getCurrentPageId()], [dot_object.id]);
       SelectManager.selectObject(polygon_object);
-      Graphics.refresh();
+      DocumentManager.afterChangeElement();
     }
-    DocumentManager.afterChangeElement();
   }else{
     if(SelectManager.isSelectedType(Polygon2D.TAG)) {
       let polygon_object = SelectManager.getSelectedObject();

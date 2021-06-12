@@ -21,7 +21,7 @@ function EngineLoader() {
 // --------------------------------------------------------------------------------
 // * Constant
 // --------------------------------------------------------------------------------
-EngineLoader.ALLOW_LOADING = false;
+EngineLoader.ALLOW_LOADING = process.env.NODE_ENV !== 'development';
 // --------------------------------------------------------------------------------
 EngineLoader.PATH    = "@/../static/engine/";
 // --------------------------------------------------------------------------------
@@ -42,13 +42,13 @@ EngineLoader.CORE_LIST = [
 ];
 EngineLoader.OBJECT_LIST = [
   'Header', 'PageArray',
-  'Handler', 'Renderer', 'Tool', 'History',
+  'Handler', 'Renderer', 'Tool', 'History', 'Option',
   'Element', 'PolygonGroup', 'Page'
 ];
 EngineLoader.MANAGER_LIST = [
   'ElementManager', 'HistoryManager', 'ColorManager',
   'DocumentManager', 'RenderManager', 'CollideManager',
-  'ToolManager', 'SelectManager'
+  'ToolManager', 'SelectManager', 'OptionManager'
 ];
 EngineLoader.TOOL_LIST = [
   "Page", "History", "Document", "Check", "Dev"

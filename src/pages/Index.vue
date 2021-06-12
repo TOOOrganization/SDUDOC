@@ -6,10 +6,8 @@
     <div class="text-sub my-5">
       {{sub_text}}
     </div>
-    <div class="mt-1 mb-13" style="font-size: 10px;color: gainsboro">
-      <v-chip class="ma-2" @click="goEditor">现在开始编辑</v-chip>
-      <v-chip class="ma-2">查看教程</v-chip>
-      <v-chip class="ma-2">个人信息修改</v-chip>
+    <div class="button-group mt-1 mb-13">
+      <v-chip class="ma-2" @click="goEditor">{{texts.go_editor}}</v-chip>
     </div>
   </div>
 </template>
@@ -19,6 +17,7 @@ export default {
   name: "Index",
   data (){
     return {
+      texts: {},
       main_text: null,
       sub_text: null
     }
@@ -30,8 +29,9 @@ export default {
   },
   methods: {
     setTextData(json) {
-      this.main_text = json.main_text || this.main_text;
-      this.sub_text = json.sub_text || this.sub_text;
+      this.texts     = json.texts     === undefined ? this.texts     : json.texts;
+      this.main_text = json.main_text === undefined ? this.main_text : json.main_text;
+      this.sub_text  = json.sub_text  === undefined ? this.sub_text  : json.sub_text;
     },
     updateTextData(){
       this.setTextData(Engine.getIndexTextData());
@@ -39,10 +39,9 @@ export default {
     goEditor() {
       this.$router.replace('editor');
     },
-    async alert(){
-      await Engine.alert(this, '1', function(){});
-      console.log(1)
-    }
+    getText(id){
+      return this.texts[id];
+    },
   }
 }
 </script>
@@ -63,5 +62,10 @@ export default {
 
 .text-sub{
   color: darkgrey;
+}
+
+.button-group{
+  font-size: 10px;
+  color: gainsboro;
 }
 </style>

@@ -138,7 +138,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-article', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增文章】左键单击多边形。【选中文章】左键单击多边形。【取消选中文章】右键单击空白处或其他多边形。【移除文章】右键单击多边形。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增文章】左鍵單擊多邊形。【選中文章】左鍵單擊多邊形。【取消選中文章】右鍵單擊空白處或其他多邊形。【移除文章】右鍵單擊多邊形。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Article]: Left click polygon. [Modify Article]: Left click. [Remove Article]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-article', dictionary:[

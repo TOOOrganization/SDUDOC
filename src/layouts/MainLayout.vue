@@ -169,15 +169,9 @@ export default {
       this.pop_confirm_text  = json.confirm_text      === undefined ? this.pop_confirm_text  : json.confirm_text;
       this.pop_cancel_text   = json.cancel_text       === undefined ? this.pop_cancel_text   : json.cancel_text;
     },
-    updateInitializeData(){
-      this.setInitializeData(Engine.getAppInitializeData());
-    },
-    updateLanguageData(){
-      this.setLanguageData(Engine.getAppLanguageData());
-    },
-    updateElementData(){
-      this.setElementData(Engine.getAppElementData());
-    },
+    updateInitializeData() { this.setInitializeData(Engine.getAppInitializeData()); },
+    updateLanguageData()   { this.setLanguageData(Engine.getAppLanguageData()); },
+    updateElementData()    { this.setElementData(Engine.getAppElementData()); },
     alert(json){
       this.pop_title           = json.title           === undefined ? this.pop_title             : json.title;
       this.pop_callback_ok     = json.callback_ok     === undefined ? this.pop_callback_ok       : json.callback_ok;

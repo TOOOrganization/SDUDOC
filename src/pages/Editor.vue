@@ -17,9 +17,53 @@
         </v-btn-toggle>
       </div>
     </div>
-    <div v-if="left_box" ref="left_box" class="left-box">
 
+    <div v-if="left_box" ref="left_box" class="left-box">
+      <div class="menu-page" v-if="tools['plugin'] && current_plugin >= 0">
+        <div class="mx-5 menu-content">
+          <div class="mt-5 mb-4">
+            <v-chip label outlined class="menu-tool-label mb-1">
+              {{ tools['plugin'][current_plugin].tooltip }}
+            </v-chip>
+            <div v-for="(option, index) in options[tools['plugin'][current_plugin].id]" :key="index">
+              <v-switch v-if="option.type === 0" v-model="option.value" dense class="option-switch-box"
+                        @click="option.on_change(option.value)">
+                <template v-slot:label>
+                  <div class="option-switch pr-1">{{option.name}}</div>
+                </template>
+              </v-switch>
+              <div v-if="option.type === 1 || option.type === 3" class="option-input-box">
+                <div class="option-input-label mb-2">{{option.name}}</div>
+                <v-text-field v-if="option.type === 1 || option.type === 3" v-model="option.value"
+                              class="option-input" outlined dense @change="option.on_change(option.value)"
+                              type="number">
+                  <template v-slot:prepend>
+                    <v-icon @click="option.on_change(option.value - option.options.step)">mdi-minus</v-icon>
+                  </template>
+                  <template v-slot:append-outer>
+                    <v-icon @click="option.on_change(option.value + option.options.step)">mdi-plus</v-icon>
+                  </template>
+                </v-text-field>
+              </div>
+              <div v-if="option.type === 2 || option.type === 4" class="option-slider-box">
+                <div class="option-slider-label mb-1">{{option.name}}</div>
+                <v-slider v-model="option.value" color="orange darken-3" :thumb-size="24" thumb-label
+                          track-color="grey" always-dirty :min="option.options.min" :max="option.options.max"
+                          @change="option.on_change(option.value)">
+                  <template v-slot:prepend>
+                    <v-icon @click="option.on_change(option.value - option.options.step)">mdi-minus</v-icon>
+                  </template>
+                  <template v-slot:append>
+                    <v-icon @click="option.on_change(option.value + option.options.step)">mdi-plus</v-icon>
+                  </template>
+                </v-slider>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
     <div ref="resize_box_left" class="resize-box">
       <div class="resize-space"></div>
       <div class="resize-graph row">
@@ -71,15 +115,15 @@
     </div>
 
     <div v-if="right_box" ref="right_box" class="right-box">
-      <div class="right-page" v-if="tab === 0">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 0">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['user'] }}</v-chip>
-            <v-btn-toggle v-if="tools['user']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['user'] }}</v-chip>
+            <v-btn-toggle v-if="tools['user']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['user']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -88,31 +132,31 @@
             </v-btn-toggle>
           </div>
           <div class="mb-5" v-if="!is_login">
-            <div class="mt-2">您需要登录才能使用</div>
-            <v-text-field label="用户名" v-model="user_username" :rules="user_username_rules" outlined dense
+            <div class="mt-1">{{ texts.need_login }}</div>
+            <v-text-field :label="texts.username" v-model="user_username" :rules="user_username_rules" outlined dense
                           hide-details="auto" class="my-4" style="font-size: 14px"></v-text-field>
-            <v-text-field label="密码" v-model="user_password" :rules="user_password_rules" outlined dense
+            <v-text-field :label="texts.password" v-model="user_password" :rules="user_password_rules" outlined dense
                           :append-icon="user_password_show ? 'mdi-eye' : 'mdi-eye-off'"
                           :type="user_password_show ? 'text' : 'password'"
                           @click:append="user_password_show = !user_password_show"
                           hide-details="auto" style="font-size: 14px"></v-text-field>
-            <v-btn outlined class="mt-4" style="width: 100%" @click="login">登录</v-btn>
+            <v-btn outlined class="mt-4" style="width: 100%" @click="login">{{texts.login}}</v-btn>
           </div>
           <div class="mb-5" v-if="is_login">
-            <v-btn outlined class="mt-4" style="width: 100%" @click="logout">登出</v-btn>
+            <v-btn outlined class="mt-3" style="width: 100%" @click="logout">{{texts.logout}}</v-btn>
           </div>
         </div>
       </div>
 
-      <div class="right-page" v-if="tab === 1">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 1">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['cloud'] }}</v-chip>
-            <v-btn-toggle v-if="tools['cloud']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['cloud'] }}</v-chip>
+            <v-btn-toggle v-if="tools['cloud']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['cloud']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -123,15 +167,15 @@
         </div>
       </div>
 
-      <div class="right-page" v-if="tab === 2">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 2">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['page'] }}</v-chip>
-            <v-btn-toggle v-if="tools['page']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['page'] }}</v-chip>
+            <v-btn-toggle v-if="tools['page']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['page']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -154,15 +198,15 @@
         </div>
       </div>
 
-      <div class="right-page" v-if="tab === 3">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 3">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['check'] }}</v-chip>
-            <v-btn-toggle v-if="tools['check']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['check'] }}</v-chip>
+            <v-btn-toggle v-if="tools['check']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['check']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -177,15 +221,15 @@
         </div>
       </div>
 
-      <div class="right-page" v-if="tab === 4">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 4">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['option'] }}</v-chip>
-            <v-btn-toggle v-if="tools['option']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['option'] }}</v-chip>
+            <v-btn-toggle v-if="tools['option']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['option']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -196,15 +240,15 @@
         </div>
       </div>
 
-      <div class="right-page" v-if="tab === 5">
-        <div class="mx-5 right-content">
+      <div class="menu-page" v-if="tab === 5">
+        <div class="mx-5 menu-content">
           <div class="mt-5 mb-4">
-            <v-chip label outlined class="right-tool-label">{{ tool_labels['dev'] }}</v-chip>
-            <v-btn-toggle v-if="tools['dev']" mandatory dense tile borderless class="right-tool-group">
+            <v-chip label outlined class="menu-tool-label">{{ tool_labels['dev'] }}</v-chip>
+            <v-btn-toggle v-if="tools['dev']" mandatory dense tile borderless class="menu-tool-group">
               <v-tooltip bottom v-for="(tool, index) in tools['dev']" :key="index">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn x-small fab tile plain v-bind="attrs" v-on="on" @click="clickToolFilter(tool.on_click)"
-                         color="white" class="right-tool-button">
+                         color="white" class="menu-tool-button">
                     <v-icon>{{tool.icon}}</v-icon>
                   </v-btn>
                 </template>
@@ -213,7 +257,7 @@
             </v-btn-toggle>
           </div>
           <div>
-            实验性工具还在开发中，具有不稳定性，可能对文档造成不可逆的损坏。请在使用时先保存备份，谨慎处理。
+            {{ texts.dev }}
           </div>
         </div>
       </div>
@@ -226,7 +270,7 @@
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title>{{ item.text }}</v-list-item-title>
+          <v-list-item-title>{{ getText(item.text) || item.text }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -265,17 +309,20 @@ export default {
 
       tab: 2,
       tabs:[
-        {icon: 'mdi-account', text: '用户菜单', login: false},
-        {icon: 'mdi-cloud-outline', text: '云功能菜单', login: true},
-        {icon: 'mdi-book-open-page-variant', text: '页面菜单', login: false},
-        {icon: 'mdi-checkbox-marked-outline', text: '检查菜单', login: false},
-        {icon: 'mdi-cogs', text: '设置菜单', login: true},
-        {icon: 'mdi-ladybug', text: '实验性功能菜单', login: false}
+        {icon: 'mdi-account', text: 'tab_user', login: false},
+        {icon: 'mdi-cloud-outline', text: 'tab_cloud', login: true},
+        {icon: 'mdi-book-open-page-variant', text: 'tab_page', login: false},
+        {icon: 'mdi-checkbox-marked-outline', text: 'tab_check', login: false},
+        {icon: 'mdi-cogs', text: 'tab_option', login: true},
+        {icon: 'mdi-ladybug', text: 'tab_dev', login: false}
       ],
       tab_mini: true,
 
       tools: {},
       tool_labels: {},
+      current_plugin: -1,
+
+      options: {},
 
       pixi: null,
       pixi_app: null,
@@ -283,28 +330,32 @@ export default {
 
       user_username: null,
       user_username_rules: [
-        value => !!value || '请填写用户名',
+        value => !!value || (this.getText('need_username') || 'need_username'),
       ],
 
       user_password: null,
       user_password_show: false,
       user_password_rules: [
-        value => !!value || '请填写密码',
-        value => (value && value.length >= 3) || '密码最少需要8个字符。',
+        value => !!value || (this.getText('need_password') || 'need_password'),
+        value => (value && value.length >= 8) || (this.getText('password_min') || 'password_min'),
       ],
 
       page_list: null,
-      current_page: 0,
+      current_page: -1,
 
       check_id: null,
-      check_info: null
+      check_info: null,
+
+      texts: {}
     }
   },
   mounted () {
     if(window.Engine){
       this.initializePixiApplication();
-      Engine.initializeEditor();
       this.updateToolData();
+      this.updateOptionData();
+      this.updateTextData();
+      Engine.initializeEditor();
       this.checkLogin();
     }
     this.setupResizeEvent();
@@ -320,8 +371,8 @@ export default {
       });
       this.$refs.editor_pixi.appendChild(this.pixi_app.view);
       this.pixi_app.resizeTo = this.pixi_app.view;
-      this.pixi_app.view.style.width = "100%";
-      this.pixi_app.view.style.height = "100%";
+      this.pixi_app.view.style.width = '100%';
+      this.pixi_app.view.style.height = '100%';
       this.pixi_app.renderer.autoResize = true;
       this.pixi_app.resize();
 
@@ -357,6 +408,9 @@ export default {
       this.tools        = json.tools        === undefined ? this.tools       : json.tools;
       this.tool_labels  = json.tool_labels  === undefined ? this.tool_labels : json.tool_labels;
     },
+    setOptionData(json) {
+      this.options      = json.options      === undefined ? this.options     : json.options;
+    },
     setPageData(json) {
       this.page_list    = json.page_list    === undefined ? this.page_list   : json.page_list;
       this.current_page = json.current_page === undefined ? this.current_page: json.current_page;
@@ -365,14 +419,16 @@ export default {
       this.check_id     = json.check_id     === undefined ? this.check_id    : json.check_id;
       this.check_info   = json.check_info   === undefined ? this.check_info  : json.check_info;
     },
-    updateToolData() {
-      this.setToolData(Engine.getEditorToolData());
+    setTextData(json) {
+      this.texts        = json.texts        === undefined ? this.texts       : json.texts;
     },
-    updatePageData() {
-      this.setPageData(Engine.getEditorPageData());
-    },
-    updateCheckData() {
-      this.setCheckData(Engine.getEditorCheckData());
+    updateToolData()   { this.setToolData(Engine.getEditorToolData()); },
+    updateOptionData() { this.setOptionData(Engine.getEditorOptionData()); },
+    updatePageData()   { this.setPageData(Engine.getEditorPageData()); },
+    updateCheckData()  { this.setCheckData(Engine.getEditorCheckData()); },
+    updateTextData()   { this.setTextData(Engine.getEditorTextData()); },
+    getText(id){
+      return this.texts[id];
     },
     checkLogin(){
       this.is_login = localStorage.getItem(HttpRequest.TOKEN_KEY);
@@ -507,11 +563,35 @@ export default {
   width: 250px;
   height: 100%;
 }
-.left-page{
+.option-switch-box{
+  margin-top: 19px;
+  margin-bottom: -10px;
+}
+.option-switch{
+  text-align: right !important;
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-flow: column;
+  font-size: 13px;
+}
+.option-input-box{
+  margin-top: 15px;
+  margin-bottom: -20px;
+}
+.option-input{
+  font-size: 13px;
+}
+.option-input-label{
+  text-align: left;
+  color: grey;
+  font-size: 13px;
+}
+.option-slider-box{
+  margin-top: 15px;
+  margin-bottom: -20px;
+}
+.option-slider-label{
+  text-align: left;
+  color: grey;
+  font-size: 13px;
 }
 
 .resize-box{
@@ -576,26 +656,26 @@ export default {
   width: 250px;
   height: 100%;
 }
-.right-page{
+.menu-page{
   width: 100%;
   height: 100%;
 }
-.right-content{
+.menu-content{
   height: 100%;
   display: flex;
   flex-flow: column;
 }
-.right-tool-group{
+.menu-tool-group{
   width: 100%;
   display: flex;
   flex-wrap: wrap;
 }
-.right-tool-label{
+.menu-tool-label{
   width: 100%;
   padding-top: 2px;
   justify-content: center;
 }
-.right-tool-button{
+.menu-tool-button{
   border-right: 1px #f5f5f5 solid !important;
   border-bottom: 1px #f5f5f5 solid !important;
 }

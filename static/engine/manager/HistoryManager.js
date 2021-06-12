@@ -26,6 +26,8 @@ HistoryManager.MAX_HISTORY_SIZE = 100;
 HistoryManager._left_queue = [];
 HistoryManager._right_queue = [];
 // --------------------------------------------------------------------------------
+HistoryManager._temp_history_list = [];
+// --------------------------------------------------------------------------------
 // * Initialize
 // --------------------------------------------------------------------------------
 HistoryManager.initialize = function(){
@@ -34,12 +36,23 @@ HistoryManager.initialize = function(){
 HistoryManager.clear = function(){
   this._left_queue = [];
   this._right_queue = [];
+  this._temp_history_list = [];
 };
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-HistoryManager.push = function(history){
-  this._left_queue.push(history);
+HistoryManager.append = function(history){
+  this._temp_history_list.push(history);
+}
+HistoryManager.new = function(){
+  if(this._temp_history_list.length > 0){
+    this.push(this._temp_history_list);
+    this._temp_history_list = [];
+  }
+}
+// --------------------------------------------------------------------------------
+HistoryManager.push = function(history_list){
+  this._left_queue.push(history_list);
   if(this._left_queue.length >= this.MAX_HISTORY_SIZE){
     this._left_queue.shift();
   }
@@ -55,16 +68,16 @@ HistoryManager.canRedo = function(){
 // --------------------------------------------------------------------------------
 HistoryManager.undo = async function(){
   if (!this.canUndo()) return;
-  let history = this._left_queue.pop();
-  for(let i = history.length - 1; i >= 0; i--){
-    await history[i].undo();
+  let history_list = this._left_queue.pop();
+  for(let i = history_list.length - 1; i >= 0; i--){
+    await history_list[i].undo();
   }
 }
 HistoryManager.redo = async function(){
   if (!this.canRedo()) return;
-  let history = this._right_queue.pop();
-  for(let i = 0; i < history.length; i++){
-    await history[i].redo();
+  let history_list = this._right_queue.pop();
+  for(let i = 0; i < history_list.length; i++){
+    await history_list[i].redo();
   }
 }
 // ================================================================================

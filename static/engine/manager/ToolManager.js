@@ -200,6 +200,15 @@ ToolManager.getCurrentPlugin = function(){
   }
   return {id: null};
 };
+ToolManager.getCurrentPluginIndex = function(){
+  let list = this.getToolList(Tool.Slot.PLUGIN);
+  for(let i = 0; i < list.length; i++){
+    if(list[i].id === this._current_plugin){
+      return i;
+    }
+  }
+  return -1;
+};
 ToolManager.getCurrentPluginId = function(){
   return this.getCurrentPlugin().id;
 };

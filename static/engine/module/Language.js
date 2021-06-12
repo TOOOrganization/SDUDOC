@@ -25,6 +25,7 @@ Language.Type = {
   Label: 'Label',
   System: 'system',
   Notice: 'notice',
+  Option: 'option',
   ToolTip: 'tooltip'
 };
 // --------------------------------------------------------------------------------
@@ -110,16 +111,112 @@ Language.DEFAULT_DICTIONARY = [
       { id: 'en-us', text: ['Loading Success'] }
     ]
   }, {
-    type: Language.Type.System, id: 'index-main', dictionary:[
+    type: Language.Type.System, id: 'index-text-main', dictionary:[
       { id: 'zh-cn', text: ['欢迎使用，您要做些什么？'] },
       { id: 'zh-tw', text: ['歡迎使用，您要做些什麽？'] },
       { id: 'en-us', text: ['Welcome! Just Enjoy.'] }
     ]
   }, {
-    type: Language.Type.System, id: 'index-sub', dictionary:[
+    type: Language.Type.System, id: 'index-text-go-editor', dictionary:[
+      { id: 'zh-cn', text: ['开始使用编辑器'] },
+      { id: 'zh-tw', text: ['開始使用編輯器'] },
+      { id: 'en-us', text: ['Go To Editor'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'index-text-sub', dictionary:[
       { id: 'zh-cn', text: ['我们列出了一些常用功能，希望对您有所帮助：'] },
       { id: 'zh-tw', text: ['我們列出了一些常用功能，希望對您有所幫助：'] },
       { id: 'en-us', text: ['Here are useful features:'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-login', dictionary:[
+      { id: 'zh-cn', text: ['登录'] },
+      { id: 'zh-tw', text: ['登錄'] },
+      { id: 'en-us', text: ['Login'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-logout', dictionary:[
+      { id: 'zh-cn', text: ['登出'] },
+      { id: 'zh-tw', text: ['登出'] },
+      { id: 'en-us', text: ['Logout'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-dev', dictionary:[
+      { id: 'zh-cn', text: ['实验性工具还在开发中，具有不稳定性，可能对文档造成不可逆的损坏。请在使用时先保存备份，谨慎处理。'] },
+      { id: 'zh-tw', text: ['實驗性工具還在開發中，具有不穩定性，可能對文檔造成不可逆的損壞。請在使用時先保存備份，謹慎處理。'] },
+      { id: 'en-us', text: ['Development tools now under test. Please save your document before use.'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-need-login', dictionary:[
+      { id: 'zh-cn', text: ['您需要登录才能使用'] },
+      { id: 'zh-tw', text: ['您需要登錄才能使用'] },
+      { id: 'en-us', text: ['Login first please'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-username', dictionary:[
+      { id: 'zh-cn', text: ['用户名'] },
+      { id: 'zh-tw', text: ['用戶名'] },
+      { id: 'en-us', text: ['Username'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-password', dictionary:[
+      { id: 'zh-cn', text: ['密码'] },
+      { id: 'zh-tw', text: ['密碼'] },
+      { id: 'en-us', text: ['Password'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-need-username', dictionary:[
+      { id: 'zh-cn', text: ['请填写用户名'] },
+      { id: 'zh-tw', text: ['請填寫用戶名'] },
+      { id: 'en-us', text: ['Need username'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-need-password', dictionary:[
+      { id: 'zh-cn', text: ['请填写密码'] },
+      { id: 'zh-tw', text: ['請填寫密碼'] },
+      { id: 'en-us', text: ['Need password'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-password-min', dictionary:[
+      { id: 'zh-cn', text: ['密码最少需要8个字符'] },
+      { id: 'zh-tw', text: ['密碼最少需要8個字符'] },
+      { id: 'en-us', text: ['Password more then 8 characters'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-user', dictionary:[
+      { id: 'zh-cn', text: ['用户菜单'] },
+      { id: 'zh-tw', text: ['用戶菜單'] },
+      { id: 'en-us', text: ['User'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-cloud', dictionary:[
+      { id: 'zh-cn', text: ['云功能菜单'] },
+      { id: 'zh-tw', text: ['雲功能菜單'] },
+      { id: 'en-us', text: ['Cloud Sync'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-page', dictionary:[
+      { id: 'zh-cn', text: ['页面菜单'] },
+      { id: 'zh-tw', text: ['頁面菜單'] },
+      { id: 'en-us', text: ['Page'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-check', dictionary:[
+      { id: 'zh-cn', text: ['检查菜单'] },
+      { id: 'zh-tw', text: ['檢查菜單'] },
+      { id: 'en-us', text: ['Check'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-option', dictionary:[
+      { id: 'zh-cn', text: ['设置菜单'] },
+      { id: 'zh-tw', text: ['設置菜單'] },
+      { id: 'en-us', text: ['Option'] }
+    ]
+  }, {
+    type: Language.Type.System, id: 'editor-text-tab-dev', dictionary:[
+      { id: 'zh-cn', text: ['实验性功能菜单'] },
+      { id: 'zh-tw', text: ['實驗性功能菜單'] },
+      { id: 'en-us', text: ['Development'] }
     ]
   }, {
     type: Language.Type.Todo, id: 'default', dictionary:[

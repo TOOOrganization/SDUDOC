@@ -138,7 +138,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-sentence', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增句子】左键单击多边形。【选中句子】左键单击多边形。【取消选中句子】右键单击空白处或其他多边形。【移除句子】右键单击多边形。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增句子】左鍵單擊多邊形。【選中句子】左鍵單擊多邊形。【取消選中句子】右鍵單擊空白處或其他多邊形。【移除句子】右鍵單擊多邊形。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Sentence]: Left click polygon. [Modify Sentence]: Left click. [Remove Sentence]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-sentence', dictionary:[

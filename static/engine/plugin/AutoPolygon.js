@@ -50,7 +50,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-auto-polygon', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增多边形】将鼠标放在四个点中间，并按下鼠标左键。【移除多边形】右键单击一个多边形。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增多邊形】將鼠標放在四個點中間，並按下鼠標左鍵。【移除多邊形】右鍵單擊一個多邊形。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Polygon]: Left click. [Remove Polygon]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-auto-polygon', dictionary:[

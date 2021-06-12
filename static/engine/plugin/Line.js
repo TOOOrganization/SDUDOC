@@ -154,7 +154,7 @@ Language.addDictionaryList([
     type: Language.Type.Todo, id: 'plugin-todo-line', dictionary:[
       { id: 'zh-cn', text: ['【移动】按下中键+拖动。【缩放】滚动鼠标中键。【新增线】依次点击两个点。【取消新增线】点击第二个点前，右键单击。【移除线】右键单击一条线。'] },
       { id: 'zh-tw', text: ['【移動】按下中鍵+拖動。【縮放】滾動鼠標中鍵。【新增線】依次點擊兩個點。【取消新增線】點擊第二個點前，右鍵單擊。【移除線】右鍵單擊一條線。'] },
-      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel.'] }
+      { id: 'en-us', text: ['[Move]: Press & Drag. [Scale]: Mousewheel. [Add Line]: Select two dots. [Cancel]: Right click. [Remove Line]:Right click.'] }
     ]
   }, {
     type: Language.Type.ToolTip, id: 'plugin-tooltip-line', dictionary:[
@@ -162,8 +162,22 @@ Language.addDictionaryList([
       { id: 'zh-tw', text: ['直線工具'] },
       { id: 'en-us', text: ['Line2D Tool'] }
     ]
+  }, {
+    type: Language.Type.Option, id: 'option-line-continue', dictionary:[
+      { id: 'zh-cn', text: ['连续新建直线'] },
+      { id: 'zh-tw', text: ['連續新建直線'] },
+      { id: 'en-us', text: ['Continue add line'] }
+    ]
   }
 ]);
+// ================================================================================
+
+// ================================================================================
+// * Register Options
+// --------------------------------------------------------------------------------
+OptionManager.addOption(new Option('line.continue', 'line', Option.Type.BOOLEAN, 'option-line-continue', true, {}, function(){
+
+}));
 // ================================================================================
 
 // ================================================================================
@@ -201,18 +215,30 @@ ToolManager.addHandler(new Handler('line.onMouseLeftClick', 'left_click', false,
       if(SelectManager.isSelectedType(Dot2D.TAG)) {
         let line_object = ElementManager.makeElement(Line2D.TAG, [DocumentManager.getCurrentPageId()],
           SelectManager.getSelectedId(), dot_object.id);
-        DocumentManager.addElement(Line2D.TAG, line_object);
+        if(OptionManager.getValue('line', 'line.continue')){
+          SelectManager.selectObject(dot_object);
+        }else{
+          SelectManager.unSelect();
+        }
+        DocumentManager.addElementWithUpdate(Line2D.TAG, line_object);
+      }else{
+        SelectManager.selectObject(dot_object);
+        DocumentManager.afterChangeElement();
       }
-      SelectManager.selectObject(dot_object);
-      DocumentManager.afterChangeElement();
     }else{
       if(SelectManager.isSelectedType(Dot2D.TAG)){
         let line_object = ElementManager.makeElement(Line2D.TAG, [DocumentManager.getCurrentPageId()],
           SelectManager.getSelectedId(), collide_list[0]);
+        if(OptionManager.getValue('line', 'line.continue')){
+          SelectManager.select(Dot2D.TAG, collide_list[0]);
+        }else{
+          SelectManager.unSelect();
+        }
         DocumentManager.addElementWithUpdate(Line2D.TAG, line_object);
+      }else{
+        SelectManager.select(Dot2D.TAG, collide_list[0]);
+        Graphics.update();
       }
-      SelectManager.select(Dot2D.TAG, collide_list[0]);
-      Graphics.update();
     }
   })
 );
