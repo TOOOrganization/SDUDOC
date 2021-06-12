@@ -41,6 +41,21 @@ DocumentManager.clearData = function(){
   SelectManager.clear();
 };
 // --------------------------------------------------------------------------------
+// * Getter & Setter
+// --------------------------------------------------------------------------------
+Object.defineProperty(DocumentManager, 'header', {
+  get: function() {
+    return this._header;
+  },
+  configurable: true
+});
+Object.defineProperty(DocumentManager, 'page_array', {
+  get: function() {
+    return this._page_array;
+  },
+  configurable: true
+});
+// --------------------------------------------------------------------------------
 // * Document
 // --------------------------------------------------------------------------------
 DocumentManager.new = function(){
@@ -115,6 +130,22 @@ DocumentManager.getPageList = function(){
   return data;
 }
 // --------------------------------------------------------------------------------
+DocumentManager.addAfterPage = async function(index, page_object){
+  this.addElement(Page.TAG, page_object);
+  this._page_array.addAfterCurrentPage(page_object.id);
+  await this.afterChangePage();
+}
+DocumentManager.clearPage = function(index){
+  let page = ElementManager.getElement(Page.TAG, this._page_array.getPageId(index));
+  page.onRemove.call(page);
+  this.afterChangeElement();
+}
+DocumentManager.removePage = async function(page_id){
+  this._page_array.removePage(page_id);
+  this.removeElement(Page.TAG, page_id);
+  await this.afterChangePage();
+}
+// --------------------------------------------------------------------------------
 DocumentManager.addAfterCurrentPage = async function(filename, src){
   let request_src = await HttpRequest.uploadWebPage(filename, src);
   if(!request_src) return;
@@ -124,19 +155,14 @@ DocumentManager.addAfterCurrentPage = async function(filename, src){
   await this.afterChangePage();
   Engine.progress(100);
 }
-DocumentManager.clearPage = function(index){
-  let page = ElementManager.getElement(Page.TAG, this._page_array.getPageId(index));
-  page.onRemove.call(page);
-  this.afterChangeElement();
-}
 DocumentManager.clearCurrentPage = function(){
   let page = this.getCurrentPageObject();
   page.onRemove.call(page);
   this.afterChangeElement();
 }
 DocumentManager.removeCurrentPage = async function(){
-  this.removeElement(Page.TAG, this.getCurrentPageId());
-  this._page_array.removeCurrentPage();
+  let page = this._page_array.removeCurrentPage();
+  this.removeElement(Page.TAG, page);
   await this.afterChangePage();
 }
 // --------------------------------------------------------------------------------
@@ -150,8 +176,11 @@ DocumentManager.getCurrentPageObject = function(){
   return ElementManager.getElement(Page.TAG, this.getCurrentPageId());
 }
 // --------------------------------------------------------------------------------
+DocumentManager.setCurrentPageIndex = async function(index){
+  await this.setCurrentPage(index + 1);
+}
 DocumentManager.setCurrentPage = async function(index){
-  this._page_array.setCurrentPage(index + 1);
+  this._page_array.setCurrentPage(index);
   await this.afterChangePage();
 }
 // --------------------------------------------------------------------------------

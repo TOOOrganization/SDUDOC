@@ -256,23 +256,27 @@ ToolManager.addHandler(new Handler('dot.onMouseLeftClick', 'left_click', false, 
     SelectManager.unSelect();
 
     collide_list = CollideManager.getCollideList(Line2D.TAG, 2);
+    let dot_object = null;
     if(collide_list.length === 2){
-      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
         Dot2D.Type.INTERSECTION, collide_list[0], collide_list[1]);
-      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
     }else if(collide_list.length === 1){
       let line = ElementManager.getElement(Line2D.TAG, collide_list[0]).getLine();
       let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
       let dependent = line.getDependent(mouse_point);
-      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
         Dot2D.Type.DEPENDENT, collide_list[0], dependent);
-      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
     }else{
       let mouse_point = Graphics.getSourcePoint(new Point(event.layerX, event.layerY));
-      let dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
+      dot_object = ElementManager.makeElement(Dot2D.TAG, [DocumentManager.getCurrentPageId()],
         Dot2D.Type.FREE, mouse_point.x, mouse_point.y);
-      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
     }
+    let page = DocumentManager.getCurrentPage();
+    HistoryManager.push([new History(function(){
+      DocumentManager.removeElementWithUpdate(Dot2D.TAG, dot_object.id);
+    },function(){
+      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
+    }, page, page)]).then();
   })
 );
 ToolManager.addHandler(new Handler('dot.onMouseRightClick', 'right_click', false, Engine,
@@ -284,7 +288,13 @@ ToolManager.addHandler(new Handler('dot.onMouseRightClick', 'right_click', false
       Graphics.refresh();
       return;
     }
-    DocumentManager.removeElementWithUpdate(Dot2D.TAG, collide_list[0]);
+    let dot_object = ElementManager.getElement(Dot2D.TAG, collide_list[0]);
+    let page = DocumentManager.getCurrentPage();
+    HistoryManager.push([new History(function(){
+      DocumentManager.addElementWithUpdate(Dot2D.TAG, dot_object);
+    },function(){
+      DocumentManager.removeElementWithUpdate(Dot2D.TAG, dot_object.id);
+    }, page, page)]).then();
   })
 );
 ToolManager.addHandler(new Handler('dot.onMouseMove', 'mousemove', false, Engine,

@@ -402,7 +402,7 @@ export default {
       return index;
     },
     changePage(index){
-      DocumentManager.setCurrentPage(index);
+      DocumentManager.setCurrentPageIndex(index);
     },
     setToolData(json) {
       this.tools        = json.tools        === undefined ? this.tools       : json.tools;
@@ -507,11 +507,29 @@ export default {
         let file = event.dataTransfer.files[0];
         if(file.type.startsWith('image')){
           await Engine.loadImage(Engine, file, async function (filename, src) {
+            let old_document = JSON.stringify(DocumentManager.saveJson());
             await DocumentManager.addAfterCurrentPage(filename, src);
+            let new_document = JSON.stringify(DocumentManager.saveJson());
+            await HistoryManager.push([new History(async function(){
+              DocumentManager.loadJson(JSON.parse(old_document));
+              await DocumentManager.afterChangePage();
+            }, async function(){
+              DocumentManager.loadJson(JSON.parse(new_document));
+              await DocumentManager.afterChangePage();
+            })], true);
           });
         }else if(file.name.endsWith('.sjs')){
           await Engine.loadFile(Engine, file, async function (filename, src) {
+            let old_document = JSON.stringify(DocumentManager.saveJson());
             await DocumentManager.load(filename, src);
+            let new_document = JSON.stringify(DocumentManager.saveJson());
+            await HistoryManager.push([new History(async function(){
+              DocumentManager.loadJson(JSON.parse(old_document));
+              await DocumentManager.afterChangePage();
+            }, async function(){
+              DocumentManager.loadJson(JSON.parse(new_document));
+              await DocumentManager.afterChangePage();
+            })], true);
           });
         }
       });

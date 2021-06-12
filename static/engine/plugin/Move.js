@@ -54,8 +54,10 @@ ToolManager.addHandler(new Handler('move.onMouseLeftDown', 'left_down', false, E
   function(event){
     let collide_list = CollideManager.getCollideList(Dot2D.TAG, 1);
     if(collide_list.length > 0) {
-      if(ElementManager.getFilteredElement(Dot2D.TAG, collide_list[0]).type !== Dot2D.Type.INTERSECTION){
-        SelectManager.selectId(collide_list[0]);
+      let dot_object = ElementManager.getFilteredElement(Dot2D.TAG, collide_list[0])
+      if(dot_object.type !== Dot2D.Type.INTERSECTION){
+        SelectManager.selectObject(dot_object);
+        dot_object._temp_before_move = dot_object.saveJson();
       }
     }
     Move.start = true;
@@ -65,7 +67,17 @@ ToolManager.addHandler(new Handler('move.onMouseLeftDown', 'left_down', false, E
 ToolManager.addHandler(new Handler('move.onMouseLeftUp', 'left_up', false, Engine,
   function(event){
     if(SelectManager.isSelectedType(Dot2D.TAG)) {
-      /* History */
+      let dot_object = SelectManager.getSelectedObject();
+      let json_old = dot_object._temp_before_move;
+      let json_new = dot_object.saveJson();
+      let page = DocumentManager.getCurrentPage();
+      HistoryManager.push([new History(function(){
+        dot_object.loadJson(json_old);
+        Graphics.refresh();
+      },function(){
+        dot_object.loadJson(json_new);
+        Graphics.refresh();
+      }, page, page)], true).then();
     }
     Move.start = false;
     SelectManager.unSelect();
@@ -101,6 +113,19 @@ ToolManager.addHandler(new Handler('move.onMouseMove', 'mousemove', false, Engin
 );
 ToolManager.addHandler(new Handler('move.onMouseOut', 'mouseout', false, Engine,
   function(event){
+    if(SelectManager.isSelectedType(Dot2D.TAG)) {
+      let dot_object = SelectManager.getSelectedObject();
+      let json_old = dot_object._temp_before_move;
+      let json_new = dot_object.saveJson();
+      let page = DocumentManager.getCurrentPage();
+      HistoryManager.push([new History(function(){
+        dot_object.loadJson(json_old);
+        Graphics.refresh();
+      },function(){
+        dot_object.loadJson(json_new);
+        Graphics.refresh();
+      }, page, page)], true).then();
+    }
     Move.start = false;
     SelectManager.unSelect();
     Graphics.refresh();

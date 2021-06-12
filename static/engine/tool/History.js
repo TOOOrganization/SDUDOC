@@ -33,16 +33,16 @@ Language.addDictionaryList([
 // ================================================================================
 // * Register Tool
 // --------------------------------------------------------------------------------
-ToolManager.addTool(new Tool('undo', 'tool-tooltip-undo', 'mdi-undo-variant', Tool.Slot.HISTORY,
-  async function(){
+ToolManager.addTool(new Tool('undo', 'tool-tooltip-undo', 'mdi-undo-variant', Tool.Slot.HISTORY, {
+  on_click: async function () {
     await HistoryManager.undo();
-  })
-);
-ToolManager.addTool(new Tool('redo', 'tool-tooltip-redo', 'mdi-redo-variant', Tool.Slot.HISTORY,
-  async function(){
+  }
+}));
+ToolManager.addTool(new Tool('redo', 'tool-tooltip-redo', 'mdi-redo-variant', Tool.Slot.HISTORY, {
+  on_click: async function () {
     await HistoryManager.redo();
-  })
-);
+  }
+}));
 // ToolManager.addTool(new Tool('copy', '复制(Ctrl+C)', 'mdi-content-copy', Tool.Slot.HISTORY, function(){
 //
 // }));

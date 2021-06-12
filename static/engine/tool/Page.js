@@ -98,14 +98,32 @@ Language.addDictionaryList([
 ToolManager.addTool(new Tool('new-page', 'tool-tooltip-new-page', 'mdi-card-plus-outline', Tool.Slot.PAGE, {
   on_click: async function() {
     await Engine.readImage(Engine, async function (filename, src) {
+      let old_document = JSON.stringify(DocumentManager.saveJson());
       await DocumentManager.addAfterCurrentPage(filename, src);
+      let new_document = JSON.stringify(DocumentManager.saveJson());
+      await HistoryManager.push([new History(async function(){
+        DocumentManager.loadJson(JSON.parse(old_document));
+        await DocumentManager.afterChangePage();
+      }, async function(){
+        DocumentManager.loadJson(JSON.parse(new_document));
+        await DocumentManager.afterChangePage();
+      })], true);
     });
   }
 }));
 ToolManager.addTool(new Tool('move-page-forward', 'tool-tooltip-move-page-forward', 'mdi-arrow-left-bold', Tool.Slot.PAGE, {
   on_click: async function() {
     if (DocumentManager.getCurrentPage() <= 0) return;
+    let old_document = JSON.stringify(this._page_array.saveJson());
     await DocumentManager.moveCurrentPageForward();
+    let new_document = JSON.stringify(this._page_array.saveJson());
+    await HistoryManager.push([new History(async function(){
+      DocumentManager.page_array.loadJson(JSON.parse(old_document));
+      await DocumentManager.afterChangePage();
+    }, async function(){
+      DocumentManager.page_array.loadJson(JSON.parse(new_document));
+      await DocumentManager.afterChangePage();
+    })], true);
   }
 }));
 ToolManager.addTool(new Tool('move-page-set', 'tool-tooltip-move-page-set', 'mdi-counter', Tool.Slot.PAGE, {
@@ -114,7 +132,16 @@ ToolManager.addTool(new Tool('move-page-set', 'tool-tooltip-move-page-set', 'mdi
     await Engine.prompt(Engine, 'prompt-title-move-page-set', [
         Language.get(Language.Type.ToolTip, 'prompt-tooltip-move-page-set')
       ], [DocumentManager.getCurrentPage()], async function(text_array) {
+        let old_document = JSON.stringify(this._page_array.saveJson());
         await DocumentManager.moveCurrentPageTo(Number(text_array[0]));
+        let new_document = JSON.stringify(this._page_array.saveJson());
+        await HistoryManager.push([new History(async function(){
+          DocumentManager.page_array.loadJson(JSON.parse(old_document));
+          await DocumentManager.afterChangePage();
+        }, async function(){
+          DocumentManager.page_array.loadJson(JSON.parse(new_document));
+          await DocumentManager.afterChangePage();
+        })], true);
       }
     );
   }
@@ -122,14 +149,32 @@ ToolManager.addTool(new Tool('move-page-set', 'tool-tooltip-move-page-set', 'mdi
 ToolManager.addTool(new Tool('move-page-backward', 'tool-tooltip-move-page-backward', 'mdi-arrow-right-bold', Tool.Slot.PAGE, {
   on_click: async function(){
     if (DocumentManager.getCurrentPage() <= 0) return;
+    let old_document = JSON.stringify(this._page_array.saveJson());
     await DocumentManager.moveCurrentPageBackward();
+    let new_document = JSON.stringify(this._page_array.saveJson());
+    await HistoryManager.push([new History(async function(){
+      DocumentManager.page_array.loadJson(JSON.parse(old_document));
+      await DocumentManager.afterChangePage();
+    }, async function(){
+      DocumentManager.page_array.loadJson(JSON.parse(new_document));
+      await DocumentManager.afterChangePage();
+    })], true);
   }
 }));
 ToolManager.addTool(new Tool('remove-page', 'tool-tooltip-remove-page', 'mdi-close', Tool.Slot.PAGE, {
   on_click: async function() {
     if (DocumentManager.getCurrentPage() <= 0) return;
     await Engine.alert(Engine, 'alert-title-remove-page', async function () {
+      let old_document = JSON.stringify(DocumentManager.saveJson());
       await DocumentManager.removeCurrentPage();
+      let new_document = JSON.stringify(DocumentManager.saveJson());
+      await HistoryManager.push([new History(async function(){
+        DocumentManager.loadJson(JSON.parse(old_document));
+        await DocumentManager.afterChangePage();
+      }, async function(){
+        DocumentManager.loadJson(JSON.parse(new_document));
+        await DocumentManager.afterChangePage();
+      })], true);
     });
   }
 }));
@@ -139,9 +184,18 @@ ToolManager.addTool(new Tool('module-page', 'tool-tooltip-module-page', 'mdi-vie
     await Engine.prompt(Engine, 'prompt-title-module-page', [
         Language.get(Language.Type.ToolTip, 'prompt-tooltip-module-page-horizontal'),
         Language.get(Language.Type.ToolTip, 'prompt-tooltip-module-page-vertical')
-      ], [5, 5], function (text_array) {
-        DocumentManager.createModulePage(Number(text_array[0]), Number(text_array[1]),
+      ], [5, 5], async function (text_array) {
+        let old_document = JSON.stringify(DocumentManager.saveJson());
+        await DocumentManager.createModulePage(Number(text_array[0]), Number(text_array[1]),
           {'left': 0, 'right': 0, 'top': 0, 'bottom': 0});
+        let new_document = JSON.stringify(DocumentManager.saveJson());
+        await HistoryManager.push([new History(async function(){
+          DocumentManager.loadJson(JSON.parse(old_document));
+          await DocumentManager.afterChangePage();
+        }, async function(){
+          DocumentManager.loadJson(JSON.parse(new_document));
+          await DocumentManager.afterChangePage();
+        })], true);
       }
     );
   }

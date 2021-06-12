@@ -47,20 +47,25 @@ Object.defineProperty(PageArray.prototype, 'current_page', {
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------
-PageArray.prototype.addPage = function(index, page_id){
+PageArray.prototype.addAfterPage = function(index, page_id){
   this._page_list.splice(index, 0, page_id);
   this.setCurrentPage(index + 1);
 };
-PageArray.prototype.addAfterCurrentPage = function(page_id){
-  this.addPage(this._current_page, page_id);
-};
-PageArray.prototype.removeCurrentPage = function(){
-  if(this._page_list.length <= 0) return;
-  let page_id = this._page_list.splice(this._current_page - 1, 1)[0];
+PageArray.prototype.removePage = function(page_id){
+  let index = this._page_list.indexOf(page_id);
+  if(page_id < 0) return;
+  this._page_list.splice(index, 1);
   if(this._current_page > this._page_list.length){
     this.setCurrentPage(this._current_page);
   }
   return page_id;
+};
+// --------------------------------------------------------------------------------
+PageArray.prototype.addAfterCurrentPage = function(page_id){
+  this.addAfterPage(this._current_page, page_id);
+};
+PageArray.prototype.removeCurrentPage = function(){
+  return this.removePage(this.getCurrentPageId());
 };
 // --------------------------------------------------------------------------------
 PageArray.prototype.moveCurrentPageForward = function(){
