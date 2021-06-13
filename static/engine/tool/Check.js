@@ -28,11 +28,22 @@ Language.addDictionaryList([
 // * Register Tool
 // ================================================================================
 ToolManager.addTool(new Tool('update-element', 'tool-tooltip-update-element', 'mdi-upload', Tool.Slot.CHECK, {
-  on_click : function(){
+  on_click : async function(){
     let id = Engine.getApp().getRouterComponent().check_id;
     let info = Engine.getApp().getRouterComponent().check_info;
     if(!id || !info) return;
-    DocumentManager.updateElementWithUpdate(id.split(ElementManager.SAPARATOR)[0], id, info);
+
+    let old_document = JSON.stringify(DocumentManager.saveJson());
+    await DocumentManager.updateElement(id.split(ElementManager.SAPARATOR)[0], id, info);
+    let new_document = JSON.stringify(DocumentManager.saveJson());
+    await HistoryManager.push([new History(async function(){
+      DocumentManager.loadJson(JSON.parse(old_document));
+      await DocumentManager.afterChangePage();
+    }, async function(){
+      DocumentManager.loadJson(JSON.parse(new_document));
+      await DocumentManager.afterChangePage();
+    })], true);
+    DocumentManager.afterChangeElement();
   }
 }));
 // ================================================================================

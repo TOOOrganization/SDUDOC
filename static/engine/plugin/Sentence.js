@@ -46,13 +46,13 @@ Sentence.prototype.onAwake = function(){
 // * Update
 // --------------------------------------------------------------------------------
 Sentence.prototype.onUpdate = function(){
-
+  PolygonGroup.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Sentence.prototype.onRemove = function(){
-
+  PolygonGroup.prototype.onRemove.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Collide

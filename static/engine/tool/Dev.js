@@ -47,8 +47,17 @@ ToolManager.addTool(new Tool('auto-generate-book', 'tool-tooltip-auto-generate-b
         Language.get(Language.Type.ToolTip, 'prompt-tooltip-auto-generate-book')
       ], [null], async function (text_array) {
         if (text_array[0]) {
+          let old_document = JSON.stringify(DocumentManager.saveJson());
           await DocumentManager.generateDocumentByText(1750, 2479, 10, 16,
             {'left': 150, 'right': 150, 'top': 130, 'bottom': 130}, text_array[0]);
+          let new_document = JSON.stringify(DocumentManager.saveJson());
+          await HistoryManager.push([new History(async function(){
+            DocumentManager.loadJson(JSON.parse(old_document));
+            await DocumentManager.afterChangePage();
+          }, async function(){
+            DocumentManager.loadJson(JSON.parse(new_document));
+            await DocumentManager.afterChangePage();
+          })], true);
         }
       }
     );

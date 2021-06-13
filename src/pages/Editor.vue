@@ -519,17 +519,11 @@ export default {
             })], true);
           });
         }else if(file.name.endsWith('.sjs')){
-          await Engine.loadFile(Engine, file, async function (filename, src) {
-            let old_document = JSON.stringify(DocumentManager.saveJson());
-            await DocumentManager.load(filename, src);
-            let new_document = JSON.stringify(DocumentManager.saveJson());
-            await HistoryManager.push([new History(async function(){
-              DocumentManager.loadJson(JSON.parse(old_document));
-              await DocumentManager.afterChangePage();
-            }, async function(){
-              DocumentManager.loadJson(JSON.parse(new_document));
-              await DocumentManager.afterChangePage();
-            })], true);
+          await Engine.alert(Engine, 'alert-title-open-document', async function(){
+            await Engine.loadFile(Engine, file, async function (filename, src) {
+              await HistoryManager.clear();
+              await DocumentManager.load(filename, src);
+            });
           });
         }
       });

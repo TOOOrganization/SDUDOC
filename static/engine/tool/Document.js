@@ -21,6 +21,12 @@ Language.addDictionaryList([
       { id: 'en-us', text: ['Do you really want to create a new document? All unsaved data will be lost.'] }
     ]
   }, {
+    type: Language.Type.Text, id: 'alert-title-open-document', dictionary:[
+      { id: 'zh-cn', text: ['您确认要打开文档吗？未保存的数据将全部丢失。'] },
+      { id: 'zh-tw', text: ['您確認要打開文檔嗎？未保存的數據將全部丟失。'] },
+      { id: 'en-us', text: ['Do you really want to open document? All unsaved data will be lost.'] }
+    ]
+  }, {
     type: Language.Type.Text, id: 'prompt-title-new-document', dictionary:[
       { id: 'zh-cn', text: ['编辑文档信息'] },
       { id: 'zh-tw', text: ['編輯文檔信息'] },
@@ -78,6 +84,7 @@ Language.addDictionaryList([
 ToolManager.addTool(new Tool('new-document', 'tool-tooltip-new-document', 'mdi-file-plus-outline', Tool.Slot.DOCUMENT, {
   on_click: function(){
     Engine.alert(Engine, 'alert-title-new-document', function(){
+      HistoryManager.clear();
       DocumentManager.newDocument();
     });
   }
@@ -85,16 +92,28 @@ ToolManager.addTool(new Tool('new-document', 'tool-tooltip-new-document', 'mdi-f
 ToolManager.addTool(new Tool('edit-info', 'tool-tooltip-edit-header', 'mdi-circle-edit-outline', Tool.Slot.DOCUMENT, {
   on_click: function(){
     Engine.prompt(Engine, 'prompt-title-new-document', DocumentManager.getHeaderTooltip(), DocumentManager.getHeaderData(),
-      function(text_array){
-        DocumentManager.setHeaderData(text_array);
+      async function(text_array){
+        let old_document = JSON.stringify(DocumentManager.saveJson());
+        await DocumentManager.setHeaderData(text_array);
+        let new_document = JSON.stringify(DocumentManager.saveJson());
+        await HistoryManager.push([new History(async function(){
+          DocumentManager.loadJson(JSON.parse(old_document));
+          await DocumentManager.afterChangePage();
+        }, async function(){
+          DocumentManager.loadJson(JSON.parse(new_document));
+          await DocumentManager.afterChangePage();
+        })], true);
       }
     );
   }
 }));
 ToolManager.addTool(new Tool('open-json', 'tool-tooltip-open-document', 'mdi-file-outline', Tool.Slot.DOCUMENT, {
   on_click: async function(){
-    await Engine.readJson(Engine, function(filename, src){
-      DocumentManager.load(filename, src);
+    await Engine.alert(Engine, 'alert-title-open-document', async function(){
+      await Engine.readJson(Engine, async function(filename, src){
+        await HistoryManager.clear();
+        await DocumentManager.load(filename, src);
+      });
     });
   }
 }));

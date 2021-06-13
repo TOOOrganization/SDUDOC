@@ -46,13 +46,13 @@ Word.prototype.onAwake = function(){
 // * Update
 // --------------------------------------------------------------------------------
 Word.prototype.onUpdate = function(){
-
+  PolygonGroup.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Word.prototype.onRemove = function(){
-
+  PolygonGroup.prototype.onRemove.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Collide

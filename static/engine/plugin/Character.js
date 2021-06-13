@@ -100,18 +100,19 @@ Character.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Character.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 Character.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Character.prototype.onRemove = function(){
+  Element.prototype.onRemove.call(this);
   let polygon_object = ElementManager.getFilteredElement(Polygon2D.TAG, this._polygon);
   if(polygon_object) polygon_object.character = '';
   let word_object = ElementManager.getFilteredElement(Word.TAG, this._father);

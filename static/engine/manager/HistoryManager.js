@@ -38,6 +38,9 @@ HistoryManager.clear = function(){
   this._right_queue = [];
   this._temp_history_list = [];
 };
+HistoryManager.clearRight = function(){
+  this._right_queue = [];
+};
 // --------------------------------------------------------------------------------
 // * Functions
 // --------------------------------------------------------------------------------

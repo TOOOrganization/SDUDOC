@@ -85,18 +85,19 @@ Page.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Page.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 Page.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Page.prototype.onRemove = function(){
+  Element.prototype.onRemove.call(this);
   let dots = ElementManager.getFilteredElements(Dot2D.TAG);
   for(let id in dots){
     DocumentManager.removeElement(Dot2D.TAG, id);

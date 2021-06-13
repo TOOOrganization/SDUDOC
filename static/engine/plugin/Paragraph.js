@@ -46,13 +46,13 @@ Paragraph.prototype.onAwake = function(){
 // * Update
 // --------------------------------------------------------------------------------
 Paragraph.prototype.onUpdate = function(){
-
+  PolygonGroup.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Paragraph.prototype.onRemove = function(){
-
+  PolygonGroup.prototype.onRemove.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Collide

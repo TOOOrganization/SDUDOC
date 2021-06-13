@@ -150,18 +150,19 @@ Dot2D.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Dot2D.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 Dot2D.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Dot2D.prototype.onRemove = function(){
+  Element.prototype.onRemove.call(this);
   let lines = ElementManager.getFilteredElements(Line2D.TAG);
   for(let id in lines){
     if(lines[id].start === this._id || lines[id].end === this._id){

@@ -80,18 +80,19 @@ Polygon2D.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Polygon2D.prototype.onRemove = function(){
+  Element.prototype.onRemove.call(this);
   DocumentManager.removeElement(Character.TAG, this._character);
   this._character = '';
 };

@@ -202,7 +202,7 @@ DocumentManager.afterChangePage = async function(){
   let page_object = this.getCurrentPageObject();
   if(page_object){
     await Graphics.setImage(page_object.src);
-    this.getCurrentPageObject().setSize(Graphics.image.width, Graphics.image.height)
+    this.getCurrentPageObject().setSize(Graphics.image.width, Graphics.image.height);
   }else{
     Graphics.clearImage();
   }
@@ -467,7 +467,7 @@ DocumentManager.generateDocumentByText = async function(img_width, img_height, c
     ctx.restore();
 
     let data = canvas.toDataURL('image/jpeg');
-    await DocumentManager.addAfterCurrentPage(data, String(Math.random()) + '.jpg')
+    await DocumentManager.addAfterCurrentPage(String(Math.random()) + '.jpg', data);
 
     if(!book) book = ElementManager.makeElement(Book.TAG, [DocumentManager.getCurrentPageId()]);
     if(!article) article = ElementManager.makeElement(Article.TAG, [DocumentManager.getCurrentPageId()]);

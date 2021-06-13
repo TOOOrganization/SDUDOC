@@ -46,13 +46,13 @@ Book.prototype.onAwake = function(){
 // * Update
 // --------------------------------------------------------------------------------
 Book.prototype.onUpdate = function(){
-
+  PolygonGroup.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Book.prototype.onRemove = function(){
-
+  PolygonGroup.prototype.onRemove.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Collide

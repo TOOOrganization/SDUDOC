@@ -71,18 +71,19 @@ Line2D.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 Line2D.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 Line2D.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 Line2D.prototype.onRemove = function(){
+  Element.prototype.onRemove.call(this);
   let dots = ElementManager.getFilteredElements(Dot2D.TAG);
   for(let id in dots){
     if(dots[id].father === this._id || dots[id].father1 === this._id || dots[id].father2 === this._id){

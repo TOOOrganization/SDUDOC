@@ -45,6 +45,12 @@ Language.DEFAULT_DICTIONARY = [
       { id: 'en-us', text: ['Language'] }
     ]
   }, {
+    type: Language.Type.System, id: 'graphics-error', dictionary:[
+      { id: 'zh-cn', text: ['渲染时出现错误，已经为您自动回退到上一个可用版本，请将以下信息截图发送给开发者：'] },
+      { id: 'zh-tw', text: ['渲染時出現錯誤，已經為您自動回退到上一個可用版本，請將以下信息截圖發送給開發者：'] },
+      { id: 'en-us', text: ['An error occurred during rendering, and it has been automatically rolled back to the last available version for you. Please send a screenshot of the following information to the developer:'] }
+    ]
+  }, {
     type: Language.Type.System, id: 'app-alert-title', dictionary:[
       { id: 'zh-cn', text: ['提示'] },
       { id: 'zh-tw', text: ['提示'] },

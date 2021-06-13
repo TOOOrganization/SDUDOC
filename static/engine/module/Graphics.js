@@ -270,6 +270,17 @@ Graphics.update = function(){
 };
 // --------------------------------------------------------------------------------
 Graphics.refresh = function(){
+  try{
+    this.forceRefresh();
+  }catch(error){
+    HistoryManager.undo().then(r => {
+      HistoryManager.clearRight();
+      let text = Language.get(Language.Type.System, 'graphics-error');
+      Engine.alert(Engine, text + error.stack, function(){});
+    })
+  }
+};
+Graphics.forceRefresh = function(){
   if (!Engine.checkRouter('Editor')) return;
 
   if(!this._canvas) return;

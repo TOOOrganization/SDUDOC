@@ -91,19 +91,19 @@ PolygonGroup.prototype.newElement = function(){
 // * Add
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.onAwake = function(){
-
+  Element.prototype.onAwake.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Update
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.onUpdate = function(){
-
+  Element.prototype.onUpdate.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Remove
 // --------------------------------------------------------------------------------
 PolygonGroup.prototype.onRemove = function(){
-
+  Element.prototype.onRemove.call(this);
 };
 // --------------------------------------------------------------------------------
 // * Collide
