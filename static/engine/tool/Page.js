@@ -114,9 +114,9 @@ ToolManager.addTool(new Tool('new-page', 'tool-tooltip-new-page', 'mdi-card-plus
 ToolManager.addTool(new Tool('move-page-forward', 'tool-tooltip-move-page-forward', 'mdi-arrow-left-bold', Tool.Slot.PAGE, {
   on_click: async function() {
     if (DocumentManager.getCurrentPage() <= 0) return;
-    let old_document = JSON.stringify(this._page_array.saveJson());
+    let old_document = JSON.stringify(DocumentManager.page_array.saveJson());
     await DocumentManager.moveCurrentPageForward();
-    let new_document = JSON.stringify(this._page_array.saveJson());
+    let new_document = JSON.stringify(DocumentManager.page_array.saveJson());
     await HistoryManager.push([new History(async function(){
       DocumentManager.page_array.loadJson(JSON.parse(old_document));
       await DocumentManager.afterChangePage();
@@ -132,9 +132,9 @@ ToolManager.addTool(new Tool('move-page-set', 'tool-tooltip-move-page-set', 'mdi
     await Engine.prompt(Engine, 'prompt-title-move-page-set', [
         Language.get(Language.Type.ToolTip, 'prompt-tooltip-move-page-set')
       ], [DocumentManager.getCurrentPage()], async function(text_array) {
-        let old_document = JSON.stringify(this._page_array.saveJson());
+        let old_document = JSON.stringify(DocumentManager.page_array.saveJson());
         await DocumentManager.moveCurrentPageTo(Number(text_array[0]));
-        let new_document = JSON.stringify(this._page_array.saveJson());
+        let new_document = JSON.stringify(DocumentManager.page_array.saveJson());
         await HistoryManager.push([new History(async function(){
           DocumentManager.page_array.loadJson(JSON.parse(old_document));
           await DocumentManager.afterChangePage();
@@ -149,9 +149,9 @@ ToolManager.addTool(new Tool('move-page-set', 'tool-tooltip-move-page-set', 'mdi
 ToolManager.addTool(new Tool('move-page-backward', 'tool-tooltip-move-page-backward', 'mdi-arrow-right-bold', Tool.Slot.PAGE, {
   on_click: async function(){
     if (DocumentManager.getCurrentPage() <= 0) return;
-    let old_document = JSON.stringify(this._page_array.saveJson());
+    let old_document = JSON.stringify(DocumentManager.page_array.saveJson());
     await DocumentManager.moveCurrentPageBackward();
-    let new_document = JSON.stringify(this._page_array.saveJson());
+    let new_document = JSON.stringify(DocumentManager.page_array.saveJson());
     await HistoryManager.push([new History(async function(){
       DocumentManager.page_array.loadJson(JSON.parse(old_document));
       await DocumentManager.afterChangePage();
