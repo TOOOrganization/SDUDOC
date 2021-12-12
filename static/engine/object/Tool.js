@@ -20,12 +20,16 @@ function Tool(){
 // * Enum
 // --------------------------------------------------------------------------------
 Tool.Slot = {
-  DOCUMENT: 'document',
-  HISTORY: 'history',
   PLUGIN: 'plugin',
+
+  HISTORY: 'history',
+
+  DOCUMENT: 'document',
+
+  USER: 'user',
+  CLOUD: 'cloud',
   PAGE: 'page',
   CHECK: 'check',
-  USER: 'user',
   DEV: 'dev'
 };
 // --------------------------------------------------------------------------------

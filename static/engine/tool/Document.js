@@ -111,7 +111,7 @@ ToolManager.addTool(new Tool('open-json', 'tool-tooltip-open-document', 'mdi-fil
   on_click: async function(){
     await Engine.alert(Engine, 'alert-title-open-document', async function(){
       await Engine.readJson(Engine, async function(filename, src){
-        await HistoryManager.clear();
+        HistoryManager.clear();
         await DocumentManager.load(filename, src);
       });
     });

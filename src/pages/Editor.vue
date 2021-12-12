@@ -164,6 +164,17 @@
               </v-tooltip>
             </v-btn-toggle>
           </div>
+          <div class="mb-5 cloud-document-list">
+            <v-list nav dense>
+              <v-list-item-group mandatory color="primary" v-model="current_cloud_document">
+                <v-list-item v-for="(document, index) in cloud_document_list" :key="index" class="pa-2" @click="changeCloudDocument(index)">
+                  <v-list-item-content>
+                    {{document.filename}}
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
         </div>
       </div>
 
@@ -340,6 +351,9 @@ export default {
         value => (value && value.length >= 8) || (this.getText('password_min') || 'password_min'),
       ],
 
+      cloud_document_list: null,
+      current_cloud_document: -1,
+
       page_list: null,
       current_page: -1,
 
@@ -401,6 +415,9 @@ export default {
       }
       return index;
     },
+    changeCloudDocument(index){
+      CloudManager.openCloudDocument(index);
+    },
     changePage(index){
       DocumentManager.setCurrentPageIndex(index);
     },
@@ -410,6 +427,10 @@ export default {
     },
     setOptionData(json) {
       this.options      = json.options      === undefined ? this.options     : json.options;
+    },
+    setCloudDocumentData(json) {
+      this.cloud_document_list    = json.cloud_document_list    === undefined ? this.cloud_document_list   : json.cloud_document_list;
+      this.current_cloud_document = json.current_cloud_document === undefined ? this.current_cloud_document: json.current_cloud_document;
     },
     setPageData(json) {
       this.page_list    = json.page_list    === undefined ? this.page_list   : json.page_list;
@@ -422,11 +443,12 @@ export default {
     setTextData(json) {
       this.texts        = json.texts        === undefined ? this.texts       : json.texts;
     },
-    updateToolData()   { this.setToolData(Engine.getEditorToolData()); },
-    updateOptionData() { this.setOptionData(Engine.getEditorOptionData()); },
-    updatePageData()   { this.setPageData(Engine.getEditorPageData()); },
-    updateCheckData()  { this.setCheckData(Engine.getEditorCheckData()); },
-    updateTextData()   { this.setTextData(Engine.getEditorTextData()); },
+    updateToolData()          { this.setToolData(Engine.getEditorToolData()); },
+    updateOptionData()        { this.setOptionData(Engine.getEditorOptionData()); },
+    updateCloudDocumentData() { this.setCloudDocumentData(Engine.getEditorCloudDocumentData()); },
+    updatePageData()          { this.setPageData(Engine.getEditorPageData()); },
+    updateCheckData()         { this.setCheckData(Engine.getEditorCheckData()); },
+    updateTextData()          { this.setTextData(Engine.getEditorTextData()); },
     getText(id){
       return this.texts[id];
     },
@@ -435,13 +457,13 @@ export default {
     },
     async login() {
       if(this.user_username && this.user_password){
-        await HttpRequest.Login(this.user_username, this.user_password);
+        await HttpRequest.login(this.user_username, this.user_password);
       }
       this.checkLogin();
     },
     async logout() {
       if(localStorage.getItem(HttpRequest.TOKEN_KEY)){
-        await HttpRequest.Logout();
+        await HttpRequest.logout();
       }else{
         Engine.noticeHint(401);
       }
@@ -714,6 +736,16 @@ export default {
   position: absolute;
   right: 8px;
   bottom: 2px;
+}
+
+.cloud-document-list{
+  width: 100%;
+  background: white;
+  flex-grow: 1;
+  overflow-y: scroll;
+}
+.cloud-document-list::-webkit-scrollbar {
+  display:none
 }
 
 .page-list{

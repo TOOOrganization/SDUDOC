@@ -134,15 +134,19 @@ Language.addDictionaryList([
 // * Constant
 // --------------------------------------------------------------------------------
 HttpRequest.MAIN_SERVER_URL = 'http://localhost:7000';
-HttpRequest.SUB_SERVER_URL = 'null';
 // --------------------------------------------------------------------------------
 HttpRequest.TOKEN_KEY = 'token';
 // --------------------------------------------------------------------------------
 HttpRequest.OFFLINE_TEST = false;
 // --------------------------------------------------------------------------------
+// * Property
+// --------------------------------------------------------------------------------
+HttpRequest._sub_server_url = null;
+// --------------------------------------------------------------------------------
 // * Process
 // --------------------------------------------------------------------------------
 HttpRequest.processError = function(error){
+  console.log(error);
   Engine.progress(100);
   if (error.response) {
     if(Language.get(Language.Type.Notice, error.response.status)) {
@@ -153,9 +157,9 @@ HttpRequest.processError = function(error){
   } else {
     Engine.noticeWarning('request-failed');
   }
-  console.log(error);
 };
 HttpRequest.processResponse = function(response){
+  console.log(response);
   if(response.status !== 200){
     Engine.noticeWarning('request-failed');
     return false;
@@ -200,7 +204,7 @@ HttpRequest.postSub = function(cs_msg){
   };
   return Engine.getPackages().axios({
     method: 'post',
-    url: HttpRequest.SUB_SERVER_URL,
+    url: HttpRequest._sub_server_url,
     data: cs_msg,
     head: head,
     headers: headers,
@@ -208,7 +212,17 @@ HttpRequest.postSub = function(cs_msg){
   })
 };
 // --------------------------------------------------------------------------------
-HttpRequest.messageMain = function(cs_msg){
+HttpRequest.messageOffline = function(function_offline){
+  return new Promise((resolve) => {
+    Engine.progress(100);
+    Engine.noticeSuccess(200, true);
+    resolve(function_offline());
+  });
+}
+HttpRequest.messageMain = function(cs_msg, function_offline){
+  if(HttpRequest.OFFLINE_TEST) {
+    return HttpRequest.messageOffline(function_offline);
+  }
   return new Promise((resolve) => {
     HttpRequest.postMain(cs_msg).then(response => {
       Engine.progress(100);
@@ -223,7 +237,10 @@ HttpRequest.messageMain = function(cs_msg){
     });
   });
 };
-HttpRequest.messageSub = function(cs_msg){
+HttpRequest.messageSub = function(cs_msg, function_offline){
+  if(HttpRequest.OFFLINE_TEST || !HttpRequest._sub_server_url) {
+    return HttpRequest.messageOffline(function_offline);
+  }
   return new Promise((resolve) => {
     HttpRequest.postSub(cs_msg).then(response => {
       Engine.progress(100);
@@ -253,97 +270,81 @@ HttpRequest.msg_LOGIN_RSP = function(cs_msg, sc_msg){
 HttpRequest.msg_LOGOUT_RSP = function(cs_msg, sc_msg){
   localStorage.removeItem(HttpRequest.TOKEN_KEY);
 };
+HttpRequest.msg_NEW_PAGE_RSP = function(cs_msg, sc_msg){
+  return HttpRequest.MAIN_SERVER_URL + 'img/get_by_id?id=' + sc_msg.pic_id;
+};
+HttpRequest.msg_GET_CLOUD_DOCUMENT_LIST_RSP = function(cs_msg, sc_msg){
+  return sc_msg.cloud_document_list;
+};
+HttpRequest.msg_NEW_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
+
+};
+HttpRequest.msg_OPEN_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
+  HttpRequest._sub_server_url = 'http://localhost:' + sc_msg.port;
+  HistoryManager.clear();
+  DocumentManager._filename = sc_msg.filename;
+  DocumentManager.loadJson(sc_msg.document);
+  DocumentManager.afterChangePage();
+};
+HttpRequest.msg_CLOSE_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
+
+};
 // --------------------------------------------------------------------------------
 // * Process Message
 // --------------------------------------------------------------------------------
-HttpRequest.Login = function(username, password){
+HttpRequest.login = function(username, password){
   return HttpRequest.messageMain({
     msg_id: 'LOGIN_REQ',
     username: username,
     password: password,
+  }, function(){
+    localStorage.setItem(HttpRequest.TOKEN_KEY, username);
   });
 };
-HttpRequest.Logout = function(username, password){
+HttpRequest.logout = function(username, password){
   return HttpRequest.messageMain({
     msg_id: 'LOGOUT_REQ',
+  }, function(){
+    localStorage.removeItem(HttpRequest.TOKEN_KEY);
   });
 };
+HttpRequest.getCloudDocumentList = function(){
+  return HttpRequest.messageMain({
+    msg_id: 'GET_CLOUD_DOCUMENT_LIST_REQ',
+  }, function(){
+    return null;
+  });
+};
+HttpRequest.newCloudDocument = function(){
+  return HttpRequest.messageMain({
+    msg_id: 'NEW_CLOUD_DOCUMENT_REQ',
+  }, function(){
+    return null;
+  });
+};
+HttpRequest.openCloudDocument = function(filename){
+  return HttpRequest.messageMain({
+    msg_id: 'OPEN_CLOUD_DOCUMENT_REQ',
+    filename: filename,
+  }, function(){
+    return null;
+  });
+};
+HttpRequest.closeCloudDocument = function(filename){
+  return HttpRequest.messageMain({
+    msg_id: 'CLOSE_CLOUD_DOCUMENT_REQ',
+  }, function(){
+    return null;
+  });
+};
+// --------------------------------------------------------------------------------
 HttpRequest.uploadWebPage = function(filename, src){
-  return new Promise((resolve) => {
-    if(HttpRequest.OFFLINE_TEST) {
-      resolve(src);
-      return;
-    }
-    HttpRequest.postJson('img/save_by_base64', {
-      base64 : src,
-      filename: filename
-    }).then(response => {
-      if(HttpRequest.processResponse(response)){
-        let src_link = HttpRequest.BASE_URL + 'img/get_by_id?id=' + response.data.data;
-        resolve(src_link);
-      }else{
-        resolve();
-      }
-    }).catch(error => {
-      HttpRequest.processError(error);
-      resolve();
-    });
-  });
-};
-
-HttpRequest.upLoadDocument = function(json){
-  return new Promise((resolve) => {
-    HttpRequest.postJsonWithHead('doc/insert_sdudoc', json).then(response => {
-      HttpRequest.processResponse(response);
-      Engine.progress(100);
-      resolve();
-    }).catch(error => {
-      HttpRequest.processError(error);
-      resolve();
-    });
-  });
-};
-// --------------------------------------------------------------------------------
-// * Unused
-// --------------------------------------------------------------------------------
-HttpRequest.loadCloudDocument = async function(token, index){
-  await new Promise((resolve) => {
-    Engine.getPackages().axios({
-      method: 'post',
-      url: HttpRequest.BASE_URL + 'img/save_by_base64',
-      data: {
-        token: token,
-        index: index
-      },
-      headers: {'content-type': 'application/json'},
-      responseType: 'json'
-    }).then(response => {
-      resolve(response.data);
-    }).catch(error => {
-      console.log(error);
-      resolve(null);
-    });
-  });
-};
-HttpRequest.saveCloudDocument = async function(token, index, filename, src){
-  await new Promise((resolve) => {
-    Engine.getPackages().axios({
-      method: 'post',
-      url: HttpRequest.BASE_URL + 'img/save_by_base64',
-      data: {
-        token: token,
-        index: index,
-        base64 : src,
-        filename: filename
-      },
-      headers: {'content-type': 'application/json'},
-      responseType: 'json'
-    }).then(response => {
-      resolve(response.data);
-    }).catch(error => {
-      console.log(error);
-      resolve(null);
-    });
+  return HttpRequest.messageSub({
+    msg_id: 'NEW_PAGE_REQ',
+    base64 : src,
+    filename: filename,
+  }, function(){
+    return src;
   });
 };
 // ================================================================================

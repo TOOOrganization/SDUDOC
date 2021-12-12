@@ -48,10 +48,11 @@ EngineLoader.OBJECT_LIST = [
 EngineLoader.MANAGER_LIST = [
   'ElementManager', 'HistoryManager', 'ColorManager',
   'DocumentManager', 'RenderManager', 'CollideManager',
-  'ToolManager', 'SelectManager', 'OptionManager'
+  'ToolManager', 'SelectManager', 'OptionManager',
+  'CloudManager'
 ];
 EngineLoader.TOOL_LIST = [
-  "Page", "History", "Document", "Check", "Dev"
+  'History', 'Document', 'Cloud', 'Page', 'Check', 'Dev'
 ];
 EngineLoader.PLUGIN_LIST = require('../../static/engine/plugins.json').PLUGIN_LIST;
 // --------------------------------------------------------------------------------

@@ -205,16 +205,22 @@ Engine.getEditorOptionData = function(){
     options: OptionManager.getOptionList(),
   };
 };
+Engine.getEditorCloudDocumentData = function(){
+  return {
+    cloud_document_list: CloudManager.getCloudDocumentList(),
+    current_cloud_document: CloudManager.getCurrentCloudDocument() - 1,
+  };
+};
 Engine.getEditorPageData = function(){
   return {
     page_list: DocumentManager.getPageList(),
-    current_page: DocumentManager.getCurrentPage() - 1
+    current_page: DocumentManager.getCurrentPage() - 1,
   };
 };
 Engine.getEditorCheckData = function(){
   return {
     check_id: SelectManager.getSelectedId(),
-    check_info: SelectManager.extractElementObject(SelectManager.getSelectedObject())
+    check_info: SelectManager.extractElementObject(SelectManager.getSelectedObject()),
   };
 };
 Engine.getEditorTextData = function(){
@@ -243,6 +249,7 @@ Engine.getEditorTextData = function(){
 Engine.updateEditorData = function(){
   this.updateEditorToolData();
   this.updateEditorOptionData();
+  this.updateEditorCloudDocumentData();
   this.updateEditorPageData();
   this.updateEditorCheckData();
   this.updateEditorTextData();
@@ -256,6 +263,11 @@ Engine.updateEditorToolData = function(){
 Engine.updateEditorOptionData = function(){
   if(this.checkRouter('Editor')){
     this._app_element.getRouterComponent().updateOptionData();
+  }
+};
+Engine.updateEditorCloudDocumentData = function(){
+  if(this.checkRouter('Editor')){
+    this._app_element.getRouterComponent().updateCloudDocumentData();
   }
 };
 Engine.updateEditorPageData = function(){
@@ -306,6 +318,7 @@ Engine.initializeEditor = function(){
   MouseInput.initializeEditor(editor);
   Graphics.initializeEditor(editor);
   ToolManager.initializeEditor(editor);
+  CloudManager.initializeEditor(editor);
 };
 // --------------------------------------------------------------------------------
 Engine.createHandler = function(){
