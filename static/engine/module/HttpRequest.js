@@ -17,13 +17,7 @@ function HttpRequest() {
   throw new Error('This is a static class');
 }
 // --------------------------------------------------------------------------------
-// * Constant
-// --------------------------------------------------------------------------------
-HttpRequest.BASE_URL = 'http://211.87.232.197:8080/';
-// --------------------------------------------------------------------------------
-HttpRequest.TOKEN_KEY = 'zmw';
-// --------------------------------------------------------------------------------
-HttpRequest.OFFLINE_TEST = false;
+// * Language
 // --------------------------------------------------------------------------------
 Language.addDictionaryList([
   {
@@ -137,6 +131,15 @@ Language.addDictionaryList([
   }
 ]);
 // --------------------------------------------------------------------------------
+// * Constant
+// --------------------------------------------------------------------------------
+HttpRequest.MAIN_SERVER_URL = 'http://localhost:7000';
+HttpRequest.SUB_SERVER_URL = 'null';
+// --------------------------------------------------------------------------------
+HttpRequest.TOKEN_KEY = 'token';
+// --------------------------------------------------------------------------------
+HttpRequest.OFFLINE_TEST = false;
+// --------------------------------------------------------------------------------
 // * Process
 // --------------------------------------------------------------------------------
 HttpRequest.processError = function(error){
@@ -172,52 +175,99 @@ HttpRequest.processResponse = function(response){
 // --------------------------------------------------------------------------------
 // * Axios
 // --------------------------------------------------------------------------------
-HttpRequest.postJsonWithHead = function(url, json){
-  Engine.progressAuto();
-  let head = {};
-  let headers = {
-    'content-type': 'application/json'
-  };
-  head[HttpRequest.TOKEN_KEY] = localStorage.getItem(HttpRequest.TOKEN_KEY);
-  headers[HttpRequest.TOKEN_KEY] = localStorage.getItem(HttpRequest.TOKEN_KEY);
-  return Engine.getPackages().axios({
-    method: 'post',
-    url: HttpRequest.BASE_URL + url,
-    data: json,
-    head: head,
-    headers: headers,
-    responseType: 'json'
-  });
-};
-HttpRequest.postJson = function(url, json){
-  Engine.progressAuto();
-  let headers = {
-    'content-type': 'application/json'
-  };
-  headers[HttpRequest.TOKEN_KEY] = localStorage.getItem(HttpRequest.TOKEN_KEY);
-  return Engine.getPackages().axios({
-    method: 'post',
-    url: HttpRequest.BASE_URL + url,
-    data: json,
-    headers: headers,
-    responseType: 'json'
-  });
-};
-HttpRequest.post = function(url, json){
+HttpRequest.postMain = function(cs_msg){
   Engine.progressAuto();
   let head = {};
   head[HttpRequest.TOKEN_KEY] = localStorage.getItem(HttpRequest.TOKEN_KEY);
+  let headers = {
+    'content-type': 'application/json'
+  };
   return Engine.getPackages().axios({
     method: 'post',
-    url: HttpRequest.BASE_URL + url,
-    data: Engine.getPackages().qs.stringify(json),
+    url: HttpRequest.MAIN_SERVER_URL,
+    data: cs_msg,
     head: head,
+    headers: headers,
     responseType: 'json'
+  })
+};
+HttpRequest.postSub = function(cs_msg){
+  Engine.progressAuto();
+  let head = {};
+  head[HttpRequest.TOKEN_KEY] = localStorage.getItem(HttpRequest.TOKEN_KEY);
+  let headers = {
+    'content-type': 'application/json'
+  };
+  return Engine.getPackages().axios({
+    method: 'post',
+    url: HttpRequest.SUB_SERVER_URL,
+    data: cs_msg,
+    head: head,
+    headers: headers,
+    responseType: 'json'
+  })
+};
+// --------------------------------------------------------------------------------
+HttpRequest.messageMain = function(cs_msg){
+  return new Promise((resolve) => {
+    HttpRequest.postMain(cs_msg).then(response => {
+      Engine.progress(100);
+      if(HttpRequest.processResponse(response)){
+        resolve(HttpRequest.processMessage(cs_msg, response.data.sc_msg));
+      }else{
+        resolve();
+      }
+    }).catch(error => {
+      HttpRequest.processError(error);
+      resolve();
+    });
+  });
+};
+HttpRequest.messageSub = function(cs_msg){
+  return new Promise((resolve) => {
+    HttpRequest.postSub(cs_msg).then(response => {
+      Engine.progress(100);
+      if(HttpRequest.processResponse(response)){
+        resolve(HttpRequest.processMessage(cs_msg, response.data.sc_msg));
+      }else{
+        resolve();
+      }
+    }).catch(error => {
+      HttpRequest.processError(error);
+      resolve();
+    });
   });
 };
 // --------------------------------------------------------------------------------
-// * Functions
+// * Process Message
 // --------------------------------------------------------------------------------
+HttpRequest.processMessage = function(cs_msg, sc_msg){
+  let msg_id = sc_msg.msg_id;
+  let process_func = HttpRequest['msg_' + msg_id];
+  return (!process_func || typeof process_func !== 'function') ? {} : process_func(cs_msg, sc_msg);
+};
+// --------------------------------------------------------------------------------
+HttpRequest.msg_LOGIN_RSP = function(cs_msg, sc_msg){
+  localStorage.setItem(HttpRequest.TOKEN_KEY, sc_msg.token);
+};
+HttpRequest.msg_LOGOUT_RSP = function(cs_msg, sc_msg){
+  localStorage.removeItem(HttpRequest.TOKEN_KEY);
+};
+// --------------------------------------------------------------------------------
+// * Process Message
+// --------------------------------------------------------------------------------
+HttpRequest.Login = function(username, password){
+  return HttpRequest.messageMain({
+    msg_id: 'LOGIN_REQ',
+    username: username,
+    password: password,
+  });
+};
+HttpRequest.Logout = function(username, password){
+  return HttpRequest.messageMain({
+    msg_id: 'LOGOUT_REQ',
+  });
+};
 HttpRequest.uploadWebPage = function(filename, src){
   return new Promise((resolve) => {
     if(HttpRequest.OFFLINE_TEST) {
@@ -241,29 +291,6 @@ HttpRequest.uploadWebPage = function(filename, src){
   });
 };
 
-// --------------------------------------------------------------------------------
-HttpRequest.Login = function(username, password){
-  return new Promise((resolve) => {
-    HttpRequest.post('user/login', {
-      username: username,
-      password: password
-    }).then(response => {
-      if(HttpRequest.processResponse(response)){
-        let token = JSON.parse(response.data.data).token;
-        localStorage.setItem(HttpRequest.TOKEN_KEY, 'zmw' + token);
-      }
-      Engine.progress(100);
-      resolve();
-      // let data = response.data;
-      // console.log(response.data);
-      // localStorage.setItem('zmw', 'zmw' + JSON.parse(response.data.data).token);
-      // resolve(response.data);
-    }).catch(error => {
-      HttpRequest.processError(error);
-      resolve();
-    });
-  });
-};
 HttpRequest.upLoadDocument = function(json){
   return new Promise((resolve) => {
     HttpRequest.postJsonWithHead('doc/insert_sdudoc', json).then(response => {

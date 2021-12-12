@@ -68,7 +68,9 @@ ElementManager.removeElement = function(type, id){
 ElementManager.updateElement = function(type, id, json_object){
   if (!this.isElementExist(type, id)) return;
   for(let key in json_object) {
-    this._element_pool_dict[type][id][key] = json_object[key];
+    if(key.startsWith("_")){
+      this._element_pool_dict[type][id][key] = json_object[key];
+    }
   }
   this._element_pool_dict[type][id].onUpdate.call(this._element_pool_dict[type][id]);
 };

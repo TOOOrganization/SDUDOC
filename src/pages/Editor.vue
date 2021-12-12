@@ -439,9 +439,12 @@ export default {
       }
       this.checkLogin();
     },
-    logout() {
-      Engine.noticeSuccess(200);
-      localStorage.removeItem(HttpRequest.TOKEN_KEY);
+    async logout() {
+      if(localStorage.getItem(HttpRequest.TOKEN_KEY)){
+        await HttpRequest.Logout();
+      }else{
+        Engine.noticeHint(401);
+      }
       this.checkLogin();
     },
     setupResizeEvent: function (){
