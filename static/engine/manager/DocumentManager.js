@@ -147,7 +147,7 @@ DocumentManager.removePage = async function(page_id){
 }
 // --------------------------------------------------------------------------------
 DocumentManager.addAfterCurrentPage = async function(filename, src){
-  let request_src = await HttpRequest.uploadWebPage(filename, src);
+  let request_src = await HttpRequest.uploadWebPage(this.getCurrentPage(), filename, src, this.saveJson());
   if(!request_src) return;
   let page = ElementManager.makeElement(Page.TAG, request_src);
   this.addElement(Page.TAG, page);

@@ -164,6 +164,7 @@ HttpRequest.processResponse = function(response){
     Engine.noticeWarning('request-failed');
     return false;
   }else{
+    console.log(response.data);
     if(response.data.code === 200){
       Engine.noticeSuccess(200, true);
       return true;
@@ -277,7 +278,8 @@ HttpRequest.msg_GET_CLOUD_DOCUMENT_LIST_RSP = function(cs_msg, sc_msg){
   return sc_msg.cloud_document_list;
 };
 HttpRequest.msg_NEW_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
-
+  HttpRequest.msg_OPEN_CLOUD_DOCUMENT_RSP(cs_msg, sc_msg);
+  CloudManager.updateCloudDocumentData();
 };
 HttpRequest.msg_OPEN_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
   HttpRequest._sub_server_url = 'http://localhost:' + sc_msg.port;
@@ -290,7 +292,16 @@ HttpRequest.msg_CLOSE_CLOUD_DOCUMENT_RSP = function(cs_msg, sc_msg){
 
 };
 // --------------------------------------------------------------------------------
-// * Process Message
+HttpRequest.msg_SYNC_RSP = async function(cs_msg, sc_msg){
+  HistoryManager.clear();
+  DocumentManager.loadJson(sc_msg.document);
+  DocumentManager.afterChangePage();
+};
+HttpRequest.msg_NEW_PAGE_RSP = async function(cs_msg, sc_msg){
+  return sc_msg.src;
+};
+// --------------------------------------------------------------------------------
+// * Message
 // --------------------------------------------------------------------------------
 HttpRequest.login = function(username, password){
   return HttpRequest.messageMain({
@@ -315,9 +326,10 @@ HttpRequest.getCloudDocumentList = function(){
     return null;
   });
 };
-HttpRequest.newCloudDocument = function(){
+HttpRequest.newCloudDocument = function(filename){
   return HttpRequest.messageMain({
     msg_id: 'NEW_CLOUD_DOCUMENT_REQ',
+    filename: filename,
   }, function(){
     return null;
   });
@@ -333,16 +345,27 @@ HttpRequest.openCloudDocument = function(filename){
 HttpRequest.closeCloudDocument = function(filename){
   return HttpRequest.messageMain({
     msg_id: 'CLOSE_CLOUD_DOCUMENT_REQ',
+    filename: filename,
   }, function(){
     return null;
   });
 };
 // --------------------------------------------------------------------------------
-HttpRequest.uploadWebPage = function(filename, src){
+HttpRequest.sync = function(json){
+  return HttpRequest.messageSub({
+    msg_id: 'SYNC_REQ',
+    json: json,
+  }, function(){
+    return null;
+  });
+};
+HttpRequest.uploadWebPage = function(current_page, filename, src, json){
   return HttpRequest.messageSub({
     msg_id: 'NEW_PAGE_REQ',
-    base64 : src,
+    current_page: current_page,
+    base64: src,
     filename: filename,
+    json: json,
   }, function(){
     return src;
   });
